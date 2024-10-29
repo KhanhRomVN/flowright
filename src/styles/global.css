@@ -1,0 +1,184 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    @font-face {
+        font-family: "Geist";
+        font-weight: 100;
+
+        src: url("../assets/fonts/geist/Geist-Thin.woff2") format("woff2");
+    }
+    @font-face {
+        font-family: "Geist";
+        font-weight: 200;
+
+        src: url("../assets/fonts/geist/Geist-UltraLight.woff2") format("woff2");
+    }
+    @font-face {
+        font-family: "Geist";
+        font-weight: 300;
+
+        src: url("../assets/fonts/geist/Geist-Light.woff2") format("woff2");
+    }
+    @font-face {
+        font-family: "Geist";
+        font-weight: 400;
+        font-style: normal;
+
+        src: url("../assets/fonts/geist/Geist-Regular.woff2") format("woff2");
+    }
+    @font-face {
+        font-family: "Geist";
+        font-weight: 600;
+
+        src: url("../assets/fonts/geist/Geist-SemiBold.woff2") format("woff2");
+    }
+    @font-face {
+        font-family: "Geist";
+        font-weight: 700;
+
+        src: url("../assets/fonts/geist/Geist-Bold.woff2") format("woff2");
+    }
+    @font-face {
+        font-family: "Geist";
+        font-weight: 800;
+
+        src: url("../assets/fonts/geist/Geist-Black.woff2") format("woff2");
+    }
+    @font-face {
+        font-family: "Geist";
+        font-weight: 900;
+
+        src: url("../assets/fonts/geist/Geist-UltraBlack.woff2") format("woff2");
+    }
+}
+
+@layer base {
+    :root {
+        --background: #F5F5F5;
+        --foreground: #343131;
+
+        --card: #FAFAFA;
+        --card-foreground: #09090B;
+
+        --popover: #FFFFFF;
+        --popover-foreground: #09090B;
+
+        --primary: #146C94;
+
+        --secondary: #F4F4F5;
+        --secondary-foreground: #18181B;
+
+        --muted: #F4F4F5;
+        --muted-foreground: #71717A;
+
+        --accent: #F4F4F5;
+        --accent-foreground: #18181B;
+
+        --destructive: #EF4444;
+        --destructive-foreground: #FAFAFA;
+
+        --border: #E4E4E7;
+        --input: #E4E4E7;
+        --ring: #18181B;
+
+        --radius: 0.5rem;
+
+        --sidebar-primary: #146C94;
+        --sidebar-foreground: #FAFAFA;
+    }
+
+    .dark {
+        --background: #021526;
+        --foreground: #FFFBE6;
+
+        --card: #09090B;
+        --card-foreground: #FAFAFA;
+
+        --popover: #09090B;
+        --popover-foreground: #FAFAFA;
+
+        --primary: #19A7CE;
+
+        --secondary: #27272A;
+        --secondary-foreground: #FAFAFA;
+
+        --muted: #27272A;
+        --muted-foreground: #A1A1AA;
+
+        --accent: #27272A;
+        --accent-foreground: #FAFAFA;
+
+        --destructive: #7F1D1D;
+        --destructive-foreground: #FAFAFA;
+
+        --border: #27272A;
+        --input: #27272A;
+        --ring: #D4D4D8;
+
+        /* Sidebar */
+        --sidebar-primary: #010D18;
+        --sidebar-foreground: #FAFAFA;
+
+        /* Search Bar */
+        --search-bar-background: #010911;
+        --search-bar-outline: #B7B7B7;
+        --search-bar-outline-hover: #C4C4C4;
+        --search-bar-outline-focus: #19A7CE;
+        --search-bar-placeholder: #A1A1AA;
+
+        /* Button */
+        --button-background: #19A7CE;
+        --button-backgroundHover: #146C94;
+        --button-hover-1: #1c1b1bd1;
+        --button-hover-2: #1a1a1a;
+
+        --outline: #27272A;
+
+        /* Icon */
+        --icon-primary: #19A7CE;
+        --icon-secondary: #FAFAFA;
+
+        /* Table */
+        --table-header-background: #010D18;
+        --table-header-hover: #021526;
+        --table-body-background: #011f3d;
+        --table-body-hover: #021526;
+    }
+}
+
+@layer base {
+    * {
+        @apply m-0 border-border p-0 font-sans;
+    }
+    body {
+        @apply overflow-hidden bg-background text-foreground;
+    }
+    .draglayer {
+        @apply bg-background;
+        -webkit-app-region: drag;
+    }
+}
+
+@layer utilities {
+    /* Hide scrollbar for Chrome, Safari and Opera */
+    .hide-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+  
+    /* Hide scrollbar for IE, Edge and Firefox */
+    .hide-scrollbar {
+      -ms-overflow-style: none;  /* IE and Edge */
+      scrollbar-width: none;  /* Firefox */
+    }
+
+    .custom-scrollbar::-webkit-scrollbar {
+        width: 4px;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+        background-color: #157d9a;
+        border-radius: 10px;
+    }
+  }
