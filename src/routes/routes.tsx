@@ -1,23 +1,21 @@
+import React from "react";
 import { createRoute } from "@tanstack/react-router";
-import HomePage from "../pages/HomePage";
 import { RootRoute } from "./__root";
+// auth pages
 import LoginPage from "@/pages/LoginPage";
 import RegisterPage from "@/pages/RegisterPage";
-import SettingPage from "@/pages/SettingPage";
-import SwitchPage from "@/pages/SwitchPage";
+// layouts
 import BaseLayout from "@/layouts/BaseLayout";
 import MainLayout from "@/layouts/MainLayout";
-import React from "react";
-
-export const HomeRoute = createRoute({
-    getParentRoute: () => RootRoute,
-    path: "/",
-    component: () => (
-        <MainLayout>
-            <HomePage />
-        </MainLayout>
-    ),
-});
+// pages
+import DashboardPage from "../pages/DashboardPage";
+import TeamPage from "../pages/TeamPage";
+import MemberPage from "../pages/MemberPage";
+import ProjectPage from "../pages/ProjectPage";
+import TaskPage from "../pages/TaskPage";
+import CalendarPage from "../pages/CalendarPage";
+import SettingPage from "@/pages/SettingPage";
+import SwitchPage from "@/pages/SwitchPage";
 
 export const LoginRoute = createRoute({
     getParentRoute: () => RootRoute,
@@ -39,6 +37,68 @@ export const RegisterRoute = createRoute({
     ),
 });
 
+export const DashboardRoute = createRoute({
+    getParentRoute: () => RootRoute,
+    path: "/",
+    component: () => (
+        <MainLayout>
+            <DashboardPage />
+        </MainLayout>
+    ),
+});
+
+
+
+export const TeamRoute = createRoute({
+    getParentRoute: () => RootRoute,
+    path: "/team",
+    component: () => (
+        <MainLayout>
+            <TeamPage />
+        </MainLayout>
+    ),
+});
+
+export const MemberRoute = createRoute({
+    getParentRoute: () => RootRoute,
+    path: "/member",
+    component: () => (
+        <MainLayout>
+            <MemberPage />
+        </MainLayout>
+    ),
+});
+
+export const ProjectRoute = createRoute({
+    getParentRoute: () => RootRoute,
+    path: "/project",
+    component: () => (
+        <MainLayout>
+            <ProjectPage />
+        </MainLayout>
+    ),
+});
+
+export const TaskRoute = createRoute({
+    getParentRoute: () => RootRoute,
+    path: "/task",
+    component: () => (
+        <MainLayout>
+            <TaskPage />
+        </MainLayout>
+    ),
+});
+
+export const CalendarRoute = createRoute({
+    getParentRoute: () => RootRoute,
+    path: "/calendar",
+    component: () => (
+        <MainLayout>
+            <CalendarPage />
+        </MainLayout>
+    ),
+});
+
 export const SettingRoute = createRoute({
     getParentRoute: () => RootRoute,
     path: "/setting",
@@ -56,4 +116,15 @@ export const SwitchRoute = createRoute({
 });
 
 
-export const rootTree = RootRoute.addChildren([HomeRoute, LoginRoute, RegisterRoute, SettingRoute, SwitchRoute]);
+export const rootTree = RootRoute.addChildren([
+    DashboardRoute,
+    LoginRoute,
+    RegisterRoute,
+    TeamRoute,
+    MemberRoute,
+    ProjectRoute,
+    TaskRoute,
+    CalendarRoute,
+    SettingRoute,
+    SwitchRoute
+]);

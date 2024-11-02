@@ -54,6 +54,7 @@ module.exports = {
                 },
                 sidebar: {
                     primary: "var(--sidebar-primary)",
+                    secondary: "var(--sidebar-secondary)",
                     foreground: "var(--sidebar-foreground)",
                 },
                 searchBar: {
@@ -72,6 +73,11 @@ module.exports = {
                     redOpacity: "var(--red-button-opacity-background)",
                     yellowOpacity: "var(--yellow-button-opacity-background)",
                     purpleOpacity: "var(--purple-button-opacity-background)",
+                    blueBackground: "var(--blue-button-background)",
+                    greenBackground: "var(--green-button-background)",
+                    redBackground: "var(--red-button-background)",
+                    yellowBackground: "var(--yellow-button-background)",
+                    purpleBackground: "var(--purple-button-background)",
                 },
                 outline: "var(--outline)",
                 icon: {
