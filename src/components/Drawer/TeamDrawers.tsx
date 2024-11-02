@@ -46,10 +46,9 @@ export const BoardInfoDrawer: React.FC<DrawerProps> = ({
         open={isOpen}
         onClose={onClose}
         direction="right"
-        className="p-4"
         size={400}
     >
-        <div className="space-y-6">
+        <div className="space-y-6 bg-sidebar-primary h-full p-4">
             <div className="flex items-center justify-between">
                 <h2 className="text-xl font-bold">Board Information</h2>
                 <Button 
@@ -136,10 +135,9 @@ export const CompletedTasksDrawer: React.FC<DrawerProps> = ({
         open={isOpen}
         onClose={onClose}
         direction="right"
-        className="p-4"
         size={400}
     >
-        <div className="space-y-6">
+        <div className="space-y-6 bg-sidebar-primary h-full p-4">
             <div className="flex items-center justify-between">
                 <h2 className="text-xl font-bold">Completed Tasks</h2>
                 <Button 

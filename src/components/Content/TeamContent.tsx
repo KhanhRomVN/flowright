@@ -1,8 +1,5 @@
 import React from 'react';
-import { DndContext, DragOverlay, closestCorners } from '@dnd-kit/core';
-import { SortableContext, arrayMove } from '@dnd-kit/sortable';
 import { format } from 'date-fns';
-import Drawer from 'react-modern-drawer';
 import 'react-modern-drawer/dist/index.css';
 import {
     Card,
@@ -54,7 +51,7 @@ const fakeTeamTasks = [
     { id: 3, name: 'Task 3', description: 'Description 3', team_id: 1, members: [{ member_id: 5, name: 'Member 5' }, { member_id: 6, name: 'Member 6' }], priority: 'Low', start_date: '2024-01-11', end_date: '2024-01-15', status: 'in_progress', group: 'Group 2', link: [{ link_id: 1, link_name: 'Link 1', link_url: 'https://www.google.com' }] },
     { id: 4, name: 'Task 4', description: 'Description 4', team_id: 1, members: [{ member_id: 7, name: 'Member 7' }, { member_id: 8, name: 'Member 8' }], priority: 'Low', start_date: '2024-01-11', end_date: '2024-01-15', status: 'not_started', group: 'Group 1', link: [{ link_id: 1, link_name: 'Link 1', link_url: 'https://www.google.com' }] },
     { id: 5, name: 'Task 5', description: 'Description 5', team_id: 1, members: [{ member_id: 9, name: 'Member 9' }, { member_id: 10, name: 'Member 10' }], priority: 'Low', start_date: '2024-01-11', end_date: '2024-01-15', status: 'not_started', group: 'Group 2', link: [{ link_id: 1, link_name: 'Link 1', link_url: 'https://www.google.com' }] },
-    { id: 6, name: 'Task 6', description: 'Description 6', team_id: 1, members: [{ member_id: 11, name: 'Member 11' }, { member_id: 12, name: 'Member 12' }], priority: 'Low', start_date: '2024-01-11', end_date: '2024-01-15', status: 'in_progress', group: 'Group 2', link: [{ link_id: 1, link_name: 'Link 1', link_url: 'https://www.google.com' }] },
+    { id: 6, name: 'Task 6', description: 'Description 6', team_id: 1, members: [{ member_id: 11, name: 'Member 11' }, { member_id: 12, name: 'Member 12' }], priority: 'Low', start_date: '2024-01-11', end_date: '2024-01-15', status: 'completed', group: 'Group 2', link: [{ link_id: 1, link_name: 'Link 1', link_url: 'https://www.google.com' }] },
 ];
 
 // Member Management Dialog Component
