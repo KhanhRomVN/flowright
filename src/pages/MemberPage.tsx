@@ -1,8 +1,11 @@
 import React from 'react';
+import MemberContent from '../components/Content/MemberContent';
 
 const MemberPage = () => {
     return (
-        <div>MemberPage</div>
+        <div className="flex-1 h-screen overflow-y-auto custom-scrollbar">
+            <MemberContent />
+        </div>
     );
 };
 
