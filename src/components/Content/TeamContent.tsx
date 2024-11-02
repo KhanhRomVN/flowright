@@ -36,6 +36,10 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import TaskCard from '@/components/TaskCard';
+import { BoardInfoDrawer, CompletedTasksDrawer } from '@/components/Drawer/TeamDrawers';
+
+
 
 // Fake data for team members
 const fakeTeamMembers = [
@@ -45,9 +49,12 @@ const fakeTeamMembers = [
 ];
 
 const fakeTeamTasks = [
-    { id: 1, name: 'Task 1', description: 'Description 1', team_id: 1, members: [{ member_id: 1, name: 'Member 1' }, { member_id: 2, name: 'Member 2' }], priority: 'High', start_date: '2024-01-01', end_date: '2024-01-05', status: 'not_started', group: null, link: null, logs: [{ log_id: 1, log_name: 'Log 1', log_description: 'Log description 1' }] },
-    { id: 2, name: 'Task 2', description: 'Description 2', team_id: 1, members: [{ member_id: 3, name: 'Member 3' }, { member_id: 4, name: 'Member 4' }], priority: 'Medium', start_date: '2024-01-06', end_date: '2024-01-10', status: 'in_progress', group: "Group 1", link: [{ link_id: 1, link_name: 'Link 1', link_url: 'https://www.google.com' }], logs: [{ log_id: 1, log_name: 'Log 1', log_description: 'Log description 1' }, { log_id: 2, log_name: 'Log 2', log_description: 'Log description 2' }] },
-    { id: 3, name: 'Task 3', description: 'Description 3', team_id: 1, members: [{ member_id: 5, name: 'Member 5' }, { member_id: 6, name: 'Member 6' }], priority: 'Low', start_date: '2024-01-11', end_date: '2024-01-15', status: 'completed', group: 'Group 2', link: [{ link_id: 1, link_name: 'Link 1', link_url: 'https://www.google.com' }], logs: [{ log_id: 1, log_name: 'Log 1', log_description: 'Log description 1' }, { log_id: 2, log_name: 'Log 2', log_description: 'Log description 2' }] },
+    { id: 1, name: 'Task 1', description: 'Description 1', team_id: 1, members: [{ member_id: 1, name: 'Member 1' }, { member_id: 2, name: 'Member 2' }], priority: 'High', start_date: '2024-01-01', end_date: '2024-01-05', status: 'not_started', group: null, link: undefined, logs: [{ log_id: 1, log_name: 'Log 1', log_description: 'Log description 1' }] },
+    { id: 2, name: 'Task 2', description: 'Description 2', team_id: 1, members: [{ member_id: 3, name: 'Member 3' }, { member_id: 4, name: 'Member 4' }], priority: 'Medium', start_date: '2024-01-06', end_date: '2024-01-10', status: 'in_progress', group: "Group 1", link: [{ link_id: 1, link_name: 'Link 1', link_url: 'https://www.google.com' }] },
+    { id: 3, name: 'Task 3', description: 'Description 3', team_id: 1, members: [{ member_id: 5, name: 'Member 5' }, { member_id: 6, name: 'Member 6' }], priority: 'Low', start_date: '2024-01-11', end_date: '2024-01-15', status: 'in_progress', group: 'Group 2', link: [{ link_id: 1, link_name: 'Link 1', link_url: 'https://www.google.com' }] },
+    { id: 4, name: 'Task 4', description: 'Description 4', team_id: 1, members: [{ member_id: 7, name: 'Member 7' }, { member_id: 8, name: 'Member 8' }], priority: 'Low', start_date: '2024-01-11', end_date: '2024-01-15', status: 'not_started', group: 'Group 1', link: [{ link_id: 1, link_name: 'Link 1', link_url: 'https://www.google.com' }] },
+    { id: 5, name: 'Task 5', description: 'Description 5', team_id: 1, members: [{ member_id: 9, name: 'Member 9' }, { member_id: 10, name: 'Member 10' }], priority: 'Low', start_date: '2024-01-11', end_date: '2024-01-15', status: 'not_started', group: 'Group 2', link: [{ link_id: 1, link_name: 'Link 1', link_url: 'https://www.google.com' }] },
+    { id: 6, name: 'Task 6', description: 'Description 6', team_id: 1, members: [{ member_id: 11, name: 'Member 11' }, { member_id: 12, name: 'Member 12' }], priority: 'Low', start_date: '2024-01-11', end_date: '2024-01-15', status: 'in_progress', group: 'Group 2', link: [{ link_id: 1, link_name: 'Link 1', link_url: 'https://www.google.com' }] },
 ];
 
 // Member Management Dialog Component
@@ -237,115 +244,22 @@ const TeamContent: React.FC = () => {
         </Card>
     );
 
-    const BoardInfoDrawer = () => (
-        <Drawer
-            open={isInfoDrawerOpen}
-            onClose={() => setIsInfoDrawerOpen(false)}
-            direction="right"
-            className="p-4"
-            size={400}
-        >
-            <div className="space-y-6">
-                <div className="flex items-center justify-between">
-                    <h2 className="text-xl font-bold">Board Information</h2>
-                    <Button 
-                        variant="outlined"
-                        size="small"
-                        onClick={() => setIsInfoDrawerOpen(false)}
-                    >
-                        Close
-                    </Button>
-                </div>
-                
-                <div className="space-y-4">
-                    <div>
-                        <h3 className="font-medium mb-2">Statistics</h3>
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="bg-secondary p-3 rounded-lg">
-                                <p className="text-sm text-muted-foreground">Total Tasks</p>
-                                <p className="text-2xl font-bold">{tasks.length}</p>
-                            </div>
-                            <div className="bg-secondary p-3 rounded-lg">
-                                <p className="text-sm text-muted-foreground">Completed</p>
-                                <p className="text-2xl font-bold">{completedTasks.length}</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div>
-                        <h3 className="font-medium mb-2">Team Members</h3>
-                        <div className="space-y-2">
-                            {fakeTeamMembers.map(member => (
-                                <div key={member.id} className="flex items-center gap-2">
-                                    <Avatar className="w-8 h-8">
-                                        <AvatarImage src={member.avatar} />
-                                        <AvatarFallback>{member.name[0]}</AvatarFallback>
-                                    </Avatar>
-                                    <div>
-                                        <p className="text-sm font-medium">{member.name}</p>
-                                        <p className="text-xs text-muted-foreground">{member.role}</p>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-
-                    <Button
-                        variant="outlined"
-                        startIcon={<CheckSquare size={16} />}
-                        onClick={() => {
-                            setIsCompletedTasksDrawerOpen(true);
-                            setIsInfoDrawerOpen(false);
-                        }}
-                        fullWidth
-                    >
-                        View Completed Tasks
-                    </Button>
-                </div>
-            </div>
-        </Drawer>
-    );
-
-    const CompletedTasksDrawer = () => (
-        <Drawer
-            open={isCompletedTasksDrawerOpen}
-            onClose={() => setIsCompletedTasksDrawerOpen(false)}
-            direction="right"
-            className="p-4"
-            size={400}
-        >
-            <div className="space-y-6">
-                <div className="flex items-center justify-between">
-                    <h2 className="text-xl font-bold">Completed Tasks</h2>
-                    <Button 
-                        variant="outlined"
-                        size="small"
-                        onClick={() => setIsCompletedTasksDrawerOpen(false)}
-                    >
-                        Close
-                    </Button>
-                </div>
-                
-                <div className="space-y-4">
-                    {completedTasks.map(task => renderTaskCard(task))}
-                </div>
-            </div>
-        </Drawer>
-    );
 
     return (
         <div className="p-6">
             {/* First row: Title, Members, Add buttons */}
             <div className="flex justify-between items-center mb-4">
                 <div className="flex items-center gap-4">
-                    <h1 className="text-2xl font-bold">Team Tasks</h1>
+                    <h1 className="text-2xl font-bold">Team [1]</h1>
                     <div className="flex items-center gap-2">
-                        {fakeTeamMembers.slice(0, 3).map((member) => (
-                            <Avatar key={member.id} className="w-8 h-8">
-                                <AvatarImage src={member.avatar} />
-                                <AvatarFallback>{member.name[0]}</AvatarFallback>
-                            </Avatar>
-                        ))}
+                        <div className="flex -space-x-3">
+                            {fakeTeamMembers.slice(0, 3).map((member) => (
+                                <Avatar key={member.id} className="w-8 h-8 border-2 border-background">
+                                    <AvatarImage src={member.avatar} />
+                                    <AvatarFallback>{member.name[0]}</AvatarFallback>
+                                </Avatar>
+                            ))}
+                        </div>
                         <Dialog>
                             <DialogTrigger asChild>
                                 <Button variant="outlined" startIcon={<UserPlus size={16} />}>
@@ -365,8 +279,8 @@ const TeamContent: React.FC = () => {
                     <Button variant="contained" color="primary">Add Task</Button>
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                            <Button variant="outlined" size="small">
-                                <MoreVertical size={16} />
+                            <Button variant="outlined" className="p-4">
+                                <MoreVertical size={18}  />
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent>
@@ -385,10 +299,12 @@ const TeamContent: React.FC = () => {
 
             {/* Second row: Search and filters */}
             <div className="flex items-center gap-4 mb-6">
-                <div className="flex items-center gap-2 bg-secondary rounded-lg p-2">
-                    <Search className="w-4 h-4 text-muted-foreground" />
+                <div className="relative flex items-center">
+                    <div className="absolute left-3 text-gray-400">
+                        <Search className="w-4 h-4" />
+                    </div>
                     <Input
-                        className="border-0 bg-transparent w-40"
+                        className="w-64 pl-9 pr-4 h-10 bg-sidebar-primary transition-colors border-0 rounded-lg focus-visible:ring-1 focus-visible:ring-primary"
                         placeholder="Search tasks..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
@@ -416,35 +332,46 @@ const TeamContent: React.FC = () => {
 
             {/* Tasks content */}
             {viewMode === 'trello' ? (
-                <div className="flex gap-4 overflow-x-auto">
+                <div className="flex gap-4 overflow-x-auto ">
                     {groups.map(groupName => (
-                        <div 
-                            key={groupName}
-                            className="flex-shrink-0 w-80"
-                        >
-                            <div className="bg-secondary p-4 rounded-lg">
+                        <div key={groupName} className="flex-shrink-0 w-80">
+                            <div className="bg-sidebar-primary p-4 rounded-lg">
                                 <h2 className="font-semibold mb-4">{groupName}</h2>
                                 <div className="flex flex-col gap-3">
                                     {filteredTasks
                                         .filter(task => (task.group || 'Ungrouped') === groupName)
                                         .filter(task => task.status !== 'completed')
-                                        .map(renderTaskCard)}
+                                        .map(task => <TaskCard key={task.id} task={task} />)}
                                 </div>
                             </div>
                         </div>
                     ))}
                 </div>
             ) : (
-                <div className="flex flex-col gap-4">
+                <div className="flex flex-col gap-4 ">
                     {filteredTasks
                         .filter(task => task.status !== 'completed')
-                        .map(renderTaskCard)}
+                        .map(task => <TaskCard key={task.id} task={task} />)}
                 </div>
             )}
 
             {/* Drawers */}
-            <BoardInfoDrawer />
-            <CompletedTasksDrawer />
+            <BoardInfoDrawer
+                isOpen={isInfoDrawerOpen}
+                onClose={() => setIsInfoDrawerOpen(false)}
+                tasks={tasks}
+                completedTasks={completedTasks}
+                teamMembers={fakeTeamMembers}
+                onViewCompletedTasks={() => {
+                    setIsCompletedTasksDrawerOpen(true);
+                    setIsInfoDrawerOpen(false);
+                }}
+            />
+            <CompletedTasksDrawer
+                isOpen={isCompletedTasksDrawerOpen}
+                onClose={() => setIsCompletedTasksDrawerOpen(false)}
+                completedTasks={completedTasks}
+            />
         </div>
     );
 };
