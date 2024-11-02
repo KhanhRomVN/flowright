@@ -147,6 +147,11 @@
         --red-button-opacity-background: rgba(255, 0, 0, 0.3);
         --yellow-button-opacity-background: rgba(255, 255, 0, 0.3);
         --purple-button-opacity-background: rgba(128, 0, 128, 0.3);
+        --blue-button-background: #19A7CE;
+        --green-button-background: #16a34a;
+        --red-button-background: #dc2626;   
+        --yellow-button-background: #ca8a04; 
+        --purple-button-background: #9333ea; 
 
 
         --outline: #27272A;
@@ -182,8 +187,8 @@
     }
 
     .nav-menu {
-    @apply bg-transparent border-nav-border;
-}
+        @apply bg-transparent border-nav-border;
+    }
 }
 
 @layer utilities {
@@ -206,7 +211,7 @@
     }
 
     .custom-scrollbar::-webkit-scrollbar-thumb {
-        background-color: #157d9a;
-        border-radius: 10px;
+        background-color: #157d9a !important;
+        border-radius: 10px !important;
     }
 }

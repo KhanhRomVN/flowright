@@ -4,7 +4,8 @@ import 'react-modern-drawer/dist/index.css'
 import { User, Settings, LogOut, Maximize2, X, Minus, Search, Bell, Sun, Moon } from 'lucide-react';
 import { closeWindow, maximizeWindow, minimizeWindow } from "@/helpers/window_helpers";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-// Thêm fake data cho thông báo
+
+
 const fakeNotifications = [
     { id: 1, message: "Bạn có một tin nhắn mới", time: "5 phút trước" },
     { id: 2, message: "Dự án mới được chia sẻ", time: "1 giờ trước" },
@@ -26,7 +27,7 @@ function Navbar() {
                 <div className="relative">
                     <input
                         type="text"
-                        placeholder="Tìm kiếm..."
+                        placeholder="Search..."
                         className="w-64 pl-10 pr-4 py-1 rounded-sm bg-gray-800 focus:outline-none focus:ring-2"
                     />
                     <Search className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
@@ -135,11 +136,11 @@ function Navbar() {
 
 export default function MainLayout({ children }: { children: React.ReactNode }) {
     return (
-        <div className="flex flex-col h-screen">
+        <div className="flex flex-col ">
             <Navbar />
             <div className="flex flex-1">
                 <Sidebar />
-                <main className="flex-1 overflow-auto custom-scrollbar">
+                <main className="flex-1 ">
                     {children}
                 </main>
             </div>
