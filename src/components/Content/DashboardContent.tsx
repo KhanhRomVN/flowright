@@ -18,6 +18,7 @@ import {
     Calendar,
     Filter
 } from 'lucide-react';
+import TaskDrawer from '@/components/Drawer/TaskDrawer';
 
 const workingHoursPerDayOfWeekData = [
     { day: 2, month: 8, year: 2024, hours: 9 },
@@ -108,6 +109,8 @@ const announcementsData = [
 const DashboardContent: React.FC = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const [showFilters, setShowFilters] = useState(false);
+    const [isTaskDrawerOpen, setIsTaskDrawerOpen] = useState(false);
+
 
     const workingHoursData = [{
         id: "working hours",
@@ -118,8 +121,7 @@ const DashboardContent: React.FC = () => {
     }];
 
     const handleCreateTask = () => {
-        // Implement task creation logic
-        console.log('Creating new task...');
+        setIsTaskDrawerOpen(true);
     };
 
     const handleCreateProject = () => {
@@ -413,6 +415,10 @@ const DashboardContent: React.FC = () => {
                     </Card>
                 </div>
             </div>
+            <TaskDrawer 
+                open={isTaskDrawerOpen} 
+                onClose={() => setIsTaskDrawerOpen(false)} 
+            />
         </div>
     );
 };
