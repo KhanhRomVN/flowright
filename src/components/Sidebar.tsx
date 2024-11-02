@@ -21,9 +21,9 @@ const Sidebar: React.FC = () => {
         {[
           { title: 'Dashboard', icon: LayoutDashboard, bgColor: 'bg-blue-500', link: '/', notification: 0 },
           { title: 'Team', icon: Users, bgColor: 'bg-blue-500', link: '/team', notification: 11, teams: [
-            { name: 'Team 1', link: '/team/1', member: 10 },
-            { name: 'Team 2', link: '/team/2', member: 15 },
-            { name: 'Team 3', link: '/team/3', member: 20 },
+            { name: 'Team 1', link: '/team', member: 10 },
+            { name: 'Team 2', link: '/team', member: 15 },
+            { name: 'Team 3', link: '/team', member: 20 },
           ] },
           { title: 'Member', icon: UserCircle, bgColor: 'bg-green-500', link: '/member', notification: 0 },
           { title: 'Project', icon: FolderKanban, bgColor: 'bg-yellow-500', link: '/project', notification: 0, project: [
