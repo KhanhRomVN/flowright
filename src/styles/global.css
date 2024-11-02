@@ -9,18 +9,21 @@
 
         src: url("../assets/fonts/geist/Geist-Thin.woff2") format("woff2");
     }
+
     @font-face {
         font-family: "Geist";
         font-weight: 200;
 
         src: url("../assets/fonts/geist/Geist-UltraLight.woff2") format("woff2");
     }
+
     @font-face {
         font-family: "Geist";
         font-weight: 300;
 
         src: url("../assets/fonts/geist/Geist-Light.woff2") format("woff2");
     }
+
     @font-face {
         font-family: "Geist";
         font-weight: 400;
@@ -28,24 +31,28 @@
 
         src: url("../assets/fonts/geist/Geist-Regular.woff2") format("woff2");
     }
+
     @font-face {
         font-family: "Geist";
         font-weight: 600;
 
         src: url("../assets/fonts/geist/Geist-SemiBold.woff2") format("woff2");
     }
+
     @font-face {
         font-family: "Geist";
         font-weight: 700;
 
         src: url("../assets/fonts/geist/Geist-Bold.woff2") format("woff2");
     }
+
     @font-face {
         font-family: "Geist";
         font-weight: 800;
 
         src: url("../assets/fonts/geist/Geist-Black.woff2") format("woff2");
     }
+
     @font-face {
         font-family: "Geist";
         font-weight: 900;
@@ -93,8 +100,10 @@
         --background: #021526;
         --foreground: #FFFBE6;
 
+        /* Card */
         --card: #09090B;
         --card-foreground: #FAFAFA;
+        --blue-card-opacity-background: rgba(57, 75, 102, 0.3);
 
         --popover: #09090B;
         --popover-foreground: #FAFAFA;
@@ -133,6 +142,12 @@
         --button-backgroundHover: #146C94;
         --button-hover-1: #1c1b1bd1;
         --button-hover-2: #1a1a1a;
+        --blue-button-opacity-background: rgba(57, 75, 102, 0.3);
+        --green-button-opacity-background: rgba(102, 153, 136, 0.3);
+        --red-button-opacity-background: rgba(255, 0, 0, 0.3);
+        --yellow-button-opacity-background: rgba(255, 255, 0, 0.3);
+        --purple-button-opacity-background: rgba(128, 0, 128, 0.3);
+
 
         --outline: #27272A;
 
@@ -145,6 +160,10 @@
         --table-header-hover: #021526;
         --table-body-background: #011f3d;
         --table-body-hover: #021526;
+
+        /* Navigation transparency */
+        --nav-background: transparent;
+        --nav-border: rgba(255, 255, 255, 0.1);
     }
 }
 
@@ -152,25 +171,34 @@
     * {
         @apply m-0 border-border p-0 font-sans;
     }
+
     body {
         @apply overflow-hidden bg-background text-foreground;
     }
+
     .draglayer {
-        @apply bg-background;
+        @apply bg-transparent;
         -webkit-app-region: drag;
     }
+
+    .nav-menu {
+    @apply bg-transparent border-nav-border;
+}
 }
 
 @layer utilities {
+
     /* Hide scrollbar for Chrome, Safari and Opera */
     .hide-scrollbar::-webkit-scrollbar {
-      display: none;
+        display: none;
     }
-  
+
     /* Hide scrollbar for IE, Edge and Firefox */
     .hide-scrollbar {
-      -ms-overflow-style: none;  /* IE and Edge */
-      scrollbar-width: none;  /* Firefox */
+        -ms-overflow-style: none;
+        /* IE and Edge */
+        scrollbar-width: none;
+        /* Firefox */
     }
 
     .custom-scrollbar::-webkit-scrollbar {
@@ -181,4 +209,4 @@
         background-color: #157d9a;
         border-radius: 10px;
     }
-  }
+}

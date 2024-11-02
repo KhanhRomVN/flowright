@@ -50,6 +50,7 @@ module.exports = {
                 card: {
                     DEFAULT: "var(--card)",
                     foreground: "var(--card-foreground)",
+                    blueOpacity: "var(--blue-card-opacity-background)",
                 },
                 sidebar: {
                     primary: "var(--sidebar-primary)",
@@ -66,6 +67,11 @@ module.exports = {
                     background: "var(--button-background)",
                     backgroundHover: "var(--button-backgroundHover)",
                     hover1: "var(--button-hover-1)",
+                    blueOpacity: "var(--blue-button-opacity-background)",
+                    greenOpacity: "var(--green-button-opacity-background)",
+                    redOpacity: "var(--red-button-opacity-background)",
+                    yellowOpacity: "var(--yellow-button-opacity-background)",
+                    purpleOpacity: "var(--purple-button-opacity-background)",
                 },
                 outline: "var(--outline)",
                 icon: {

@@ -8,8 +8,9 @@ interface DragWindowRegionProps {
 
 export default function DragWindowRegion({ title }: DragWindowRegionProps) {
     return (
-        <div className="flex w-full items-center justify-between px-4 py-1">
-            <div className="draglayer flex flex-1 items-center">
+        <div className="flex w-full items-center justify-between px-4 py-1 bg-red-500/500">
+            <div className="draglayer flex flex-1 items-center bg-transparent">
+
                 <img
                     src="/src/assets/logos/logo-no-background.png"
                     alt="Logo"
@@ -53,7 +54,7 @@ function WindowButton({ onClick, icon, tooltip, hoverColor }: WindowButtonProps)
     return (
         <button
             onClick={onClick}
-            className={`rounded-sm ${hoverColorClass} hover:text-white focus:outline-none focus:ring-2 focus:ring-gray-300`}
+            className={`p-1 rounded-full ${hoverColorClass} hover:text-white focus:outline-none focus:ring-2 focus:ring-gray-300`}
             title={tooltip}
         >
             <span className="w-4 h-4 flex items-center justify-center">

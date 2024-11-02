@@ -5,9 +5,7 @@ import NavigationMenu from "@/components/NavigationMenu";
 export default function BaseLayout({ children }: { children: React.ReactNode }) {
     return (
         <>
-            <DragWindowRegion title="Soladal" />
-            <NavigationMenu />
-            <hr />
+            {/* <NavigationMenu /> */}
             <main>{children}</main>
         </>
     );

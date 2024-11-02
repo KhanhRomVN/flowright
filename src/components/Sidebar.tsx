@@ -111,7 +111,7 @@ const Sidebar: React.FC = () => {
   };
 
   return (
-    <aside className="w-80 bg-sidebar-primary p-2 flex flex-col justify-between">
+    <aside className="w-64 bg-sidebar-primary p-2 flex flex-col justify-between">
       {/* Top */}
       <div>
         <Button
