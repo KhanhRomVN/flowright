@@ -15,7 +15,7 @@ const Sidebar: React.FC = () => {
   };
 
   return (
-    <aside className="w-64 bg-sidebar-primary p-2 flex flex-col justify-between">
+    <aside className="w-64 bg-sidebar-primary p-2 flex flex-col justify-between h-screen">
       {/* Top section */}
       <div>
         {[
@@ -27,9 +27,9 @@ const Sidebar: React.FC = () => {
           ] },
           { title: 'Member', icon: UserCircle, bgColor: 'bg-green-500', link: '/member', notification: 0 },
           { title: 'Project', icon: FolderKanban, bgColor: 'bg-yellow-500', link: '/project', notification: 0, project: [
-            { name: 'Project 1', link: '/project/1', progress: 50 },
-            { name: 'Project 2', link: '/project/2', progress: 30 },
-            { name: 'Project 3', link: '/project/3', progress: 70 },
+            { name: 'Project 1', link: '/project', progress: 50 },
+            { name: 'Project 2', link: '/project', progress: 30 },
+            { name: 'Project 3', link: '/project', progress: 70 },
           ]},
           { title: 'Task', icon: CheckSquare, bgColor: 'bg-red-500', link: '/task', notification: 35 },
           { title: 'Calendar', icon: Calendar, bgColor: 'bg-purple-500', link: '/calendar', notification: 0 },
