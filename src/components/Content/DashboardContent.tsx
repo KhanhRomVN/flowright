@@ -1,14 +1,25 @@
-import React from 'react';
-import { ResponsiveLine } from '@nivo/line';
-import { ResponsiveCalendar } from '@nivo/calendar';
-import { Card, Typography, List, ListItem, ListItemText, Divider } from '@mui/material';
+import React, { useState } from 'react';
+import {
+    Card,
+    Typography,
+    List,
+    ListItem,
+    ListItemText,
+    LinearProgress
+} from '@mui/material';
 import { ResponsiveBar } from '@nivo/bar';
 import { Button } from '../ui/button';
-
+import {
+    Users,
+    Briefcase,
+    Bell,
+    Plus,
+    Search,
+    Calendar,
+    Filter
+} from 'lucide-react';
 
 const workingHoursPerDayOfWeekData = [
-    // day, month, year, hours
-    // day: 2 = Monday
     { day: 2, month: 8, year: 2024, hours: 9 },
     { day: 3, month: 8, year: 2024, hours: 7 },
     { day: 4, month: 8, year: 2024, hours: 8 },
@@ -16,18 +27,6 @@ const workingHoursPerDayOfWeekData = [
     { day: 6, month: 8, year: 2024, hours: 12 },
     { day: 7, month: 8, year: 2024, hours: 0 },
     { day: 8, month: 8, year: 2024, hours: 0 },
-];
-
-const entireWorkPlanForTheWeekData = [
-    { date: '02/08/2024', startTime: '10:00', endTime: '12:00', task: 'Design Website' },
-    { date: '02/08/2024', startTime: '15:00', endTime: '16:00', task: 'Meeting with client' },
-    { date: '03/08/2024', startTime: '13:00', endTime: '15:00', task: 'View Project' },
-    { date: '04/08/2024', startTime: '09:00', endTime: '11:00', task: 'Increase Productivity' },
-    { date: '05/08/2024', startTime: '10:00', endTime: '12:00', task: 'Design Filter' },
-    { date: '06/08/2024', startTime: '13:00', endTime: '15:00', task: 'Meeting with client' },
-    { date: '06/08/2024', startTime: '19:00', endTime: '20:00', task: 'Meeting with boss' },
-    { date: '07/08/2024', startTime: '09:00', endTime: '11:00', task: 'Design Website' },
-    { date: '08/08/2024', startTime: '10:00', endTime: '12:00', task: 'Meeting with client' },
 ];
 
 const mySpecialTasksData = [
@@ -51,25 +50,65 @@ const mySpecialTasksData = [
     },
 ];
 
-const myLogData = [
-    { id: 1, log_time: '02/08/2024', log_description: 'I worked 9 hours', created_at: '2024-08-02' },
-    { id: 2, log_time: '03/08/2024', log_description: 'I worked 7 hours', created_at: '2024-08-03' },
-    { id: 3, log_time: '04/08/2024', log_description: 'I worked 8 hours', created_at: '2024-08-04' },
+const teamOverviewData = {
+    totalMembers: 12,
+    activeProjects: 5,
+    onLeaveToday: 2,
+    newTasks: 8
+};
+
+const projectsData = [
+    {
+        name: 'Website Redesign',
+        progress: 75,
+        deadline: '2024-09-01',
+        teamMembers: ['John', 'Anna', 'Mike'],
+        status: 'in-progress',
+        priority: 'high'
+    },
+    {
+        name: 'Mobile App Development',
+        progress: 45,
+        deadline: '2024-10-15',
+        teamMembers: ['Sarah', 'Tom'],
+        status: 'in-progress',
+        priority: 'medium'
+    },
+    {
+        name: 'Database Migration',
+        progress: 90,
+        deadline: '2024-08-20',
+        teamMembers: ['David', 'Emma', 'Chris'],
+        status: 'in-progress',
+        priority: 'high'
+    }
 ];
 
-const monthlyAttendanceData = [
-    // day, month, year, is_attendance = true or false
-    { day: 1, month: 8, year: 2024, is_attendance: true },
-    { day: 2, month: 8, year: 2024, is_attendance: false },
-    { day: 3, month: 8, year: 2024, is_attendance: true },
-    { day: 4, month: 8, year: 2024, is_attendance: false },
-    { day: 5, month: 8, year: 2024, is_attendance: true },
-    { day: 6, month: 8, year: 2024, is_attendance: true },
-    { day: 7, month: 8, year: 2024, is_attendance: true },
-    { day: 8, month: 8, year: 2024, is_attendance: true },
+const announcementsData = [
+    {
+        title: 'Team Meeting',
+        date: '2024-08-10',
+        priority: 'high',
+        content: 'Meeting at 9:00 AM'
+    },
+    {
+        title: 'Deadline Project',
+        date: '2024-08-15',
+        priority: 'medium',
+        content: 'Deadline submit report for Website Redesign project'
+    },
+    {
+        title: 'Training session',
+        date: '2024-08-12',
+        priority: 'low',
+        content: 'Training at 2:00 PM'
+    }
 ];
 
 const DashboardContent: React.FC = () => {
+    const [searchQuery, setSearchQuery] = useState('');
+    const [showFilters, setShowFilters] = useState(false);
+
     const workingHoursData = [{
         id: "working hours",
         data: workingHoursPerDayOfWeekData.map(item => ({
@@ -78,168 +117,301 @@ const DashboardContent: React.FC = () => {
         }))
     }];
 
-    const attendanceData = monthlyAttendanceData.map(item => ({
-        day: `${item.year}-${String(item.month).padStart(2, '0')}-${String(item.day).padStart(2, '0')}`,
-        value: item.is_attendance ? 1 : 0
-    }));
+    const handleCreateTask = () => {
+        // Implement task creation logic
+        console.log('Creating new task...');
+    };
 
-    
+    const handleCreateProject = () => {
+        // Implement project creation logic
+        console.log('Creating new project...');
+    };
+
+    const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setSearchQuery(e.target.value);
+        // Implement search logic
+    };
+
+    const toggleFilters = () => {
+        setShowFilters(!showFilters);
+    };
 
     return (
-        <div className="flex gap-4 p-4 ">
-            {/* Left - 60% */}
-            <div className='w-[60%] flex flex-col gap-4'>
-                {/* Working Hours Chart */}
-                <Card>
-                    <div className='flex justify-between items-center p-2 bg-sidebar-primary'>
-                        <p className='text-lg text-white font-medium'>Activity</p>
-                    </div>
-                    <div style={{ height: '300px' }} className='bg-sidebar-primary'>
-                        <ResponsiveBar
-                            data={workingHoursPerDayOfWeekData}
-                            keys={['hours']}
-                            indexBy="day"
-                            margin={{ top: 50, right: 30, bottom: 40, left: 40 }}
-                            padding={0.3}
-                            valueScale={{ type: 'linear' }}
-                            colors={d => {
-                                switch (d.data.day) {
-                                    case 2: return 'var(--blue-button-background)';
-                                    case 3: return 'var(--green-button-background)';
-                                    case 4: return 'var(--red-button-background)';
-                                    case 5: return 'var(--yellow-button-background)';
-                                    case 6: return 'var(--purple-button-background)';
-                                    case 7: return '#ffffff';
-                                    case 8: return '#000000';
-                                    default: return '#ffffff';
-                                }
-                            }}
-                            borderRadius={8}
-                            axisBottom={{
-                                tickSize: 0,
-                                tickPadding: 10,
-                                tickRotation: 0,
-                                format: (value) => {
-                                    const dataPoint = workingHoursPerDayOfWeekData.find(d => d.day === value);
-                                    return dataPoint ? `${value.toString().padStart(2, '0')}/${dataPoint.month}` : '';
-                                }
-                            }}
-                            axisLeft={null}
-                            enableGridY={false}
-                            labelSkipWidth={0}
-                            labelSkipHeight={0}
-                            theme={{
-                                text: {
-                                    fill: '#ffffff',
-                                },
-                                axis: {
-                                    ticks: {
-                                        text: {
-                                            fill: '#ffffff'
-                                        }
-                                    }
-                                },
-                                grid: {
-                                    line: {
-                                        stroke: '#ffffff33'
-                                    }
-                                }
-                            }}
-                            enableLabel={true}
-                            label={d => `${d.value}h`}
-                            labelTextColor="#ffffff"
+        <div className="flex flex-col gap-4 pt-4 px-4 mb-20">
+            {/* Header with Search and Actions */}
+            <div className="flex justify-between items-center">
+                <div className="flex gap-4 items-center">
+                    <div className="relative w-64">
+                        <input
+                            type="text"
+                            placeholder="Search..."
+                            value={searchQuery}
+                            onChange={handleSearch}
+                            className="w-full px-4 py-2 rounded-lg border bg-sidebar-primary text-white"
                         />
+                        <Search className="absolute right-3 top-2.5 text-white" size={20} />
+                    </div>
+                    <Button
+                        variant="outline"
+                        onClick={toggleFilters}
+                        className="flex items-center gap-2"
+                    >
+                        <Filter size={16} />
+                        Filters
+                    </Button>
+                </div>
+                <div className="flex gap-2">
+                    <Button
+                        variant="outline"
+                        className="flex items-center gap-2"
+                        onClick={handleCreateTask}
+                    >
+                        <Plus size={16} />
+                        Tạo task
+                    </Button>
+                    <Button
+                        variant="outline"
+                        className="flex items-center gap-2"
+                        onClick={handleCreateProject}
+                    >
+                        <Plus size={16} />
+                        Tạo dự án
+                    </Button>
+                </div>
+            </div>
+
+            {/* Filters Panel */}
+            {showFilters && (
+                <Card className="p-4 bg-sidebar-primary text-white">
+                    <div className="grid grid-cols-4 gap-4">
+                        {/* Add your filter controls here */}
+                        <div>
+                            <Typography variant="subtitle2">Trạng thái</Typography>
+                            {/* Add status filter controls */}
+                        </div>
+                        <div>
+                            <Typography variant="subtitle2">Độ ưu tiên</Typography>
+                            {/* Add priority filter controls */}
+                        </div>
+                        <div>
+                            <Typography variant="subtitle2">Thành viên</Typography>
+                            {/* Add member filter controls */}
+                        </div>
+                        <div>
+                            <Typography variant="subtitle2">Thời gian</Typography>
+                            {/* Add date filter controls */}
+                        </div>
                     </div>
                 </Card>
+            )}
 
-                {/* Work Plan Grid */}
-                <Card className="p-4">
-                    <Typography variant="h6">Work Plan</Typography>
-                    <div className="mt-4">
-                        {entireWorkPlanForTheWeekData.map((event, index) => (
-                            <div
-                                key={index}
-                                className="mb-3 p-3 bg-gray-50 rounded hover:bg-gray-100 transition-colors"
-                            >
-                                <Typography variant="subtitle1" className="font-medium">
-                                    {event.task}
-                                </Typography>
-                                <Typography variant="body2" color="textSecondary">
-                                    {event.date} | {event.startTime} - {event.endTime}
-                                </Typography>
-                            </div>
-                        ))}
+            {/* Team Overview Cards */}
+            <div className="grid grid-cols-4 gap-4">
+                <Card>
+                    <div className="flex items-center gap-2 bg-sidebar-primary p-4 text-white">
+                        <Users size={24} />
+                        <div>
+                            <Typography variant="subtitle2">Total Members</Typography>
+                            <Typography variant="h4">{teamOverviewData.totalMembers}</Typography>
+                        </div>
+                    </div>
+                </Card>
+                <Card>
+                    <div className="flex items-center gap-2 bg-sidebar-primary p-4 text-white">
+                        <Briefcase size={24} />
+                        <div>
+                            <Typography variant="subtitle2">Active Projects</Typography>
+                            <Typography variant="h4">{teamOverviewData.activeProjects}</Typography>
+                        </div>
+                    </div>
+                </Card>
+                <Card>
+                    <div className="flex items-center gap-2 bg-sidebar-primary p-4 text-white">
+                        <Calendar size={24} />
+                        <div>
+                            <Typography variant="subtitle2">On Leave Today</Typography>
+                            <Typography variant="h4">{teamOverviewData.onLeaveToday}</Typography>
+                        </div>
+                    </div>
+                </Card>
+                <Card>
+                    <div className="flex items-center gap-2 bg-sidebar-primary p-4 text-white">
+                        <Bell size={24} />
+                        <div>
+                            <Typography variant="subtitle2">New Tasks</Typography>
+                            <Typography variant="h4">{teamOverviewData.newTasks}</Typography>
+                        </div>
                     </div>
                 </Card>
             </div>
 
-            {/* Right - 40% */}
-            <div className='w-[40%] flex flex-col gap-4'>
-                {/* Special Tasks */}
-                <Card>
-                    <div className='flex justify-between items-center p-2 bg-sidebar-primary'>
-                        <p className='text-lg text-white font-medium'>Special Tasks</p>
-                    </div>
-                    <List className='bg-sidebar-primary'>
-                        {mySpecialTasksData.map((task, index) => (
-                            <React.Fragment key={index}>
-                                <ListItem className='bg-sidebar-primary text-white border-b border-outline'>
+            {/* Main Content */}
+            <div className="flex gap-4">
+                {/* Left Column - 60% */}
+                <div className='w-[60%] flex flex-col gap-4'>
+                    {/* Working Hours Chart */}
+                    <Card>
+                        <div className='flex justify-between items-center p-2 bg-sidebar-primary'>
+                            <p className='text-lg text-white font-medium'>Activity</p>
+                        </div>
+                        <div style={{ height: '300px' }} className='bg-sidebar-primary'>
+                            <ResponsiveBar
+                                data={workingHoursPerDayOfWeekData}
+                                keys={['hours']}
+                                indexBy="day"
+                                margin={{ top: 50, right: 30, bottom: 40, left: 40 }}
+                                padding={0.3}
+                                valueScale={{ type: 'linear' }}
+                                colors={d => {
+                                    switch (d.data.day) {
+                                        case 2: return 'var(--blue-button-background)';
+                                        case 3: return 'var(--green-button-background)';
+                                        case 4: return 'var(--red-button-background)';
+                                        case 5: return 'var(--yellow-button-background)';
+                                        case 6: return 'var(--purple-button-background)';
+                                        case 7: return '#ffffff';
+                                        case 8: return '#000000';
+                                        default: return '#ffffff';
+                                    }
+                                }}
+                                borderRadius={8}
+                                axisBottom={{
+                                    tickSize: 0,
+                                    tickPadding: 10,
+                                    tickRotation: 0,
+                                    format: (value) => {
+                                        const dataPoint = workingHoursPerDayOfWeekData.find(d => d.day === value);
+                                        return dataPoint ? `${value.toString().padStart(2, '0')}/${dataPoint.month}` : '';
+                                    }
+                                }}
+                                axisLeft={null}
+                                enableGridY={false}
+                                labelSkipWidth={0}
+                                labelSkipHeight={0}
+                                theme={{
+                                    text: { fill: '#ffffff' },
+                                    axis: {
+                                        ticks: {
+                                            text: { fill: '#ffffff' }
+                                        }
+                                    },
+                                    grid: {
+                                        line: { stroke: '#ffffff33' }
+                                    }
+                                }}
+                                enableLabel={true}
+                                label={d => `${d.value}h`}
+                                labelTextColor="#ffffff"
+                            />
+                        </div>
+                    </Card>
+
+                    {/* Projects List */}
+                    <Card>
+                        <div className="flex justify-between items-center p-2 bg-sidebar-primary">
+                            <p className='text-lg text-white font-medium'>Projects List</p>
+                        </div>
+                        <div className="space-y-4 p-4 bg-sidebar-primary">
+                            {projectsData.map((project, index) => (
+                                <div key={index} className="p-4 bg-sidebar-secondary rounded-lg">
+                                    <div className="flex justify-between items-center mb-2">
+                                        <p className="text-white font-medium">
+                                            {project.name}
+                                        </p>
+                                        <div className="flex items-center gap-2">
+                                            <span className={`px-2 py-1 rounded text-xs ${project.priority === 'high'
+                                                    ? 'bg-red-100 text-red-800'
+                                                    : 'bg-yellow-100 text-yellow-800'
+                                                }`}>
+                                                {project.priority}
+                                            </span>
+                                            <p className="text-white">
+                                                Deadline: {project.deadline}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div className="mb-2">
+                                        <LinearProgress
+                                            variant="determinate"
+                                            value={project.progress}
+                                            className="h-2 rounded"
+                                        />
+                                    </div>
+                                    <div className="flex justify-between items-center">
+                                        <div className="flex -space-x-2">
+                                            {project.teamMembers.map((member, i) => (
+                                                <div
+                                                    key={i}
+                                                    className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white text-sm border-2 border-white"
+                                                >
+                                                    {member[0]}
+                                                </div>
+                                            ))}
+                                        </div>
+                                        <p className="text-white">
+                                            {project.progress}% completed
+                                        </p>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </Card>
+
+
+                </div>
+
+                {/* Right Column - 40% */}
+                <div className='w-[40%] flex flex-col gap-4'>
+                    {/* Announcements */}
+                    <Card>
+                        <div className='flex justify-between items-center p-2 bg-sidebar-primary'>
+                            <p className='text-lg text-white font-medium'>Thông báo</p>
+                        </div>
+                        <List className='bg-sidebar-primary'>
+                            {announcementsData.map((announcement, index) => (
+                                <ListItem key={index} className='bg-sidebar-primary text-white border-b border-outline'>
                                     <ListItemText
-                                        primary={task.taskName}
-                                        secondary={`${task.startTime} - ${task.endTime}: ${task.description}`}
+                                        primary={
+                                            <div className="flex items-center gap-2">
+                                                <span>{announcement.title}</span>
+                                                <span className={`px-2 py-0.5 rounded text-xs ${announcement.priority === 'high'
+                                                        ? 'bg-red-100 text-red-800'
+                                                        : announcement.priority === 'medium'
+                                                            ? 'bg-yellow-100 text-yellow-800'
+                                                            : 'bg-green-100 text-green-800'
+                                                    }`}>
+                                                    {announcement.priority}
+                                                </span>
+                                            </div>
+                                        }
+                                        secondary={`${announcement.date}: ${announcement.content}`}
                                         secondaryTypographyProps={{ style: { color: 'white' } }}
                                     />
                                 </ListItem>
-                            </React.Fragment>
-                        ))}
-                    </List>
-                </Card>
+                            ))}
+                        </List>
+                    </Card>
 
-                {/* Attendance Calendar */}
-                <Card className="p-4">
-    <Typography variant="h6">Monthly Attendance</Typography>
-    <div style={{ height: '200px' }}>
-        <ResponsiveCalendar
-            data={attendanceData}
-            from={`2024-08-01`}
-            to={`2024-08-31`}
-            emptyColor="#eeeeee"
-            colors={['#61cdbb']}
-            margin={{ top: 40, right: 40, bottom: 40, left: 40 }}
-            monthSpacing={0}
-            daySpacing={3}
-            dayBorderWidth={2}
-            dayBorderColor="#ffffff"
-            legends={[
-                {
-                    anchor: 'bottom-right',
-                    direction: 'row',
-                    translateY: 36,
-                    itemCount: 2,
-                    itemWidth: 42,
-                    itemHeight: 36,
-                    itemsSpacing: 14,
-                    itemDirection: 'right-to-left'
-                }
-            ]}
-        />
-    </div>
-</Card>
-
-                {/* Logs */}
-                <Card className="p-4">
-                    <Typography variant="h6">My Logs</Typography>
-                    <List>
-                        {myLogData.map((log) => (
-                            <ListItem key={log.id}>
-                                <ListItemText
-                                    primary={log.log_description}
-                                    secondary={log.log_time}
-                                />
-                            </ListItem>
-                        ))}
-                    </List>
-                </Card>
+                    {/* Special Tasks */}
+                    <Card>
+                        <div className='flex justify-between items-center p-2 bg-sidebar-primary'>
+                            <p className='text-lg text-white font-medium'>Special Tasks</p>
+                        </div>
+                        <List className='bg-sidebar-primary'>
+                            {mySpecialTasksData.map((task, index) => (
+                                <React.Fragment key={index}>
+                                    <ListItem className='bg-sidebar-primary text-white border-b border-outline'>
+                                        <ListItemText
+                                            primary={task.taskName}
+                                            secondary={`${task.startTime} - ${task.endTime}: ${task.description}`}
+                                            secondaryTypographyProps={{ style: { color: 'white' } }}
+                                        />
+                                    </ListItem>
+                                </React.Fragment>
+                            ))}
+                        </List>
+                    </Card>
+                </div>
             </div>
         </div>
     );

@@ -23,15 +23,7 @@ function Navbar() {
             </div>
 
             <div className="flex items-center gap-4 mr-4">
-                {/* Searchbar */}
-                <div className="relative">
-                    <input
-                        type="text"
-                        placeholder="Search..."
-                        className="w-64 pl-10 pr-4 py-1 rounded-sm bg-gray-800 focus:outline-none focus:ring-2"
-                    />
-                    <Search className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                </div>
+               
                 {/* Theme Toggle */}
                 <button
                     onClick={() => setIsDark(!isDark)}

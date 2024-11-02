@@ -54,6 +54,7 @@ module.exports = {
                 },
                 sidebar: {
                     primary: "var(--sidebar-primary)",
+                    secondary: "var(--sidebar-secondary)",
                     foreground: "var(--sidebar-foreground)",
                 },
                 searchBar: {
