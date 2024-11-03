@@ -1,5 +1,5 @@
 import React from 'react';
-import TaskContent from '../components/Content/TaskContent';
+import TaskContent from '../components/PageContent/TaskContent';
 
 const TaskPage = () => {
     return (

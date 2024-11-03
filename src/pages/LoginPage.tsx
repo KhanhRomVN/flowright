@@ -7,7 +7,7 @@ import { closeWindow, maximizeWindow, minimizeWindow } from "@/helpers/window_he
 import { Link } from '@tanstack/react-router';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-
+import WorkspaceDialog from '@/components/WorkspaceDialog';
 
 const LoginPage: React.FC = () => {
     const initialFormData = {
@@ -17,6 +17,7 @@ const LoginPage: React.FC = () => {
     const [formData, setFormData] = useState(initialFormData);
     const [error, setError] = useState('');
     const [showPassword, setShowPassword] = useState(false);
+    const [showWorkspaceDialog, setShowWorkspaceDialog] = useState(false);
 
 
     const inputFields = [
@@ -48,7 +49,7 @@ const LoginPage: React.FC = () => {
             const response = await axios.post(`${apiUrl}/auth/login`, formData);
             if (response.data.access_token) {
                 localStorage.setItem('access_token', response.data.access_token);
-                window.location.href = '/';
+                setShowWorkspaceDialog(true); // Show workspace dialog instead of redirecting
             }
         } catch (err: any) {
             const errorMessage = err.response?.data?.message || 'Login failed. Please try again.';
@@ -147,6 +148,10 @@ const LoginPage: React.FC = () => {
                     </form>
                 </div>
             </div>
+            <WorkspaceDialog 
+                isOpen={showWorkspaceDialog} 
+                onClose={() => setShowWorkspaceDialog(false)} 
+            />
         </div>
     );
 };
