@@ -57,7 +57,7 @@ const RegisterPage: React.FC = () => {
         setError('');
 
         try {
-            const response = await axios.post(`${apiUrl}/users`, formData);
+            const response = await axios.post(`${apiUrl}/auth/register`, formData);
 
             if (response.data) {
                 router.navigate({ to: '/login' });
