@@ -34,7 +34,7 @@ const RoleSetting: React.FC = () => {
     return (
         <div className="flex h-full gap-4">
             {/* Left - List Role */}
-            <Card className="w-1/3 p-4 bg-sidebar-primary">
+            <Card className="w-1/3 p-4 bg-sidebar-primary h-full">
                 <div className="flex justify-between items-center mb-4">
                     <h2 className="text-lg font-semibold text-white">Roles</h2>
                     <Button variant="outline" size="sm" className="flex items-center gap-2">
