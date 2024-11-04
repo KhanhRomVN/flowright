@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { apiUrl } from '@/api';
 import { _GET } from '@/utils/auth_api';
+import axios from 'axios';
 
 interface Workspace {
     id: number;
@@ -24,7 +23,6 @@ const WorkspaceDialog: React.FC<WorkspaceDialogProps> = ({ isOpen, onClose }) =>
         const fetchWorkspaces = async () => {
             try {
                 const response = await _GET(`/workspace-service/workspaces`);
-                console.log(response);
                 setWorkspaces(response);
             } catch (error) {
                 console.error('Error fetching workspaces:', error);
@@ -35,6 +33,20 @@ const WorkspaceDialog: React.FC<WorkspaceDialogProps> = ({ isOpen, onClose }) =>
             fetchWorkspaces();
         }
     }, [isOpen]);
+
+    const handleWorkspaceSelect = async (workspaceId: number) => {
+        try {
+            const response = await _GET(`/member-service/members/new-access-token/${workspaceId}`);
+            console.log(response);
+            if (response.access_token) {
+                localStorage.setItem('access_token', response.access_token);
+                window.location.href = '/';
+            }
+
+        } catch (error) {
+            console.error('Error fetching new access token:', error);
+        }
+    };
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
@@ -50,10 +62,7 @@ const WorkspaceDialog: React.FC<WorkspaceDialogProps> = ({ isOpen, onClose }) =>
                             <button
                                 key={workspace.id}
                                 className="p-4 text-left hover:bg-gray-100 rounded-lg transition-colors"
-                                onClick={() => {
-                                    // Handle workspace selection here
-                                    window.location.href = '/';
-                                }}
+                                onClick={() => handleWorkspaceSelect(workspace.id)}
                             >
                                 {workspace.name}
                             </button>

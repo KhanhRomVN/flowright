@@ -49,7 +49,7 @@ const LoginPage: React.FC = () => {
             const response = await axios.post(`${apiUrl}/auth/login`, formData);
             if (response.data.access_token) {
                 localStorage.setItem('access_token', response.data.access_token);
-                setShowWorkspaceDialog(true); // Show workspace dialog instead of redirecting
+                setShowWorkspaceDialog(true);
             }
         } catch (err: any) {
             const errorMessage = err.response?.data?.message || 'Login failed. Please try again.';

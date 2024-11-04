@@ -1,30 +1,44 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import RoleContent from '@/components/Content/RoleContent';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus, Search } from 'lucide-react';
+import { Loader2, Plus, Search } from 'lucide-react';
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { _GET } from '@/utils/auth_api';
 
-const fakeDataRoles = [
-    {
-        id: 1,
-        name: 'Admin',
-        description: 'Administrator role with full access to all features and settings.',
-        workspaceId: 5,
-    },
-    {
-        id: 2,
-        name: 'Developer',
-        description: 'Developer role with limited access to features and settings.',
-        workspaceId: 5,
-    }
-];
+interface Role {
+    id: number;
+    name: string;
+    description: string;
+    workspaceId: number;
+    isDefault: boolean;
+}
 
 const RoleSetting: React.FC = () => {
-    const [roles] = useState(fakeDataRoles);
-    const [selectedRole, setSelectedRole] = useState(roles[0]);
+    const [roles, setRoles] = useState<Role[]>([]);
+    const [selectedRole, setSelectedRole] = useState<Role | null>(null);
     const [searchQuery, setSearchQuery] = useState('');
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchRoles = async () => {
+            try {
+                setIsLoading(true);
+                const response = await _GET('/member-service/roles/workspace/roles');
+                console.log(response);
+                setRoles(response.content);
+                if (response.content.length > 0) {
+                    setSelectedRole(response.content[0]);
+                }
+                setIsLoading(false);
+            } catch (error) {
+                console.error('Error fetching roles:', error);
+            }
+        };
+
+        fetchRoles();
+    }, []);
 
     const filteredRoles = roles.filter(role =>
         role.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -32,10 +46,16 @@ const RoleSetting: React.FC = () => {
     );
 
     return (
-        <div className="flex h-full gap-4">
-            {/* Left - List Role */}
-            <Card className="w-1/3 p-4 bg-sidebar-primary h-full">
-                <div className="flex justify-between items-center mb-4">
+        <div className="flex h-full gap-4"> 
+            {isLoading ? (
+                <div className="flex-1 flex justify-center items-center">
+                    <Loader2 className="w-8 h-8 animate-spin" />
+                </div>
+            ) : (
+                <>
+                    {/* Left - List Role */}
+                    <Card className="w-1/3 p-4 bg-sidebar-primary h-full">
+                        <div className="flex justify-between items-center mb-4">
                     <h2 className="text-lg font-semibold text-white">Roles</h2>
                     <Button variant="outline" size="sm" className="flex items-center gap-2">
                         <Plus className="w-4 h-4" />
@@ -57,10 +77,11 @@ const RoleSetting: React.FC = () => {
                     {filteredRoles.map((role) => (
                         <div
                             key={role.id}
-                            className={`p-3 rounded-lg cursor-pointer transition-colors ${selectedRole.id === role.id
+                            className={`p-3 rounded-lg cursor-pointer transition-colors ${
+                                selectedRole?.id === role.id
                                     ? 'bg-primary text-white'
                                     : 'hover:bg-gray-700 text-gray-200'
-                                }`}
+                            }`}
                             onClick={() => setSelectedRole(role)}
                         >
                             <div className="flex items-center gap-3">
@@ -78,14 +99,16 @@ const RoleSetting: React.FC = () => {
                                 </div>
                             </div>
                         </div>
-                    ))}
-                </div>
-            </Card>
+                            ))}
+                        </div>
+                    </Card>
 
-            {/* Right - Role Content with tabUI */}
-            <div className="flex-1">
-                <RoleContent />
-            </div>
+                    {/* Right - Role Content with tabUI */}
+                    <div className="flex-1">
+                        <RoleContent selectedRoleId={selectedRole?.id ?? 0} />
+                    </div>
+                </>
+            )}
         </div>
     );
 };

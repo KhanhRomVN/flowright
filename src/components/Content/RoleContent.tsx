@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { UserPlus, Save } from 'lucide-react';
+import { _GET } from '@/utils/auth_api';
 
 // Types
 interface RoleDetail {
@@ -68,7 +69,7 @@ const projectPermissions = [
 
 const taskPermissions = [
     "create_task",
-    "view_task_info",
+    "view_task",
     "edit_task_info",
     "delete_task",
     "assign_task",
@@ -78,14 +79,6 @@ const taskPermissions = [
     "add_task_comment",
     "view_task_logs",
     "manage_task_dependencies"
-]
-
-const allPermissions = [
-    ...workspacePermissions,
-    ...memberPermissions,
-    ...teamPermissions,
-    ...projectPermissions,
-    ...taskPermissions,
 ]
 
 // Grouped permissions for UI display
@@ -112,27 +105,6 @@ const groupedPermissions = {
     }
 };
 
-// Developer role default permissions
-const fakeDeveloperRolePermission = [
-    // Task related
-    "view_task_info",
-    "edit_task_info",
-    "change_task_status",
-    "add_task_comment",
-
-    // Project related
-    "view_project_info",
-
-    // Team related
-    "view_team_info",
-
-    // Member related
-    "view_member_info",
-    "edit_member_info",
-
-    // Workspace related
-    "view_workspace_info"
-];
 
 const fakeRoleMembers: Member[] = [
     { id: 1, name: 'John Doe', email: 'john@example.com' },
@@ -147,10 +119,29 @@ const formatPermissionName = (permission: string): string => {
         .join(' ');
 };
 
-const RoleContent: React.FC = () => {
+const RoleContent: React.FC<{ selectedRoleId: number }> = ({ selectedRoleId }) => {
     const [roleDetails, setRoleDetails] = useState<RoleDetail>(fakeRoleDetail);
-    const [selectedPermissions, setSelectedPermissions] = useState<string[]>(fakeDeveloperRolePermission);
-    const [members] = useState<Member[]>(fakeRoleMembers);
+    const [selectedPermissions, setSelectedPermissions] = useState<string[]>([]);
+    const [members] = useState<Member[]>([
+        { id: 1, name: 'John Doe', email: 'john@example.com' },
+        { id: 2, name: 'Jane Smith', email: 'jane@example.com' },
+    ]);
+
+    useEffect(() => {
+        const fetchPermissions = async () => {
+            try {
+                const response = await _GET(`/member-service/role-permissions/roles/${selectedRoleId}/permissions`);
+
+                const permissions = response.map((perm: { name: string }) => perm.name);
+                console.log(permissions);
+                setSelectedPermissions(permissions);
+            } catch (error) {
+                console.error('Error fetching permissions:', error);
+            }
+        };
+
+        fetchPermissions();
+    }, [selectedRoleId]);
 
     const handlePermissionChange = (permission: string, checked: boolean) => {
         setSelectedPermissions(prev => {
@@ -168,14 +159,6 @@ const RoleContent: React.FC = () => {
 
     const handleSavePermissions = () => {
         console.log('Saving permissions:', selectedPermissions);
-    };
-
-    const handleAddMember = () => {
-        console.log('Adding new member');
-    };
-
-    const handleRemoveMember = (memberId: number) => {
-        console.log('Removing member:', memberId);
     };
 
     return (
@@ -223,7 +206,7 @@ const RoleContent: React.FC = () => {
                                                 }
                                             />
                                             <label className="text-sm">
-                                                {formatPermissionName(permission)}
+                                                {permission}
                                             </label>
                                         </div>
                                     ))}
@@ -238,7 +221,7 @@ const RoleContent: React.FC = () => {
 
                     <TabsContent value="members">
                         <div className="space-y-4">
-                            <Button variant="outline" className="w-full" onClick={handleAddMember}>
+                            <Button variant="outline" className="w-full" onClick={() => console.log('Adding new member')}>
                                 <UserPlus className="w-4 h-4 mr-2" />
                                 Add Member
                             </Button>
@@ -259,7 +242,7 @@ const RoleContent: React.FC = () => {
                                         <Button
                                             variant="destructive"
                                             size="sm"
-                                            onClick={() => handleRemoveMember(member.id)}
+                                            onClick={() => console.log('Removing member:', member.id)}
                                         >
                                             Remove
                                         </Button>
@@ -271,7 +254,6 @@ const RoleContent: React.FC = () => {
                 </Tabs>
             </Card>
         </div>
-
     );
 };
 
