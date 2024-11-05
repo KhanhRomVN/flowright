@@ -1,36 +1,41 @@
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
-import { LayoutDashboard, Users, UserCircle, FolderKanban, CheckSquare, Calendar } from "lucide-react";
+import { LayoutDashboard, Users, UserCircle, FolderKanban, CheckSquare, Calendar, Settings } from "lucide-react";
 import { Link } from "@tanstack/react-router";
+import { Avatar, AvatarFallback } from '@radix-ui/react-avatar';
 
 const Sidebar: React.FC = () => {
   const [expandedItems, setExpandedItems] = useState<string[]>([]);
 
   const toggleExpand = (title: string) => {
-    setExpandedItems(prev => 
-      prev.includes(title) 
+    setExpandedItems(prev =>
+      prev.includes(title)
         ? prev.filter(item => item !== title)
         : [...prev, title]
     );
   };
 
   return (
-    <aside className="w-64 bg-sidebar-primary p-2 flex flex-col justify-between h-screen">
+    <aside className="w-64 bg-sidebar-primary px-2 pt-2 pb-24 flex flex-col justify-between h-screen">
       {/* Top section */}
       <div>
         {[
           { title: 'Dashboard', icon: LayoutDashboard, bgColor: 'bg-blue-500', link: '/', notification: 0 },
-          { title: 'Team', icon: Users, bgColor: 'bg-blue-500', link: '/team', notification: 11, teams: [
-            { name: 'Team 1', link: '/team', member: 10 },
-            { name: 'Team 2', link: '/team', member: 15 },
-            { name: 'Team 3', link: '/team', member: 20 },
-          ] },
+          {
+            title: 'Team', icon: Users, bgColor: 'bg-blue-500', link: '/team', notification: 11, teams: [
+              { name: 'Team 1', link: '/team', member: 10 },
+              { name: 'Team 2', link: '/team', member: 15 },
+              { name: 'Team 3', link: '/team', member: 20 },
+            ]
+          },
           { title: 'Member', icon: UserCircle, bgColor: 'bg-green-500', link: '/member', notification: 0 },
-          { title: 'Project', icon: FolderKanban, bgColor: 'bg-yellow-500', link: '/project', notification: 0, project: [
-            { name: 'Project 1', link: '/project', progress: 50 },
-            { name: 'Project 2', link: '/project', progress: 30 },
-            { name: 'Project 3', link: '/project', progress: 70 },
-          ]},
+          {
+            title: 'Project', icon: FolderKanban, bgColor: 'bg-yellow-500', link: '/project', notification: 0, project: [
+              { name: 'Project 1', link: '/project', progress: 50 },
+              { name: 'Project 2', link: '/project', progress: 30 },
+              { name: 'Project 3', link: '/project', progress: 70 },
+            ]
+          },
           { title: 'Task', icon: CheckSquare, bgColor: 'bg-red-500', link: '/task', notification: 35 },
           { title: 'Calendar', icon: Calendar, bgColor: 'bg-purple-500', link: '/calendar', notification: 0 },
         ].map((item) => (
@@ -95,7 +100,22 @@ const Sidebar: React.FC = () => {
       </div>
 
       {/* Bottom section */}
-      <div className="mt-auto"></div>
+      <div className="mt-auto p-2 hover:bg-sidebar-secondary rounded-lg flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <Avatar>
+            <AvatarFallback className="bg-blue-500 p-1 rounded-sm" >JD</AvatarFallback>
+          </Avatar>
+          <div className="text-sm">
+            <p className="text-white font-medium">John Doe</p>
+            <p className="text-gray-400 text-xs">john.doe@example.com</p>
+          </div>
+        </div>
+        <Link to="/setting">
+          <Button variant="ghost" size="icon" className="hover:bg-button-hover1">
+            <Settings className="h-5 w-5 text-white" />
+          </Button>
+        </Link>
+      </div>
     </aside>
   );
 };

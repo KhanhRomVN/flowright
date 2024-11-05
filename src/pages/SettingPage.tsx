@@ -1,25 +1,15 @@
 import React, { useState } from 'react';
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import GeneralSettings from '@/components/ContentSetting/GeneralSettings';
-import IdentitySettings from '@/components/ContentSetting/IdentitySettings';
-import SecuritySettings from '@/components/ContentSetting/SecuritySettings';
-import ImportSettings from '@/components/ContentSetting/ImportSettings';
-import ExportSettings from '@/components/ContentSetting/ExportSettings';
-import SupportSettings from '@/components/ContentSetting/SupportSettings';
-import ProfileSettings from '@/components/ContentSetting/ProfileSetting';
+import RoleSetting from '@/components/ContentSetting/RoleSetting';
+import SpecializationSetting from '@/components/ContentSetting/SpecializationSetting';
 
 const SettingPage: React.FC = () => {
     const [activeTab, setActiveTab] = useState('general');
 
     const tabs = [
-        { id: 'general', label: 'General' },
-        { id: 'profile', label: 'Profile' },
-        { id: 'identity', label: 'Identity' },
-        { id: 'security', label: 'Security' },
-        { id: 'import', label: 'Import' },
-        { id: 'export', label: 'Export' },
-        { id: 'support', label: 'Support' },
+        { id: 'role', label: 'Role' },
+        { id: 'specialization', label: 'Specialization' },
     ];
 
     return (
@@ -55,13 +45,8 @@ const SettingPage: React.FC = () => {
 
             {/* TabUI Content */}
             <div className='p-4'>
-                {activeTab === 'general' && <GeneralSettings />}
-                {activeTab === 'identity' && <IdentitySettings />}
-                {activeTab === 'security' && <SecuritySettings />}
-                {activeTab === 'import' && <ImportSettings />}
-                {activeTab === 'export' && <ExportSettings />}
-                {activeTab === 'profile' && <ProfileSettings />}
-                {activeTab === 'support' && <SupportSettings />}
+                {activeTab === 'role' && <RoleSetting />}
+                {activeTab === 'specialization' && <SpecializationSetting />}
             </div>
         </div>
     );

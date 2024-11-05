@@ -5,7 +5,9 @@ import { apiUrl } from '@/api';
 import { Minus, Maximize2, X, Eye, EyeOff } from 'lucide-react';
 import { closeWindow, maximizeWindow, minimizeWindow } from "@/helpers/window_helpers";
 import { Link } from '@tanstack/react-router';
-
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import WorkspaceDialog from '@/components/WorkspaceDialog';
 
 const LoginPage: React.FC = () => {
     const initialFormData = {
@@ -15,6 +17,7 @@ const LoginPage: React.FC = () => {
     const [formData, setFormData] = useState(initialFormData);
     const [error, setError] = useState('');
     const [showPassword, setShowPassword] = useState(false);
+    const [showWorkspaceDialog, setShowWorkspaceDialog] = useState(false);
 
 
     const inputFields = [
@@ -43,15 +46,18 @@ const LoginPage: React.FC = () => {
         e.preventDefault();
         setError('');
         try {
-            console.log(formData);
             const response = await axios.post(`${apiUrl}/auth/login`, formData);
-            console.log(response.data);
             if (response.data.access_token) {
                 localStorage.setItem('access_token', response.data.access_token);
-                window.location.href = '/';
+                setShowWorkspaceDialog(true);
             }
-        } catch (err) {
-            setError('Login failed. Please check your credentials.');
+        } catch (err: any) {
+            const errorMessage = err.response?.data?.message || 'Login failed. Please try again.';
+            toast.error(errorMessage, {
+                position: "top-right",
+                autoClose: 3000,
+                theme: "dark",
+            });
             console.error('Login error:', err);
         }
     };
@@ -63,6 +69,7 @@ const LoginPage: React.FC = () => {
                 backgroundSize: 'cover',
                 backgroundPosition: 'center'
             }}>
+            <ToastContainer />
             {/* Custom Navbar */}
             <div className="flex w-full items-center justify-between pt-3 px-4 bg-transparent">
                 <p className="text-xl font-semibold text-gray-200">Flowright</p>
@@ -141,6 +148,10 @@ const LoginPage: React.FC = () => {
                     </form>
                 </div>
             </div>
+            <WorkspaceDialog 
+                isOpen={showWorkspaceDialog} 
+                onClose={() => setShowWorkspaceDialog(false)} 
+            />
         </div>
     );
 };

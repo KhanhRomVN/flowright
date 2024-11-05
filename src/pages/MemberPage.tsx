@@ -1,5 +1,5 @@
 import React from 'react';
-import MemberContent from '../components/Content/MemberContent';
+import MemberContent from '../components/PageContent/MemberContent';
 
 const MemberPage = () => {
     return (

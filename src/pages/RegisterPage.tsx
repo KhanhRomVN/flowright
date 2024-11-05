@@ -6,6 +6,9 @@ import { router } from "@/routes/router";
 import { closeWindow, maximizeWindow, minimizeWindow } from '@/helpers/window_helpers';
 import { Eye, EyeOff, Maximize2, Minus, X } from 'lucide-react';
 import { Link } from '@tanstack/react-router';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 
 const RegisterPage: React.FC = () => {
     const [formData, setFormData] = useState({
@@ -57,13 +60,23 @@ const RegisterPage: React.FC = () => {
         setError('');
 
         try {
-            const response = await axios.post(`${apiUrl}/users`, formData);
+            const response = await axios.post(`${apiUrl}/auth/register`, formData);
 
             if (response.data) {
+                toast.success('Registration successful!', {
+                    position: "top-right",
+                    autoClose: 3000,
+                    theme: "dark",
+                });
                 router.navigate({ to: '/login' });
             }
-        } catch (err) {
-            setError('Registration failed. Please try again.');
+        } catch (err: any) {
+            const errorMessage = err.response?.data?.message || 'Registration failed. Please try again.';
+            toast.error(errorMessage, {
+                position: "top-right",
+                autoClose: 3000,
+                theme: "dark",
+            });
             console.error('Registration error:', err);
         }
     };
@@ -75,6 +88,8 @@ const RegisterPage: React.FC = () => {
                 backgroundSize: 'cover',
                 backgroundPosition: 'center'
             }}>
+            <ToastContainer />
+
             {/* Add Custom Navbar */}
             <div className="flex w-full items-center justify-between pt-3 px-4 bg-transparent">
                 <p className="text-xl font-semibold text-gray-200">Flowright</p>

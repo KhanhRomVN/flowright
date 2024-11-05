@@ -4,6 +4,7 @@ import 'react-modern-drawer/dist/index.css'
 import { User, Settings, LogOut, Maximize2, X, Minus, Search, Bell, Sun, Moon } from 'lucide-react';
 import { closeWindow, maximizeWindow, minimizeWindow } from "@/helpers/window_helpers";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import NavigationMenu from "@/components/NavigationMenu";
 
 
 const fakeNotifications = [
@@ -129,6 +130,7 @@ function Navbar() {
 export default function MainLayout({ children }: { children: React.ReactNode }) {
     return (
         <div className="flex flex-col ">
+            <NavigationMenu />
             <Navbar />
             <div className="flex flex-1">
                 <Sidebar />
@@ -139,3 +141,4 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
         </div>
     );
 }
+
