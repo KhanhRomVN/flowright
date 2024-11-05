@@ -7,6 +7,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { UserPlus, Save } from 'lucide-react';
 import { _GET } from '@/utils/auth_api';
+import { Search } from 'lucide-react';
+import ChangeRoleDialog from '@/components/ChangeRoleDialog';
 
 // Types
 interface RoleDetail {
@@ -21,20 +23,12 @@ interface Member {
     email: string;
 }
 
-// Constants - Role Details
-const fakeRoleDetail: RoleDetail = {
-    id: 1,
-    name: 'Developer',
-    description: 'Standard developer role with access to development features.',
-};
-
-// Constants - Permissions
 const workspacePermissions = [
     "change_workspace_name",
     "view_workspace_info",
     "manage_workspace_settings",
     "delete_workspace"
-]
+];
 
 const memberPermissions = [
     "view_member_info",
@@ -43,7 +37,7 @@ const memberPermissions = [
     "remove_member",
     "manage_member_roles",
     "manage_member_specializations"
-]
+];
 
 const teamPermissions = [
     "create_team",
@@ -54,7 +48,7 @@ const teamPermissions = [
     "remove_team_member",
     "manage_team_leader",
     "view_team_logs"
-]
+];
 
 const projectPermissions = [
     "create_project",
@@ -65,7 +59,7 @@ const projectPermissions = [
     "manage_project_teams",
     "view_project_logs",
     "change_project_status"
-]
+];
 
 const taskPermissions = [
     "create_task",
@@ -79,7 +73,7 @@ const taskPermissions = [
     "add_task_comment",
     "view_task_logs",
     "manage_task_dependencies"
-]
+];
 
 // Grouped permissions for UI display
 const groupedPermissions = {
@@ -113,11 +107,19 @@ const formatPermissionName = (permission: string): string => {
         .join(' ');
 };
 
-const RoleContent: React.FC<{ selectedRoleId: number }> = ({ selectedRoleId }) => {
-    const [roleDetails, setRoleDetails] = useState<RoleDetail>(fakeRoleDetail);
+const RoleContent: React.FC<{ selectedRoleId: number; roleDetailsProps: RoleDetail }> = ({ selectedRoleId, roleDetailsProps }) => {
+    const [roleDetails, setRoleDetails] = useState<RoleDetail>(roleDetailsProps);
     const [selectedPermissions, setSelectedPermissions] = useState<string[]>([]);
     const [members, setMembers] = useState<Member[]>([]);
+    const [searchQuery, setSearchQuery] = useState('');
 
+    const [isChangeRoleDialogOpen, setChangeRoleDialogOpen] = useState(false);
+    const [selectedMemberId, setSelectedMemberId] = useState<number | null>(null);
+
+    const openChangeRoleDialog = (memberId: number) => {
+        setSelectedMemberId(memberId);
+        setChangeRoleDialogOpen(true);
+    };
 
     useEffect(() => {
         const fetchPermissions = async () => {
@@ -126,7 +128,7 @@ const RoleContent: React.FC<{ selectedRoleId: number }> = ({ selectedRoleId }) =
                 const responseMembers = await _GET(`/member-service/members/role/${selectedRoleId}`);
                 console.log(responseMembers);
                 const permissions = response.map((perm: { name: string }) => perm.name);
-                const members = responseMembers.map((member: { id: number, name: string, email: string }) => ({ id: member.id, name: member.name, email: member.email }));
+                const members = responseMembers.map((member: { id: number, username: string, email: string }) => ({ id: member.id, username: member.username, email: member.email }));
                 setSelectedPermissions(permissions);
                 setMembers(members);
             } catch (error) {
@@ -152,6 +154,12 @@ const RoleContent: React.FC<{ selectedRoleId: number }> = ({ selectedRoleId }) =
 
     const handleSavePermissions = () => {
     };
+
+    // Filter members based on search query
+    const filteredMembers = members.filter(member =>
+        member.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        member.email.toLowerCase().includes(searchQuery.toLowerCase())
+    );
 
     return (
         <div className="h-screen overflow-y-auto custom-scrollbar pb-56">
@@ -213,13 +221,18 @@ const RoleContent: React.FC<{ selectedRoleId: number }> = ({ selectedRoleId }) =
 
                     <TabsContent value="members">
                         <div className="space-y-4">
-                            <Button variant="outline" className="w-full">
-                                <UserPlus className="w-4 h-4 mr-2" />
-                                Add Member
-                            </Button>
+                            <div className="relative mb-4">
+                                <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                                <Input
+                                    placeholder="Search by username or email..."
+                                    className="pl-8"
+                                    value={searchQuery}
+                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                />
+                            </div>
 
                             <div className="space-y-2">
-                                {members.map((member) => (
+                                {filteredMembers.map((member) => (
                                     <div key={member.id} className="flex items-center justify-between p-3 rounded-lg bg-gray-800">
                                         <div className="flex items-center gap-3">
                                             <Avatar>
@@ -232,10 +245,11 @@ const RoleContent: React.FC<{ selectedRoleId: number }> = ({ selectedRoleId }) =
                                             </div>
                                         </div>
                                         <Button
-                                            variant="destructive"
+                                            variant="outline"
                                             size="sm"
+                                            onClick={() => openChangeRoleDialog(member.id)} // Open dialog with member ID
                                         >
-                                            Remove
+                                            Change Role
                                         </Button>
                                     </div>
                                 ))}
@@ -244,6 +258,12 @@ const RoleContent: React.FC<{ selectedRoleId: number }> = ({ selectedRoleId }) =
                     </TabsContent>
                 </Tabs>
             </Card>
+            <ChangeRoleDialog
+                isOpen={isChangeRoleDialogOpen}
+                onClose={() => setChangeRoleDialogOpen(false)}
+                currentRoleId={selectedRoleId} // Pass the current role ID
+                memberId={selectedMemberId!} // Pass the selected member ID
+            />
         </div>
     );
 };

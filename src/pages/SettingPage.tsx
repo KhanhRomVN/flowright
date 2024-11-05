@@ -2,12 +2,14 @@ import React, { useState } from 'react';
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import RoleSetting from '@/components/ContentSetting/RoleSetting';
+import SpecializationSetting from '@/components/ContentSetting/SpecializationSetting';
 
 const SettingPage: React.FC = () => {
     const [activeTab, setActiveTab] = useState('general');
 
     const tabs = [
         { id: 'role', label: 'Role' },
+        { id: 'specialization', label: 'Specialization' },
     ];
 
     return (
@@ -44,6 +46,7 @@ const SettingPage: React.FC = () => {
             {/* TabUI Content */}
             <div className='p-4'>
                 {activeTab === 'role' && <RoleSetting />}
+                {activeTab === 'specialization' && <SpecializationSetting />}
             </div>
         </div>
     );
