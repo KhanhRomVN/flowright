@@ -17,7 +17,7 @@ interface RoleDetail {
 
 interface Member {
     id: number;
-    name: string;
+    username: string;
     email: string;
 }
 
@@ -105,12 +105,6 @@ const groupedPermissions = {
     }
 };
 
-
-const fakeRoleMembers: Member[] = [
-    { id: 1, name: 'John Doe', email: 'john@example.com' },
-    { id: 2, name: 'Jane Smith', email: 'jane@example.com' },
-];
-
 // Helper function to format permission display name
 const formatPermissionName = (permission: string): string => {
     return permission
@@ -122,19 +116,19 @@ const formatPermissionName = (permission: string): string => {
 const RoleContent: React.FC<{ selectedRoleId: number }> = ({ selectedRoleId }) => {
     const [roleDetails, setRoleDetails] = useState<RoleDetail>(fakeRoleDetail);
     const [selectedPermissions, setSelectedPermissions] = useState<string[]>([]);
-    const [members] = useState<Member[]>([
-        { id: 1, name: 'John Doe', email: 'john@example.com' },
-        { id: 2, name: 'Jane Smith', email: 'jane@example.com' },
-    ]);
+    const [members, setMembers] = useState<Member[]>([]);
+
 
     useEffect(() => {
         const fetchPermissions = async () => {
             try {
                 const response = await _GET(`/member-service/role-permissions/roles/${selectedRoleId}/permissions`);
-
+                const responseMembers = await _GET(`/member-service/members/role/${selectedRoleId}`);
+                console.log(responseMembers);
                 const permissions = response.map((perm: { name: string }) => perm.name);
-                console.log(permissions);
+                const members = responseMembers.map((member: { id: number, name: string, email: string }) => ({ id: member.id, name: member.name, email: member.email }));
                 setSelectedPermissions(permissions);
+                setMembers(members);
             } catch (error) {
                 console.error('Error fetching permissions:', error);
             }
@@ -154,11 +148,9 @@ const RoleContent: React.FC<{ selectedRoleId: number }> = ({ selectedRoleId }) =
     };
 
     const handleSaveDetails = () => {
-        console.log('Saving role details:', roleDetails);
     };
 
     const handleSavePermissions = () => {
-        console.log('Saving permissions:', selectedPermissions);
     };
 
     return (
@@ -221,7 +213,7 @@ const RoleContent: React.FC<{ selectedRoleId: number }> = ({ selectedRoleId }) =
 
                     <TabsContent value="members">
                         <div className="space-y-4">
-                            <Button variant="outline" className="w-full" onClick={() => console.log('Adding new member')}>
+                            <Button variant="outline" className="w-full">
                                 <UserPlus className="w-4 h-4 mr-2" />
                                 Add Member
                             </Button>
@@ -231,18 +223,17 @@ const RoleContent: React.FC<{ selectedRoleId: number }> = ({ selectedRoleId }) =
                                     <div key={member.id} className="flex items-center justify-between p-3 rounded-lg bg-gray-800">
                                         <div className="flex items-center gap-3">
                                             <Avatar>
-                                                <AvatarImage src={`https://avatar.vercel.sh/${member.name}.png`} />
-                                                <AvatarFallback>{member.name[0]}</AvatarFallback>
+                                                <AvatarImage src={`https://avatar.vercel.sh/${member.username}.png`} />
+                                                <AvatarFallback>{member.username}</AvatarFallback>
                                             </Avatar>
                                             <div>
-                                                <p className="font-medium">{member.name}</p>
+                                                <p className="font-medium">{member.username}</p>
                                                 <p className="text-sm text-gray-400">{member.email}</p>
                                             </div>
                                         </div>
                                         <Button
                                             variant="destructive"
                                             size="sm"
-                                            onClick={() => console.log('Removing member:', member.id)}
                                         >
                                             Remove
                                         </Button>
