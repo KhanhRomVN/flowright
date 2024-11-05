@@ -26,7 +26,6 @@ const RoleSetting: React.FC = () => {
             try {
                 setIsLoading(true);
                 const response = await _GET('/member-service/roles/workspace/roles');
-                console.log(response);
                 setRoles(response.content);
                 if (response.content.length > 0) {
                     setSelectedRole(response.content[0]);
