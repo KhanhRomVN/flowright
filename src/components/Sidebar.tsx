@@ -1,11 +1,13 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { LayoutDashboard, Users, UserCircle, FolderKanban, CheckSquare, Calendar, Settings } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { Avatar, AvatarFallback } from '@radix-ui/react-avatar';
+import { _GET } from '@/utils/auth_api';
 
 const Sidebar: React.FC = () => {
   const [expandedItems, setExpandedItems] = useState<string[]>([]);
+  const [userData, setUserData] = useState<{ email: string; username: string } | null>(null); // New state for user data
 
   const toggleExpand = (title: string) => {
     setExpandedItems(prev =>
@@ -14,6 +16,15 @@ const Sidebar: React.FC = () => {
         : [...prev, title]
     );
   };
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      const response = await _GET('/member-service/members/member');
+      setUserData({ email: response.email, username: response.username });
+    };
+
+    fetchUserData();
+  }, []);
 
   return (
     <aside className="w-64 bg-sidebar-primary px-2 pt-2 pb-24 flex flex-col justify-between h-screen">
@@ -101,15 +112,15 @@ const Sidebar: React.FC = () => {
 
       {/* Bottom section */}
       <div className="mt-auto p-2 hover:bg-sidebar-secondary rounded-lg flex items-center justify-between">
-        <div className="flex items-center gap-3">
+        <Link to="/profile" className="flex items-center gap-3">
           <Avatar>
-            <AvatarFallback className="bg-blue-500 p-1 rounded-sm" >JD</AvatarFallback>
+            <AvatarFallback className="bg-blue-500 p-1 rounded-sm">JD</AvatarFallback>
           </Avatar>
           <div className="text-sm">
-            <p className="text-white font-medium">John Doe</p>
-            <p className="text-gray-400 text-xs">john.doe@example.com</p>
+            <p className="text-white font-medium">{userData?.username || 'John Doe'}</p> {/* Updated to use username */}
+            <p className="text-gray-400 text-xs">{userData?.email || 'john.doe@example.com'}</p> {/* Updated to use email */}
           </div>
-        </div>
+        </Link>
         <Link to="/setting">
           <Button variant="ghost" size="icon" className="hover:bg-button-hover1">
             <Settings className="h-5 w-5 text-white" />

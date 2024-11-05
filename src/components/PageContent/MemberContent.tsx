@@ -62,7 +62,7 @@ const MemberContent: React.FC = () => {
         // Add member logic here
     };
 
-    const handleDeleteMember = (id: number) => {
+    const handleViewMember = (id: number) => {
         // Delete member logic here
     };
 
@@ -178,9 +178,9 @@ const MemberContent: React.FC = () => {
                                     <Button
                                         variant="destructive"
                                         size="sm"
-                                        onClick={() => handleDeleteMember(member.id)}
+                                        onClick={() => handleViewMember(member.id)}
                                     >
-                                        Delete
+                                        View
                                     </Button>
                                 </TableCell>
                             </TableRow>

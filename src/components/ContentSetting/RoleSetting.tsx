@@ -114,16 +114,18 @@ const RoleSetting: React.FC = () => {
                             />
                         </div>
 
-                        <div className="space-y-2">
+                        <div className="space-y-2 overflow-y-auto custom-scrollbar h-80">
                             {filteredRoles.map((role) => (
                                 <div
                                     key={role.id}
-                                    className={`p-3 rounded-lg cursor-pointer transition-colors ${selectedRole?.id === role.id
+                                    className={` p-3 rounded-lg cursor-pointer transition-colors ${selectedRole?.id === role.id
                                         ? 'bg-primary text-white'
                                         : 'hover:bg-gray-700 text-gray-200'
-                                        }`}
+                                        }`
+
+                                    }
                                     onClick={() => {
-                                        setSelectedRole(role); // Cập nhật selectedRole
+                                        setSelectedRole(role);
                                     }}
                                 >
                                     <div className="flex items-center gap-3">
