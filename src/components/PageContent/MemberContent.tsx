@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -35,12 +35,41 @@ const MemberContent: React.FC = () => {
         level: 'junior',
         specializationName: ''
     });
+    const [roles, setRoles] = useState<{ id: string; name: string }[]>([]);
+    const [suggestions, setSuggestions] = useState<any[]>([]);
+    const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null); 
+
+    useEffect(() => {
+        const fetchRoles = async () => {
+            try {
+                const response = await _GET('/member-service/roles/workspace/roles');
+                setRoles(response.content);
+            } catch (error) {
+                console.error('Error fetching roles:', error);
+            }
+        };
+
+        fetchRoles();
+    }, []);
 
     useEffect(() => {
         const fetchMembers = async () => {
             try {
                 const response = await _GET('/member-service/members/workspace');
                 console.log(response);
+                setMembers(response);
+            } catch (error) {
+                console.error('Error fetching members:', error);
+            }
+        };
+
+        fetchMembers();
+    }, []);
+
+    useEffect(() => {
+        const fetchMembers = async () => {
+            try {
+                const response = await _GET('/member-service/members/workspace/simple');
                 setMembers(response);
             } catch (error) {
                 console.error('Error fetching members:', error);
@@ -66,6 +95,32 @@ const MemberContent: React.FC = () => {
         // Delete member logic here
     };
 
+    const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const email = e.target.value;
+        setNewMember({ ...newMember, email });
+
+        // Clear the previous timeout
+        if (debounceTimeoutRef.current) {
+            clearTimeout(debounceTimeoutRef.current);
+        }
+
+        // Set a new timeout
+        debounceTimeoutRef.current = setTimeout(async () => {
+            if (email) {
+                try {
+                    const response = await _GET(`/auth/search/${email}`);
+                    const existingEmails = new Set(members.map(member => member.email));
+                    const filteredResults = response.filter((user: any) => !existingEmails.has(user.email));
+                    setSuggestions(filteredResults); // Update suggestions state
+                } catch (error) {
+                    console.error('Error searching for email:', error);
+                }
+            } else {
+                setSuggestions([]); // Clear suggestions if input is empty
+            }
+        }, 500); // 500ms debounce
+    };
+
     return (
         <div className="p-6 space-y-6">
             {/* Header and Controls */}
@@ -75,36 +130,43 @@ const MemberContent: React.FC = () => {
                     <DialogTrigger asChild>
                         <Button className="flex items-center gap-2">
                             <Plus size={16} />
-                            Add Member
+                            Invite Member
                         </Button>
                     </DialogTrigger>
                     <DialogContent>
                         <DialogHeader>
-                            <DialogTitle>Add New Member</DialogTitle>
+                            <DialogTitle>Invite Member</DialogTitle>
                         </DialogHeader>
                         <div className="space-y-4 pt-4">
-                            <Input
-                                placeholder="Name"
-                                value={newMember.username}
-                                onChange={(e) => setNewMember({ ...newMember, username: e.target.value })}
-                            />
+
                             <Input
                                 placeholder="Email"
                                 type="email"
                                 value={newMember.email}
-                                onChange={(e) => setNewMember({ ...newMember, email: e.target.value })}
+                                onChange={handleEmailChange}
                             />
+                            {suggestions.length > 0 && (
+                                <ul className="suggestions-list">
+                                    {suggestions.map(user => (
+                                        <li key={user.id} onClick={() => setNewMember({ ...newMember, email: user.email })}>
+                                            {user.email} ({user.username})
+                                        </li>
+                                    ))}
+                                </ul>
+                            )}
+
                             <Select
                                 value={newMember.roleName}
-                                onValueChange={(value) => setNewMember({ ...newMember, roleName: value })}
-                            >
+                                onValueChange={(value) => setNewMember({ ...newMember, roleName: value })}>
                                 <SelectTrigger>
                                     <SelectValue placeholder="Select role" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="Developer">Developer</SelectItem>
-                                    <SelectItem value="Designer">Designer</SelectItem>
-                                    <SelectItem value="Manager">Manager</SelectItem>
+                                    {roles.map(role => (
+                                        <SelectItem key={role.id} value={role.name}>
+                                            {role.name}
+                                        </SelectItem>
+                                    ))}
                                 </SelectContent>
                             </Select>
                             <Input
