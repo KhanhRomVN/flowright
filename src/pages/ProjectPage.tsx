@@ -1,10 +1,9 @@
 import React from 'react';
-import ProjectContent from '../components/PageContent/ProjectContent';
 
 const ProjectPage = () => {
     return (
         <div>
-            <ProjectContent />
+            Hello
         </div>
     );
 };

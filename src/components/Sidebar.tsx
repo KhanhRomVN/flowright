@@ -33,15 +33,11 @@ const Sidebar: React.FC = () => {
         {[
           { title: 'Dashboard', icon: LayoutDashboard, bgColor: 'bg-blue-500', link: '/', notification: 0 },
           {
-            title: 'Team', icon: Users, bgColor: 'bg-blue-500', link: '/team', notification: 11, 
+            title: 'Team', icon: Users, bgColor: 'bg-blue-500', link: '/team', notification: 11,
           },
           { title: 'Member', icon: UserCircle, bgColor: 'bg-green-500', link: '/member', notification: 0 },
           {
-            title: 'Project', icon: FolderKanban, bgColor: 'bg-yellow-500', link: '/project', notification: 0, project: [
-              { name: 'Project 1', link: '/project', progress: 50 },
-              { name: 'Project 2', link: '/project', progress: 30 },
-              { name: 'Project 3', link: '/project', progress: 70 },
-            ]
+            title: 'Project', icon: FolderKanban, bgColor: 'bg-yellow-500', link: '/project', notification: 0
           },
           { title: 'Task', icon: CheckSquare, bgColor: 'bg-red-500', link: '/task', notification: 35 },
           { title: 'Calendar', icon: Calendar, bgColor: 'bg-purple-500', link: '/calendar', notification: 0 },
@@ -68,20 +64,6 @@ const Sidebar: React.FC = () => {
                 )}
               </Button>
             </Link>
-
-            {/* Projects sub-menu */}
-            {expandedItems.includes(item.title) && item.project && (
-              <div className="ml-8 mb-2">
-                {item.project.map((proj) => (
-                  <Link key={proj.name} to={proj.link} className="block">
-                    <Button variant="ghost" className="w-full text-white text-sm py-1 justify-between">
-                      {proj.name}
-                      <span className="text-xs text-gray-400">{proj.progress}%</span>
-                    </Button>
-                  </Link>
-                ))}
-              </div>
-            )}
           </div>
         ))}
       </div>
