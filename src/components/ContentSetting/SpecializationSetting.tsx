@@ -11,6 +11,18 @@ interface Specialization {
     workspaceId: string;
 }
 
+interface SpecializationMember {
+    id: string;
+    memberId: string;
+    username: string;
+    email: string;
+    specializationId: string;
+    specializationName: string;
+    level: string;
+    yearsOfExperience: number;
+    isDefault: boolean;
+}
+
 const SpecializationSetting: React.FC = () => {
     const [selectedSpecialization, setSelectedSpecialization] = useState<Specialization | null>(null);
     const [specializations, setSpecializations] = useState<Specialization[]>([]); // State for real specializations
@@ -199,14 +211,3 @@ const SpecializationMember: React.FC<{ specializationId: string | undefined, mem
 
 export default SpecializationSetting;
 
-interface SpecializationMember {
-    id: string;
-    memberId: string;
-    username: string;
-    email: string;
-    specializationId: string;
-    specializationName: string;
-    level: string;
-    yearsOfExperience: number;
-    isDefault: boolean;
-}

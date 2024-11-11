@@ -33,11 +33,7 @@ const Sidebar: React.FC = () => {
         {[
           { title: 'Dashboard', icon: LayoutDashboard, bgColor: 'bg-blue-500', link: '/', notification: 0 },
           {
-            title: 'Team', icon: Users, bgColor: 'bg-blue-500', link: '/team', notification: 11, teams: [
-              { name: 'Team 1', link: '/team', member: 10 },
-              { name: 'Team 2', link: '/team', member: 15 },
-              { name: 'Team 3', link: '/team', member: 20 },
-            ]
+            title: 'Team', icon: Users, bgColor: 'bg-blue-500', link: '/team', notification: 11, 
           },
           { title: 'Member', icon: UserCircle, bgColor: 'bg-green-500', link: '/member', notification: 0 },
           {
@@ -58,12 +54,6 @@ const Sidebar: React.FC = () => {
               <Button
                 variant="ghost"
                 className="w-full justify-between hover:bg-button-hover1 focus:bg-primary focus:text-white mb-2 pr-2.5"
-                onClick={(e) => {
-                  if (item.teams || item.project) {
-                    e.preventDefault(); // Prevent navigation for items with sub-menu
-                    toggleExpand(item.title);
-                  }
-                }}
               >
                 <div className="text-white text-base flex items-center">
                   <div className={`${item.bgColor} p-1 rounded-sm mr-2`}>
@@ -78,20 +68,6 @@ const Sidebar: React.FC = () => {
                 )}
               </Button>
             </Link>
-
-            {/* Teams sub-menu */}
-            {expandedItems.includes(item.title) && item.teams && (
-              <div className="ml-8 mb-2">
-                {item.teams.map((team) => (
-                  <Link key={team.name} to={team.link} className="block">
-                    <Button variant="ghost" className="w-full text-white text-sm py-1 justify-between">
-                      {team.name}
-                      <span className="text-xs text-gray-400">{team.member}</span>
-                    </Button>
-                  </Link>
-                ))}
-              </div>
-            )}
 
             {/* Projects sub-menu */}
             {expandedItems.includes(item.title) && item.project && (
