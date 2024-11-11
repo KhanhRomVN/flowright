@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { _GET, _POST } from '@/utils/auth_api';
 import { Dialog, DialogContent, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface Role {
     id: number;
@@ -67,7 +68,7 @@ const RoleSetting: React.FC = () => {
         <div className="flex h-full gap-4">
             {isLoading ? (
                 <div className="flex-1 flex justify-center items-center">
-                    <Loader2 className="w-8 h-8 animate-spin" />
+                    <Skeleton className="w-full h-full mb-2" />
                 </div>
             ) : (
                 <>
@@ -82,6 +83,7 @@ const RoleSetting: React.FC = () => {
                         </div>
 
                         {/* Dialog for adding a new role */}
+
                         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                             <DialogContent>
                                 <DialogTitle>Add New Role</DialogTitle>
@@ -104,26 +106,34 @@ const RoleSetting: React.FC = () => {
                             </DialogContent>
                         </Dialog>
 
-                        <div className="relative mb-4">
-                            <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-                            <Input
-                                placeholder="Search roles..."
-                                className="pl-8"
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                            />
-                        </div>
+                        {/* Search */}
+                        {isLoading ? (
+                            <Skeleton className="h-10 mb-2" />
+                        ) : (
+                            <div className="relative mb-4">
+                                <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                                <Input
+                                    placeholder="Search roles..."
+                                    className="pl-8"
+                                    value={searchQuery}
+                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                />
+                            </div>
+                        )}
 
-                        <div className="space-y-2">
+                        {/* List Role */}
+                        <div className="space-y-2 overflow-y-auto custom-scrollbar h-80">
                             {filteredRoles.map((role) => (
                                 <div
                                     key={role.id}
-                                    className={`p-3 rounded-lg cursor-pointer transition-colors ${selectedRole?.id === role.id
+                                    className={` p-3 rounded-lg cursor-pointer transition-colors ${selectedRole?.id === role.id
                                         ? 'bg-primary text-white'
                                         : 'hover:bg-gray-700 text-gray-200'
-                                        }`}
+                                        }`
+
+                                    }
                                     onClick={() => {
-                                        setSelectedRole(role); // Cập nhật selectedRole
+                                        setSelectedRole(role);
                                     }}
                                 >
                                     <div className="flex items-center gap-3">

@@ -1,11 +1,13 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { LayoutDashboard, Users, UserCircle, FolderKanban, CheckSquare, Calendar, Settings } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { Avatar, AvatarFallback } from '@radix-ui/react-avatar';
+import { _GET } from '@/utils/auth_api';
 
 const Sidebar: React.FC = () => {
   const [expandedItems, setExpandedItems] = useState<string[]>([]);
+  const [userData, setUserData] = useState<{ email: string; username: string } | null>(null); // New state for user data
 
   const toggleExpand = (title: string) => {
     setExpandedItems(prev =>
@@ -15,6 +17,15 @@ const Sidebar: React.FC = () => {
     );
   };
 
+  useEffect(() => {
+    const fetchUserData = async () => {
+      const response = await _GET('/member-service/members/member');
+      setUserData({ email: response.email, username: response.username });
+    };
+
+    fetchUserData();
+  }, []);
+
   return (
     <aside className="w-64 bg-sidebar-primary px-2 pt-2 pb-24 flex flex-col justify-between h-screen">
       {/* Top section */}
@@ -22,11 +33,7 @@ const Sidebar: React.FC = () => {
         {[
           { title: 'Dashboard', icon: LayoutDashboard, bgColor: 'bg-blue-500', link: '/', notification: 0 },
           {
-            title: 'Team', icon: Users, bgColor: 'bg-blue-500', link: '/team', notification: 11, teams: [
-              { name: 'Team 1', link: '/team', member: 10 },
-              { name: 'Team 2', link: '/team', member: 15 },
-              { name: 'Team 3', link: '/team', member: 20 },
-            ]
+            title: 'Team', icon: Users, bgColor: 'bg-blue-500', link: '/team', notification: 11, 
           },
           { title: 'Member', icon: UserCircle, bgColor: 'bg-green-500', link: '/member', notification: 0 },
           {
@@ -47,12 +54,6 @@ const Sidebar: React.FC = () => {
               <Button
                 variant="ghost"
                 className="w-full justify-between hover:bg-button-hover1 focus:bg-primary focus:text-white mb-2 pr-2.5"
-                onClick={(e) => {
-                  if (item.teams || item.project) {
-                    e.preventDefault(); // Prevent navigation for items with sub-menu
-                    toggleExpand(item.title);
-                  }
-                }}
               >
                 <div className="text-white text-base flex items-center">
                   <div className={`${item.bgColor} p-1 rounded-sm mr-2`}>
@@ -67,20 +68,6 @@ const Sidebar: React.FC = () => {
                 )}
               </Button>
             </Link>
-
-            {/* Teams sub-menu */}
-            {expandedItems.includes(item.title) && item.teams && (
-              <div className="ml-8 mb-2">
-                {item.teams.map((team) => (
-                  <Link key={team.name} to={team.link} className="block">
-                    <Button variant="ghost" className="w-full text-white text-sm py-1 justify-between">
-                      {team.name}
-                      <span className="text-xs text-gray-400">{team.member}</span>
-                    </Button>
-                  </Link>
-                ))}
-              </div>
-            )}
 
             {/* Projects sub-menu */}
             {expandedItems.includes(item.title) && item.project && (
@@ -101,15 +88,15 @@ const Sidebar: React.FC = () => {
 
       {/* Bottom section */}
       <div className="mt-auto p-2 hover:bg-sidebar-secondary rounded-lg flex items-center justify-between">
-        <div className="flex items-center gap-3">
+        <Link to="/profile" className="flex items-center gap-3">
           <Avatar>
-            <AvatarFallback className="bg-blue-500 p-1 rounded-sm" >JD</AvatarFallback>
+            <AvatarFallback className="bg-blue-500 p-1 rounded-sm">JD</AvatarFallback>
           </Avatar>
           <div className="text-sm">
-            <p className="text-white font-medium">John Doe</p>
-            <p className="text-gray-400 text-xs">john.doe@example.com</p>
+            <p className="text-white font-medium">{userData?.username || 'John Doe'}</p> {/* Updated to use username */}
+            <p className="text-gray-400 text-xs">{userData?.email || 'john.doe@example.com'}</p> {/* Updated to use email */}
           </div>
-        </div>
+        </Link>
         <Link to="/setting">
           <Button variant="ghost" size="icon" className="hover:bg-button-hover1">
             <Settings className="h-5 w-5 text-white" />

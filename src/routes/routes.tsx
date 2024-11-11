@@ -16,6 +16,7 @@ import TaskPage from "../pages/TaskPage";
 import CalendarPage from "../pages/CalendarPage";
 import SettingPage from "@/pages/SettingPage";
 import SwitchPage from "@/pages/SwitchPage";
+import ProfilePage from "@/pages/ProfilePage";
 
 export const LoginRoute = createRoute({
     getParentRoute: () => RootRoute,
@@ -115,6 +116,16 @@ export const SwitchRoute = createRoute({
     component: () => <SwitchPage />,
 });
 
+export const ProfileRoute = createRoute({
+    getParentRoute: () => RootRoute,
+    path: "/profile",
+    component: () => (
+        <MainLayout>
+            <ProfilePage member_id={null} />
+        </MainLayout>
+    ),
+});
+
 
 export const rootTree = RootRoute.addChildren([
     DashboardRoute,
@@ -126,5 +137,6 @@ export const rootTree = RootRoute.addChildren([
     TaskRoute,
     CalendarRoute,
     SettingRoute,
-    SwitchRoute
+    SwitchRoute,
+    ProfileRoute
 ]);
