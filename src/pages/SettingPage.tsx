@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import RoleSetting from '@/components/ContentSetting/RoleSetting';
 import SpecializationSetting from '@/components/ContentSetting/SpecializationSetting';
 import TeamSetting from '@/components/ContentSetting/TeamSetting';
-
+import InviteManagerSetting from '@/components/ContentSetting/InviteManagerSetting';
 const SettingPage: React.FC = () => {
     const [activeTab, setActiveTab] = useState('general');
 
@@ -12,6 +12,7 @@ const SettingPage: React.FC = () => {
         { id: 'role', label: 'Role' },
         { id: 'specialization', label: 'Specialization' },
         { id: 'team', label: 'Team' },
+        { id: 'invite', label: 'Invite' },
     ];
 
     return (
@@ -53,6 +54,7 @@ const SettingPage: React.FC = () => {
                 {activeTab === 'role' && <RoleSetting />}
                 {activeTab === 'specialization' && <SpecializationSetting />}
                 {activeTab === 'team' && <TeamSetting />}
+                {activeTab === 'invite' && <InviteManagerSetting />}
             </div>
         </div>
     );
