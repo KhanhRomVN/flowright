@@ -22,8 +22,14 @@ const WorkspaceDialog: React.FC<WorkspaceDialogProps> = ({ isOpen, onClose }) =>
     useEffect(() => {
         const fetchWorkspaces = async () => {
             try {
-                const response = await _GET(`/workspace-service/workspaces`);
-                setWorkspaces(response);
+                const ownerWorkspacesResponse = await _GET(`/workspace-service/workspaces`);
+                const membersWorkspacesResponse = await _GET(`/workspace-service/workspace-members`);
+               
+                const combinedWorkspaces = [...ownerWorkspacesResponse, ...membersWorkspacesResponse];
+
+                console.log(combinedWorkspaces);
+
+                setWorkspaces(combinedWorkspaces);
             } catch (error) {
                 console.error('Error fetching workspaces:', error);
             }
