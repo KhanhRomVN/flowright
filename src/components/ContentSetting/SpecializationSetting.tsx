@@ -1,28 +1,8 @@
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Plus, Search } from 'lucide-react';
-import React, { useState } from 'react';
-
-const fakeSpecializations = [
-    {
-        "id": "b023423d-79a7-41d8-8fb0-fe8009e17f96",
-        "name": "Frontend Developer",
-        "description": "Converts interface design code into a visual image of an application or website for ease of use by users",
-        "workspaceId": "f241696e-5e64-41a1-ad16-57258e55a696"
-    },
-    {
-        "id": "b023423d-79a7-41d8-8fb0-fe8009e17f97",
-        "name": "Backend Developer",
-        "description": "Converts interface design code into a visual image of an application or website for ease of use by users",
-        "workspaceId": "f241696e-5e64-41a1-ad16-57258e55a696"
-    },
-    {
-        "id": "b023423d-79a7-41d8-8fb0-fe8009e17f98",
-        "name": "Full Stack Developer",
-        "description": "Converts interface design code into a visual image of an application or website for ease of use by users",
-        "workspaceId": "f241696e-5e64-41a1-ad16-57258e55a696"
-    }
-];
+import React, { useEffect, useState } from 'react';
+import { _GET } from '@/utils/auth_api'; // Import the GET function from auth_api
 
 interface Specialization {
     id: string;
@@ -33,10 +13,24 @@ interface Specialization {
 
 const SpecializationSetting: React.FC = () => {
     const [selectedSpecialization, setSelectedSpecialization] = useState<Specialization | null>(null);
+    const [specializations, setSpecializations] = useState<Specialization[]>([]); // State for real specializations
+
+    useEffect(() => {
+        const fetchSpecializations = async () => {
+            try {
+                const data = await _GET('/member-service/specializations'); // Fetch real specializations
+                setSpecializations(data);
+            } catch (error) {
+                console.error("Error fetching specializations:", error);
+            }
+        };
+
+        fetchSpecializations();
+    }, []); // Fetch specializations on component mount
 
     return (
         <div className="flex gap-2">
-            <SpecializationSidebar onSelect={setSelectedSpecialization} /> {/* Use the new sidebar component */}
+            <SpecializationSidebar specializations={specializations} onSelect={setSelectedSpecialization} /> {/* Pass real specializations */}
             <div className="w-3/4">
                 <SpecializationDetails specialization={selectedSpecialization} />
             </div>
@@ -44,10 +38,10 @@ const SpecializationSetting: React.FC = () => {
     );
 };
 
-const SpecializationSidebar: React.FC<{ onSelect: (specialization: Specialization) => void }> = ({ onSelect }) => {
+const SpecializationSidebar: React.FC<{ specializations: Specialization[], onSelect: (specialization: Specialization) => void }> = ({ specializations, onSelect }) => {
     const [searchTerm, setSearchTerm] = useState('');
 
-    const filteredSpecializations = fakeSpecializations.filter(specialization =>
+    const filteredSpecializations = specializations.filter(specialization =>
         specialization.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
@@ -100,20 +94,22 @@ const SpecializationSidebar: React.FC<{ onSelect: (specialization: Specializatio
 
 const SpecializationDetails: React.FC<{ specialization: Specialization | null }> = ({ specialization }) => {
     const [activeTab, setActiveTab] = useState<'info' | 'member'>('info');
-    const specializationMembers = fakeSpecializationMember();
+    const [members, setMembers] = useState<SpecializationMember[]>([]); // State for members
 
-    const [searchTerm, setSearchTerm] = useState('');
+    useEffect(() => {
+        const fetchMembers = async () => {
+            if (specialization) {
+                try {
+                    const data = await _GET(`/member-service/members-specializations/specialization?specialization_id=${specialization.id}`); // Fetch members
+                    setMembers(data);
+                } catch (error) {
+                    console.error("Error fetching members:", error);
+                }
+            }
+        };
 
-    const filteredMembers = specialization?.id
-        ? specializationMembers.filter(member =>
-            member.specializationId === specialization.id && // Sửa đổi ở đây
-            (member.level.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                member.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                member.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                member.specializationName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                member.yearOfExperience.toString().includes(searchTerm))
-        )
-        : [];
+        fetchMembers();
+    }, [specialization]); // Fetch members when specialization changes
 
     return (
         <div>
@@ -146,19 +142,18 @@ const SpecializationDetails: React.FC<{ specialization: Specialization | null }>
                         />
                     </div>
                 ) : (
-                    <SpecializationMember specializationId={specialization?.id} />
+                    <SpecializationMember specializationId={specialization?.id} members={members} />
                 )}
             </div>
         </div>
     );
 };
 
-const SpecializationMember: React.FC<{ specializationId: string | undefined }> = ({ specializationId }) => {
+const SpecializationMember: React.FC<{ specializationId: string | undefined, members: SpecializationMember[] }> = ({ specializationId, members }) => {
     const [searchTerm, setSearchTerm] = useState('');
-    const specializationMembers = fakeSpecializationMember();
 
     const filteredMembers = specializationId
-        ? specializationMembers.filter(member =>
+        ? members.filter(member =>
             member.specializationId === specializationId &&
             member.level.toLowerCase().includes(searchTerm.toLowerCase())
         )
@@ -190,7 +185,7 @@ const SpecializationMember: React.FC<{ specializationId: string | undefined }> =
                                 <strong>Level:</strong> {member.level}
                             </div>
                             <div>
-                                <strong>Years of Experience:</strong> {member.yearOfExperience}
+                                <strong>Years of Experience:</strong> {member.yearsOfExperience}
                             </div>
                         </li>
                     ))}
@@ -204,7 +199,6 @@ const SpecializationMember: React.FC<{ specializationId: string | undefined }> =
 
 export default SpecializationSetting;
 
-
 interface SpecializationMember {
     id: string;
     memberId: string;
@@ -213,45 +207,6 @@ interface SpecializationMember {
     specializationId: string;
     specializationName: string;
     level: string;
-    yearOfExperience: number;
+    yearsOfExperience: number;
     isDefault: boolean;
-}
-
-// A member can have multiple specializations but only one default specialization
-const fakeSpecializationMember = () => {
-    return [
-        {
-            "id": "b023423d-79a7-41d8-8fb0-fe8009e17f96",
-            "memberId": "1234567890",
-            "username": "John Doe",
-            "email": "john.doe@example.com",
-            "specializationId": "b023423d-79a7-41d8-8fb0-fe8009e17f96",
-            "specializationName": "Frontend Developer",
-            "level": "junior",
-            "yearOfExperience": 1,
-            "isDefault": false
-        },
-        {
-            "id": "b023423d-79a7-41d8-8fb0-fe8009e17f97",
-            "memberId": "1234567890",
-            "username": "Jane Doe",
-            "email": "jane.doe@example.com",
-            "specializationId": "b023423d-79a7-41d8-8fb0-fe8009e17f96",
-            "specializationName": "Frontend Developer",
-            "level": "senior",
-            "yearOfExperience": 3,
-            "isDefault": true
-        },
-        {
-            "id": "b023423d-79a7-41d8-8fb0-fe8009e17f98",
-            "memberId": "1234567891",
-            "username": "John Doe",
-            "email": "john.doe@example.com",
-            "specializationId": "b023423d-79a7-41d8-8fb0-fe8009e17f98",
-            "specializationName": "Full Stack Developer",
-            "level": "expert",
-            "yearOfExperience": 5,
-            "isDefault": false
-        }
-    ];
 }
