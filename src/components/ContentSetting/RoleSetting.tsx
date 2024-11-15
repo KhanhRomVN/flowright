@@ -30,7 +30,7 @@ const RoleSetting: React.FC = () => {
         const fetchRoles = async () => {
             try {
                 setIsLoading(true);
-                const response = await _GET('/member-service/roles/workspace/roles');
+                const response = await _GET('/member/service/roles/workspace/roles');
                 setRoles(response.content);
                 if (response.content.length > 0) {
                     setSelectedRole(response.content[0]);
@@ -46,7 +46,7 @@ const RoleSetting: React.FC = () => {
 
     const handleAddRole = async () => {
         try {
-            const response = await _POST('/member-service/roles', {
+            const response = await _POST('/member/service/roles', {
                 name: newRoleName,
                 description: newRoleDescription,
             });

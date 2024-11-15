@@ -19,7 +19,7 @@ const Sidebar: React.FC = () => {
 
   useEffect(() => {
     const fetchUserData = async () => {
-      const response = await _GET('/member-service/members/member');
+      const response = await _GET('/member/service/members/member');
       setUserData({ email: response.email, username: response.username });
     };
 

@@ -22,12 +22,10 @@ const WorkspaceDialog: React.FC<WorkspaceDialogProps> = ({ isOpen, onClose }) =>
     useEffect(() => {
         const fetchWorkspaces = async () => {
             try {
-                const ownerWorkspacesResponse = await _GET(`/workspace-service/workspaces`);
-                const membersWorkspacesResponse = await _GET(`/workspace-service/workspace-members`);
+                const ownerWorkspacesResponse = await _GET(`/workspace/service/workspaces`);
+                const membersWorkspacesResponse = await _GET(`/workspace/service/workspace-members`);
                
                 const combinedWorkspaces = [...ownerWorkspacesResponse, ...membersWorkspacesResponse];
-
-                console.log(combinedWorkspaces);
 
                 setWorkspaces(combinedWorkspaces);
             } catch (error) {
@@ -42,8 +40,7 @@ const WorkspaceDialog: React.FC<WorkspaceDialogProps> = ({ isOpen, onClose }) =>
 
     const handleWorkspaceSelect = async (workspaceId: string) => {
         try {
-            const response = await _GET(`/member-service/members/new/access-token?workspace_id=${workspaceId}`);
-            console.log(response);
+            const response = await _GET(`/member/service/members/new/access-token?workspace_id=${workspaceId}`);
             if (response.access_token) {
                 localStorage.setItem('access_token', response.access_token);
                 window.location.href = '/';

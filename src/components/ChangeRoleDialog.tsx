@@ -24,7 +24,7 @@ const ChangeRoleDialog: React.FC<ChangeRoleDialogProps> = ({ isOpen, onClose, cu
     useEffect(() => {
         const fetchRoles = async () => {
             try {
-                const response = await _GET('/member-service/roles/workspace/roles');
+                const response = await _GET('/member/service/roles/workspace/roles');
                 setRoles(response.content);
             } catch (error) {
                 console.error('Error fetching roles:', error);
@@ -40,9 +40,8 @@ const ChangeRoleDialog: React.FC<ChangeRoleDialogProps> = ({ isOpen, onClose, cu
 
     const handleChangeRole = async (newRoleId: number) => {
         try {
-            const response = await _PUT(`/member-service/members/role/${newRoleId}/${memberId}`, {});
+            const response = await _PUT(`/member/service/members/role/${newRoleId}/${memberId}`, {});
             if (response) {
-                console.log(`Changed member ${memberId} role to ${newRoleId}`);
                 onClose();
             } else {
                 console.error('Failed to change role:', response.message);

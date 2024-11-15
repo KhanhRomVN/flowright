@@ -125,8 +125,6 @@ const DashboardContent: React.FC = () => {
     };
 
     const handleCreateProject = () => {
-        // Implement project creation logic
-        console.log('Creating new project...');
     };
 
     const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {

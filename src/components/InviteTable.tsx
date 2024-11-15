@@ -21,8 +21,7 @@ const InviteTable: React.FC = () => {
     useEffect(() => {
         const fetchInvites = async () => {
             try {
-                const data = await _GET('/workspace-service/invites');
-                console.log(data);
+                const data = await _GET('/workspace/service/invites');
                 setInvites(data);
             } catch (error) {
                 console.error('Error fetching invites:', error);
@@ -40,7 +39,7 @@ const InviteTable: React.FC = () => {
 
     const handleDelete = async (id: string) => {
         try {
-            await _DELETE(`/workspace-service/invites?id=${id}`); // Call delete API
+            await _DELETE(`/workspace/service/invites?id=${id}`); // Call delete API
             setInvites(invites.filter(invite => invite.id !== id)); // Update state to remove deleted invite
         } catch (error) {
             console.error('Error deleting invite:', error);
