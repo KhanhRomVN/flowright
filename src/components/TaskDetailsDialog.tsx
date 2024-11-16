@@ -243,6 +243,27 @@ export default function TaskDetailsDialog({ open, onOpenChange, taskId }: TaskDe
     }
   };
 
+  const handleMiniTaskStatusChange = async (miniTaskId: string, isChecked: boolean) => {
+    try {
+      console.log(miniTaskId);
+      const newStatus = isChecked ? 'done' : 'in_progress';
+      await _PUT(`/task/service/mini-tasks?miniTaskId=${miniTaskId}`, {
+        status: newStatus
+      });
+
+      // Cập nhật state local
+      setTask({
+        ...task,
+        miniTasks: task.miniTasks.map((miniTask: MiniTask) =>
+          miniTask.miniTaskId === miniTaskId
+            ? { ...miniTask, miniTaskStatus: newStatus }
+            : miniTask
+        )
+      });
+    } catch (error) {
+      console.error('Error updating mini task status:', error);
+    }
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -501,17 +522,25 @@ export default function TaskDetailsDialog({ open, onOpenChange, taskId }: TaskDe
                       </div>
                     </div>
                   )}
-
                   <div className="space-y-2">
                     {task.miniTasks.map((miniTask: MiniTask) => (
                       <div key={miniTask.miniTaskId} className="flex items-center gap-2 group">
-                        <Checkbox checked={miniTask.miniTaskStatus === 'completed'} />
+                        <Checkbox
+                          checked={miniTask.miniTaskStatus === 'done'}
+                          onCheckedChange={(checked) => handleMiniTaskStatusChange(miniTask.miniTaskId, checked as boolean)}
+                        />
                         <div className="flex flex-col flex-grow">
                           <div className="flex items-center gap-2">
-                            <p className="font-medium">{miniTask.miniTaskName} {`@${miniTask.miniTaskMemberUsername}`}</p>
-                            <Badge variant={miniTask.miniTaskStatus === 'completed' ? 'default' : 'secondary'}>{miniTask.miniTaskStatus}</Badge>
+                            <p className={`font-medium ${miniTask.miniTaskStatus === 'done' ? 'text-gray-400 line-through' : ''}`}>
+                              {miniTask.miniTaskName} {`@${miniTask.miniTaskMemberUsername}`}
+                            </p>
+                            <Badge variant={miniTask.miniTaskStatus === 'done' ? 'default' : 'secondary'}>
+                              {miniTask.miniTaskStatus}
+                            </Badge>
                           </div>
-                          <p className="text-sm text-gray-500">{miniTask.miniTaskDescription}</p>
+                          <p className={`text-sm ${miniTask.miniTaskStatus === 'done' ? 'text-gray-400 line-through' : 'text-gray-500'}`}>
+                            {miniTask.miniTaskDescription}
+                          </p>
                         </div>
                         <Button
                           variant="ghost"
