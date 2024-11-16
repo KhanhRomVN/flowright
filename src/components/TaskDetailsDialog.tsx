@@ -70,6 +70,9 @@ export default function TaskDetailsDialog({ open, onOpenChange, taskId }: TaskDe
   const [isAddingLink, setIsAddingLink] = useState(false);
   const [newLinkTitle, setNewLinkTitle] = useState("");
   const [newLinkUrl, setNewLinkUrl] = useState("");
+  const [isAddingMiniTask, setIsAddingMiniTask] = useState(false);
+  const [newMiniTaskName, setNewMiniTaskName] = useState("");
+  const [newMiniTaskDescription, setNewMiniTaskDescription] = useState("");
 
   React.useEffect(() => {
     const fetchTask = async () => {
@@ -195,6 +198,51 @@ export default function TaskDetailsDialog({ open, onOpenChange, taskId }: TaskDe
       console.error('Error deleting link:', error);
     }
   };
+
+  const handleAddMiniTask = async () => {
+    try {
+      await _POST(`/task/service/mini-tasks?taskId=${taskId}`, {
+        name: newMiniTaskName,
+        description: newMiniTaskDescription
+      });
+
+      // Update the task state with the new mini task
+      setTask({
+        ...task,
+        miniTasks: [...task.miniTasks, {
+          miniTaskId: Date.now().toString(), // Temporary ID until refresh
+          miniTaskName: newMiniTaskName,
+          miniTaskDescription: newMiniTaskDescription,
+          miniTaskStatus: 'in_progress',
+          miniTaskMemberId: '', // These will be updated when the page refreshes
+          miniTaskMemberUsername: '',
+          miniTaskMemberEmail: '',
+          taskId: taskId
+        }]
+      });
+
+      // Reset form
+      setNewMiniTaskName("");
+      setNewMiniTaskDescription("");
+      setIsAddingMiniTask(false);
+    } catch (error) {
+      console.error('Error adding mini task:', error);
+    }
+  };
+
+  const handleDeleteMiniTask = async (miniTaskId: string) => {
+    try {
+      await _DELETE(`/task/service/mini-tasks?miniTaskId=${miniTaskId}`);
+
+      setTask({
+        ...task,
+        miniTasks: task.miniTasks.filter((miniTask: MiniTask) => miniTask.miniTaskId !== miniTaskId)
+      });
+    } catch (error) {
+      console.error('Error deleting mini task:', error);
+    }
+  };
+
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -401,16 +449,78 @@ export default function TaskDetailsDialog({ open, onOpenChange, taskId }: TaskDe
               )}
 
               {/* Mini tasks */}
-              {task.miniTasks && task.miniTasks.length > 0 && (
+              {task.miniTasks && (
                 <div>
-                  <h3 className="text-lg font-semibold mb-2">Mini tasks</h3>
+                  <div className="flex justify-between items-center mb-2">
+                    <h3 className="text-lg font-semibold">Mini tasks</h3>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setIsAddingMiniTask(true)}
+                      className="flex items-center gap-1"
+                    >
+                      <Plus className="w-4 h-4" />
+                    </Button>
+                  </div>
+
+                  {isAddingMiniTask && (
+                    <div className="mb-4 space-y-2">
+                      <input
+                        type="text"
+                        placeholder="Mini task name"
+                        value={newMiniTaskName}
+                        onChange={(e) => setNewMiniTaskName(e.target.value)}
+                        className="w-full p-2 text-sm border rounded-md"
+                      />
+                      <textarea
+                        placeholder="Mini task description"
+                        value={newMiniTaskDescription}
+                        onChange={(e) => setNewMiniTaskDescription(e.target.value)}
+                        className="w-full p-2 text-sm border rounded-md"
+                        rows={2}
+                      />
+                      <div className="flex gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={handleAddMiniTask}
+                          className="flex items-center gap-1"
+                        >
+                          <Save className="w-4 h-4" />
+                          Save
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setIsAddingMiniTask(false)}
+                          className="flex items-center gap-1"
+                        >
+                          <XCircle className="w-4 h-4" />
+                          Cancel
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+
                   <div className="space-y-2">
                     {task.miniTasks.map((miniTask: MiniTask) => (
-                      <div key={miniTask.miniTaskId} className="flex items-center gap-2">
+                      <div key={miniTask.miniTaskId} className="flex items-center gap-2 group">
                         <Checkbox checked={miniTask.miniTaskStatus === 'completed'} />
-                        <div>
-                          <p className="font-medium">{miniTask.miniTaskName} - {`@${miniTask.miniTaskMemberUsername}`}</p>
+                        <div className="flex flex-col flex-grow">
+                          <div className="flex items-center gap-2">
+                            <p className="font-medium">{miniTask.miniTaskName} {`@${miniTask.miniTaskMemberUsername}`}</p>
+                            <Badge variant={miniTask.miniTaskStatus === 'completed' ? 'default' : 'secondary'}>{miniTask.miniTaskStatus}</Badge>
+                          </div>
+                          <p className="text-sm text-gray-500">{miniTask.miniTaskDescription}</p>
                         </div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleDeleteMiniTask(miniTask.miniTaskId)}
+                          className="opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          <X className="w-4 h-4 text-gray-500 hover:text-red-500" />
+                        </Button>
                       </div>
                     ))}
                   </div>
