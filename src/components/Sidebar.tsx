@@ -33,7 +33,7 @@ const Sidebar: React.FC = () => {
         {[
           { title: 'Dashboard', icon: LayoutDashboard, bgColor: 'bg-blue-500', link: '/', notification: 0 },
           {
-            title: 'Team', icon: Users, bgColor: 'bg-blue-500', link: '/team', notification: 11,
+            title: 'Team', icon: Users, bgColor: 'bg-blue-500', link: '/team/management', notification: 11,
           },
           { title: 'Member', icon: UserCircle, bgColor: 'bg-green-500', link: '/member', notification: 0 },
           {

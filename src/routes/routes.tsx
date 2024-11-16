@@ -9,7 +9,7 @@ import BaseLayout from "@/layouts/BaseLayout";
 import MainLayout from "@/layouts/MainLayout";
 // pages
 import DashboardPage from "../pages/DashboardPage";
-import TeamPage from "../pages/TeamPage";
+import TeamManagementPage from "../pages/TeamManagementPage";
 import MemberPage from "../pages/MemberPage";
 import ProjectPage from "../pages/ProjectPage";
 import TaskPage from "../pages/TaskPage";
@@ -17,6 +17,7 @@ import CalendarPage from "../pages/CalendarPage";
 import SettingPage from "@/pages/SettingPage";
 import SwitchPage from "@/pages/SwitchPage";
 import ProfilePage from "@/pages/ProfilePage";
+import TeamPage from "@/pages/TeamPage";
 
 export const LoginRoute = createRoute({
     getParentRoute: () => RootRoute,
@@ -50,9 +51,19 @@ export const DashboardRoute = createRoute({
 
 
 
+export const TeamManagementRoute = createRoute({
+    getParentRoute: () => RootRoute,
+    path: "/team/management",
+    component: () => (
+        <MainLayout>
+            <TeamManagementPage />
+        </MainLayout>
+    ),
+});
+
 export const TeamRoute = createRoute({
     getParentRoute: () => RootRoute,
-    path: "/team",
+    path: "/team/detail",
     component: () => (
         <MainLayout>
             <TeamPage />
@@ -131,6 +142,7 @@ export const rootTree = RootRoute.addChildren([
     DashboardRoute,
     LoginRoute,
     RegisterRoute,
+    TeamManagementRoute,
     TeamRoute,
     MemberRoute,
     ProjectRoute,
