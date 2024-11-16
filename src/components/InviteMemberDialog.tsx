@@ -21,7 +21,7 @@ const InviteMemberDialog: React.FC<InviteMemberDialogProps> = ({ onMemberAdded }
     useEffect(() => {
         const fetchRoles = async () => {
             try {
-                const rolesResponse = await _GET('/member-service/roles/workspace/roles');
+                const rolesResponse = await _GET('/member/service/roles/workspace/roles');
                 setRoles(rolesResponse.content);
             } catch (error) {
                 console.error('Error fetching roles:', error);
@@ -52,7 +52,7 @@ const InviteMemberDialog: React.FC<InviteMemberDialogProps> = ({ onMemberAdded }
     const handleAddMember = async () => {
         try {
             const inviteData = { email: newMember.email, roleId: selectedRole };
-            await _POST('/workspace-service/invites', inviteData);
+            await _POST('/workspace/service/invites', inviteData);
             onMemberAdded(newMember.email, selectedRole!);
             setNewMember({ email: '', roleName: '' });
             setSuggestions([]);

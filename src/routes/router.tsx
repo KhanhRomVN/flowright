@@ -1,5 +1,6 @@
 import { createMemoryHistory, createRouter } from "@tanstack/react-router";
 import { rootTree } from "./routes";
+import NotFound from "@/pages/NotFoundPage";
 
 declare module "@tanstack/react-router" {
     interface Register {
@@ -10,4 +11,4 @@ declare module "@tanstack/react-router" {
 const history = createMemoryHistory({
     initialEntries: ["/"],
 });
-export const router = createRouter({ routeTree: rootTree, history: history });
+export const router = createRouter({ routeTree: rootTree, history: history, defaultNotFoundComponent: NotFound });

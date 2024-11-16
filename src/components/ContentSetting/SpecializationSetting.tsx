@@ -30,7 +30,7 @@ const SpecializationSetting: React.FC = () => {
     useEffect(() => {
         const fetchSpecializations = async () => {
             try {
-                const data = await _GET('/member-service/specializations'); // Fetch real specializations
+                const data = await _GET('/member/service/specializations'); // Fetch real specializations
                 setSpecializations(data);
             } catch (error) {
                 console.error("Error fetching specializations:", error);
@@ -112,7 +112,7 @@ const SpecializationDetails: React.FC<{ specialization: Specialization | null }>
         const fetchMembers = async () => {
             if (specialization) {
                 try {
-                    const data = await _GET(`/member-service/members-specializations/specialization?specialization_id=${specialization.id}`); // Fetch members
+                    const data = await _GET(`/member/service/members-specializations/specialization?specialization_id=${specialization.id}`); // Fetch members
                     setMembers(data);
                 } catch (error) {
                     console.error("Error fetching members:", error);

@@ -28,7 +28,7 @@ const MemberContent: React.FC = () => {
         const fetchData = async () => {
             setLoading(true);
             try {
-                const membersResponse = await _GET('/member-service/members/workspace/simple');
+                const membersResponse = await _GET('/member/service/members/workspace/simple');
                 setMembers(membersResponse);
             } catch (error) {
                 console.error('Error fetching data:', error);
@@ -47,8 +47,6 @@ const MemberContent: React.FC = () => {
     });
 
     const handleMemberAdded = (email: string, roleId: string) => {
-        console.log(`Member added: ${email} with role ID: ${roleId}`);
-        // Optionally, you can refresh the members list here
     };
 
     return (

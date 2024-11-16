@@ -124,9 +124,8 @@ const RoleContent: React.FC<{ selectedRoleId: number; roleDetailsProps: RoleDeta
     useEffect(() => {
         const fetchPermissions = async () => {
             try {
-                const response = await _GET(`/member-service/role-permissions/roles/${selectedRoleId}/permissions`);
-                const responseMembers = await _GET(`/member-service/members/role/${selectedRoleId}`);
-                console.log(responseMembers);
+                const response = await _GET(`/member/service/role-permissions/roles/${selectedRoleId}/permissions`);
+                const responseMembers = await _GET(`/member/service/members/role/${selectedRoleId}`);
                 const permissions = response.map((perm: { name: string }) => perm.name);
                 const members = responseMembers.map((member: { id: number, username: string, email: string }) => ({ id: member.id, username: member.username, email: member.email }));
                 setSelectedPermissions(permissions);

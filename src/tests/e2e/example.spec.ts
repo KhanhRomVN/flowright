@@ -18,13 +18,11 @@ test.beforeAll(async () => {
     });
     electronApp.on("window", async (page) => {
         const filename = page.url()?.split("/").pop();
-        console.log(`Window opened: ${filename}`);
 
         page.on("pageerror", (error) => {
             console.error(error);
         });
         page.on("console", (msg) => {
-            console.log(msg.text());
         });
     });
 });
