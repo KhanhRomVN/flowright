@@ -51,6 +51,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { toast } from 'react-toastify';
+import { ScrollArea } from "@/components/ui/scroll-area";
+
 
 // Interfaces
 interface MiniTask {
@@ -97,10 +99,19 @@ interface TaskLog {
   logType: 'create' | 'update' | 'delete' | 'complete';
 }
 
+interface TeamMember {
+  id: string;
+  teamId: string;
+  memberId: string;
+  memberUsername: string;
+  memberEmail: string;
+}
+
 interface TaskDetailsDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   taskId: string;
+  teamId: string;
   onTaskUpdate?: () => void;
 }
 
@@ -109,6 +120,7 @@ export default function TaskDetailsDialog({
   open,
   onOpenChange,
   taskId,
+  teamId,
   onTaskUpdate
 }: TaskDetailsDialogProps) {
   // States
@@ -128,6 +140,10 @@ export default function TaskDetailsDialog({
   const [newMiniTaskDescription, setNewMiniTaskDescription] = useState("");
   const [newComment, setNewComment] = useState("");
   const [isSaving, setIsSaving] = useState(false);
+  const [showMemberDropdown, setShowMemberDropdown] = useState(false);
+  const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
+  const [selectedMembers, setSelectedMembers] = useState<string[]>([]);
+  const [isAddingMembers, setIsAddingMembers] = useState(false);
 
   // Refs for animations
   const [parentRef] = useAutoAnimate<HTMLDivElement>();
@@ -154,6 +170,28 @@ export default function TaskDetailsDialog({
     }
   }, [taskId, open]);
 
+  React.useEffect(() => {
+    const fetchTeamMembers = async () => {
+      try {
+        const response = await _GET(`/team/service/teams/members?teamId=${teamId}`);
+        console.log(response);
+        const existingMemberIds = task.taskAssignments.map(
+          (assignment: TaskAssignment) => assignment.assignmentMemberId
+        );
+        const availableMembers = response.filter(
+          (member: TeamMember) => !existingMemberIds.includes(member.memberId)
+        );
+        setTeamMembers(availableMembers);
+      } catch (error) {
+        console.error('Error fetching team members:', error);
+      }
+    };
+
+    if (showMemberDropdown) {
+      fetchTeamMembers();
+    }
+  }, [showMemberDropdown, task]);
+
   // Loading state
   if (loading) {
     return (
@@ -168,6 +206,40 @@ export default function TaskDetailsDialog({
   if (!task) {
     return null;
   }
+
+  const handleAddMembers = async () => {
+    try {
+      setIsAddingMembers(true);
+      await _POST(`/task/service/task-assignments?taskId=${taskId}`, {
+        memberIds: selectedMembers
+      });
+
+      // Update local state with new assignments
+      const newAssignments = selectedMembers.map(memberId => {
+        const member = teamMembers.find(m => m.memberId === memberId);
+        return {
+          assignmentMemberId: memberId,
+          assigneeUsername: member?.memberUsername,
+          assigneeEmail: member?.memberEmail
+        };
+      });
+
+      setTask({
+        ...task,
+        taskAssignments: [...task.taskAssignments, ...newAssignments]
+      });
+
+      // Reset states
+      setSelectedMembers([]);
+      setShowMemberDropdown(false);
+      toast.success('Members added successfully');
+    } catch (error) {
+      console.error('Error adding members:', error);
+      toast.error('Failed to add members');
+    } finally {
+      setIsAddingMembers(false);
+    }
+  };
 
   // Handlers
   const handleUpdateTaskName = async () => {
@@ -761,8 +833,8 @@ export default function TaskDetailsDialog({
                       <div className="flex flex-col flex-grow">
                         <div className="flex items-center gap-2">
                           <p className={`font-medium ${miniTask.miniTaskStatus === 'done'
-                              ? 'text-gray-400 line-through'
-                              : ''
+                            ? 'text-gray-400 line-through'
+                            : ''
                             }`}>
                             {miniTask.miniTaskName}
                           </p>
@@ -773,8 +845,8 @@ export default function TaskDetailsDialog({
                           )}
                         </div>
                         <p className={`text-sm ${miniTask.miniTaskStatus === 'done'
-                            ? 'text-gray-400 line-through'
-                            : 'text-gray-500'
+                          ? 'text-gray-400 line-through'
+                          : 'text-gray-500'
                           }`}>
                           {miniTask.miniTaskDescription}
                         </p>
@@ -1045,10 +1117,73 @@ export default function TaskDetailsDialog({
                       variant="outline"
                       size="sm"
                       className="mt-2 w-full flex items-center gap-2"
+                      onClick={() => setShowMemberDropdown(!showMemberDropdown)}
                     >
                       <UserPlus className="w-4 h-4" />
                       Add Member
                     </Button>
+
+                    <AnimatePresence>
+                      {showMemberDropdown && (
+                        <motion.div
+                          initial={{ opacity: 0, y: -10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -10 }}
+                          className="mt-2 border rounded-lg bg-background shadow-lg"
+                        >
+                          <ScrollArea className="h-[200px] p-2">
+                            {teamMembers.map((member) => (
+                              <div
+                                key={member.memberId}
+                                className="flex items-center space-x-2 p-2 hover:bg-accent rounded-md"
+                              >
+                                <Checkbox
+                                  checked={selectedMembers.includes(member.memberId)}
+                                  onCheckedChange={(checked) => {
+                                    if (checked) {
+                                      setSelectedMembers([...selectedMembers, member.memberId]);
+                                    } else {
+                                      setSelectedMembers(selectedMembers.filter(id => id !== member.memberId));
+                                    }
+                                  }}
+                                />
+                                <Avatar className="h-8 w-8">
+                                  <AvatarFallback>
+                                    {member.memberUsername[0].toUpperCase()}
+                                  </AvatarFallback>
+                                </Avatar>
+                                <div className="flex-1">
+                                  <p className="text-sm font-medium">{member.memberUsername}</p>
+                                  <p className="text-xs text-gray-500">{member.memberEmail}</p>
+                                </div>
+                              </div>
+                            ))}
+                          </ScrollArea>
+                          {selectedMembers.length > 0 && (
+                            <div className="p-2 border-t">
+                              <Button
+                                size="sm"
+                                className="w-full"
+                                onClick={handleAddMembers}
+                                disabled={isAddingMembers}
+                              >
+                                {isAddingMembers ? (
+                                  <motion.div
+                                    animate={{ rotate: 360 }}
+                                    transition={{ duration: 1, repeat: Infinity }}
+                                  >
+                                    <CircleDashed className="w-4 h-4 mr-2" />
+                                  </motion.div>
+                                ) : (
+                                  <UserPlus className="w-4 h-4 mr-2" />
+                                )}
+                                Add {selectedMembers.length} {selectedMembers.length === 1 ? 'Member' : 'Members'}
+                              </Button>
+                            </div>
+                          )}
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                   </div>
 
                   {/* Creator */}

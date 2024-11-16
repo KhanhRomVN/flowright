@@ -4,7 +4,7 @@ import { _GET } from '@/utils/auth_api';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
-import { format } from 'date-fns';
+import { format } from 'date-fns';  
 import { Button } from '@/components/ui/button';
 import { X } from 'lucide-react';
 import TaskDetailsDialog from '@/components/TaskDetailsDialog';
@@ -198,6 +198,7 @@ const TeamPage = () => {
                     open={!!selectedTask}
                     onOpenChange={(open) => !open && setSelectedTask(null)}
                     taskId={selectedTask}
+                    teamId={currentTeam.id}
                 />
             )}
         </div>
