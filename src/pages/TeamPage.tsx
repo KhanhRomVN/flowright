@@ -7,7 +7,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { format } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { X } from 'lucide-react';
-
+import TaskDetailsDialog from '@/components/TaskDetailsDialog';
 interface TaskAssignment {
     assignmentMemberId: string;
     assigneeUsername: string;
@@ -39,6 +39,7 @@ const TeamPage = () => {
     const [tasks, setTasks] = useState<Task[]>([]);
     const [loading, setLoading] = useState(true);
     const [selectedTasks, setSelectedTasks] = useState<string[]>([]);
+    const [selectedTask, setSelectedTask] = useState<string | null>(null);
 
 
     useEffect(() => {
@@ -46,7 +47,7 @@ const TeamPage = () => {
             if (!currentTeam) return;
 
             try {
-                const response = await _GET(`/task/service/tasks?teamId=${currentTeam.id}`);
+                const response = await _GET(`/task/service/tasks/team?teamId=${currentTeam.id}`);
                 setTasks(response.tasks);
             } catch (error) {
                 console.error('Error fetching tasks:', error);
@@ -125,7 +126,7 @@ const TeamPage = () => {
                                     onCheckedChange={() => handleTaskSelect(task.taskId)}
                                 />
                             </TableCell>
-                            <TableCell>
+                            <TableCell onClick={() => setSelectedTask(task.taskId)} className="cursor-pointer">
                                 <div>
                                     <div className="font-medium">{task.taskName}</div>
                                     <div className="text-sm text-gray-500">{task.taskDescription}</div>
@@ -191,6 +192,13 @@ const TeamPage = () => {
                         </Button>
                     </div>
                 </div>
+            )}
+            {selectedTask && (
+                <TaskDetailsDialog
+                    open={!!selectedTask}
+                    onOpenChange={(open) => !open && setSelectedTask(null)}
+                    taskId={selectedTask}
+                />
             )}
         </div>
     );
