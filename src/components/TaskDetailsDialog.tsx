@@ -73,6 +73,8 @@ export default function TaskDetailsDialog({ open, onOpenChange, taskId }: TaskDe
   const [isAddingMiniTask, setIsAddingMiniTask] = useState(false);
   const [newMiniTaskName, setNewMiniTaskName] = useState("");
   const [newMiniTaskDescription, setNewMiniTaskDescription] = useState("");
+  const [newComment, setNewComment] = useState("");
+
 
   React.useEffect(() => {
     const fetchTask = async () => {
@@ -262,6 +264,33 @@ export default function TaskDetailsDialog({ open, onOpenChange, taskId }: TaskDe
       });
     } catch (error) {
       console.error('Error updating mini task status:', error);
+    }
+  };
+
+  const handleAddComment = async () => {
+    try {
+      await _POST(`/task/service/task-comments?taskId=${taskId}`, {
+        comment: newComment
+      });
+
+      // Update local state with new comment
+      setTask({
+        ...task,
+        taskComments: [...task.taskComments, {
+          commentId: Date.now().toString(), // Temporary ID until refresh
+          taskId: taskId,
+          memberId: '', // These will be updated when the page refreshes
+          memberUsername: 'You', // Temporary username
+          memberEmail: '',
+          comment: newComment,
+          createdAt: new Date().toISOString()
+        }]
+      });
+
+      // Clear input
+      setNewComment("");
+    } catch (error) {
+      console.error('Error adding comment:', error);
     }
   };
 
@@ -563,6 +592,22 @@ export default function TaskDetailsDialog({ open, onOpenChange, taskId }: TaskDe
                   <TabsTrigger value="logs">Activity Logs</TabsTrigger>
                 </TabsList>
                 <TabsContent value="comments">
+                  {/* New comment input area */}
+                  <div className="mt-4 space-y-2">
+                    <textarea
+                      value={newComment}
+                      onChange={(e) => setNewComment(e.target.value)}
+                      placeholder="Write a comment..."
+                      className="w-full p-2 text-sm border rounded-md min-h-[100px] focus:outline-none focus:ring-2 focus:ring-primary"
+                    />
+                    <Button
+                      onClick={handleAddComment}
+                      disabled={!newComment.trim()}
+                      className="w-full"
+                    >
+                      Add Comment
+                    </Button>
+                  </div>
                   {task.taskComments && task.taskComments.length > 0 ? (
                     <div className="space-y-4">
                       {task.taskComments.map((comment: TaskComment) => (
