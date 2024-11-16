@@ -5,8 +5,7 @@ import { apiUrl } from '@/api';
 import { Minus, Maximize2, X, Eye, EyeOff } from 'lucide-react';
 import { closeWindow, maximizeWindow, minimizeWindow } from "@/helpers/window_helpers";
 import { Link } from '@tanstack/react-router';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { toast } from 'react-toastify';
 import WorkspaceDialog from '@/components/WorkspaceDialog';
 
 const LoginPage: React.FC = () => {
@@ -69,7 +68,6 @@ const LoginPage: React.FC = () => {
                 backgroundSize: 'cover',
                 backgroundPosition: 'center'
             }}>
-            <ToastContainer />
             {/* Custom Navbar */}
             <div className="flex w-full items-center justify-between pt-3 px-4 bg-transparent">
                 <p className="text-xl font-semibold text-gray-200">Flowright</p>

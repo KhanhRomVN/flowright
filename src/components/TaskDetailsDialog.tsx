@@ -1,16 +1,58 @@
 import React, { useState } from 'react';
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Heart, Share2, MoreHorizontal, X, Link as LinkIcon, Check, Save, XCircle, Plus } from 'lucide-react';
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  Heart,
+  Share2,
+  MoreHorizontal,
+  X,
+  Link as LinkIcon,
+  Check,
+  Save,
+  XCircle,
+  Plus,
+  Calendar,
+  Clock,
+  AlertCircle,
+  CheckCircle2,
+  CircleDashed,
+  Users,
+  UserPlus,
+  Link2,
+  MessageSquare,
+  Activity,
+  ChevronRight,
+  ChevronLeft,
+  Edit,
+  Trash2
+} from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { format } from 'date-fns';
 import { Checkbox } from "@/components/ui/checkbox";
 import { _GET, _POST, _PUT, _DELETE } from '@/utils/auth_api';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { motion, AnimatePresence } from 'framer-motion';
+import { useAutoAnimate } from '@formkit/auto-animate/react';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { toast } from 'react-toastify';
 
-
+// Interfaces
 interface MiniTask {
   miniTaskId: string;
   miniTaskName: string;
@@ -26,6 +68,7 @@ interface TaskAssignment {
   assignmentMemberId: string;
   assigneeUsername: string;
   assigneeEmail: string;
+  assigneeAvatar?: string;
 }
 
 interface TaskLink {
@@ -41,6 +84,7 @@ interface TaskComment {
   memberId: string;
   memberUsername: string;
   memberEmail: string;
+  memberAvatar?: string;
   comment: string;
   createdAt: string;
 }
@@ -50,15 +94,24 @@ interface TaskLog {
   taskLogTitle: string;
   taskLogDescription: string;
   taskLogDate: string;
+  logType: 'create' | 'update' | 'delete' | 'complete';
 }
 
 interface TaskDetailsDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   taskId: string;
+  onTaskUpdate?: () => void;
 }
 
-export default function TaskDetailsDialog({ open, onOpenChange, taskId }: TaskDetailsDialogProps) {
+// Main Component
+export default function TaskDetailsDialog({
+  open,
+  onOpenChange,
+  taskId,
+  onTaskUpdate
+}: TaskDetailsDialogProps) {
+  // States
   const [task, setTask] = React.useState<any>(null);
   const [loading, setLoading] = React.useState(true);
   const [isEditingName, setIsEditingName] = useState(false);
@@ -74,11 +127,19 @@ export default function TaskDetailsDialog({ open, onOpenChange, taskId }: TaskDe
   const [newMiniTaskName, setNewMiniTaskName] = useState("");
   const [newMiniTaskDescription, setNewMiniTaskDescription] = useState("");
   const [newComment, setNewComment] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
 
+  // Refs for animations
+  const [parentRef] = useAutoAnimate<HTMLDivElement>();
+  const [linksRef] = useAutoAnimate<HTMLDivElement>();
+  const [miniTasksRef] = useAutoAnimate<HTMLDivElement>();
+  const [commentsRef] = useAutoAnimate<HTMLDivElement>();
 
+  // Fetch task data
   React.useEffect(() => {
     const fetchTask = async () => {
       try {
+        setLoading(true);
         const response = await _GET(`/task/service/tasks?taskId=${taskId}`);
         setTask(response);
       } catch (error) {
@@ -93,20 +154,37 @@ export default function TaskDetailsDialog({ open, onOpenChange, taskId }: TaskDe
     }
   }, [taskId, open]);
 
-  if (!task || loading) {
+  // Loading state
+  if (loading) {
+    return (
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className="max-w-[90vw] max-h-[80vh] flex flex-col p-0">
+          <LoadingTaskDialog />
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
+  if (!task) {
     return null;
   }
 
+  // Handlers
   const handleUpdateTaskName = async () => {
     try {
+      setIsSaving(true);
       await _PUT(`/task/service/tasks/name`, {
         taskId: taskId,
         name: newTaskName
       });
       setTask({ ...task, taskName: newTaskName });
       setIsEditingName(false);
+      onTaskUpdate?.();
+      toast.success('Task name updated successfully');
     } catch (error) {
       console.error('Error updating task name:', error);
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -118,6 +196,7 @@ export default function TaskDetailsDialog({ open, onOpenChange, taskId }: TaskDe
       });
       setTask({ ...task, taskDescription: newDescription });
       setIsEditingDescription(false);
+      toast.success('Task description updated successfully');
     } catch (error) {
       console.error('Error updating task description:', error);
     }
@@ -130,6 +209,7 @@ export default function TaskDetailsDialog({ open, onOpenChange, taskId }: TaskDe
         priority: newPriority
       });
       setTask({ ...task, priority: newPriority });
+      toast.success('Task priority updated successfully');
     } catch (error) {
       console.error('Error updating task priority:', error);
     }
@@ -142,6 +222,7 @@ export default function TaskDetailsDialog({ open, onOpenChange, taskId }: TaskDe
         status: newStatus
       });
       setTask({ ...task, status: newStatus });
+      toast.success('Task status updated successfully');
     } catch (error) {
       console.error('Error updating task status:', error);
     }
@@ -155,6 +236,7 @@ export default function TaskDetailsDialog({ open, onOpenChange, taskId }: TaskDe
       });
       setTask({ ...task, endDate: newEndDate });
       setIsEditingEndDate(false);
+      toast.success('Task end date updated successfully');
     } catch (error) {
       console.error('Error updating end date:', error);
     }
@@ -182,6 +264,7 @@ export default function TaskDetailsDialog({ open, onOpenChange, taskId }: TaskDe
       setNewLinkTitle("");
       setNewLinkUrl("");
       setIsAddingLink(false);
+      toast.success('Link added successfully');
     } catch (error) {
       console.error('Error adding link:', error);
     }
@@ -196,6 +279,7 @@ export default function TaskDetailsDialog({ open, onOpenChange, taskId }: TaskDe
         ...task,
         taskLinks: task.taskLinks.filter((link: TaskLink) => link.taskLinkId !== taskLinkId)
       });
+      toast.success('Link deleted successfully');
     } catch (error) {
       console.error('Error deleting link:', error);
     }
@@ -227,6 +311,7 @@ export default function TaskDetailsDialog({ open, onOpenChange, taskId }: TaskDe
       setNewMiniTaskName("");
       setNewMiniTaskDescription("");
       setIsAddingMiniTask(false);
+      toast.success('Mini task added successfully');
     } catch (error) {
       console.error('Error adding mini task:', error);
     }
@@ -240,6 +325,7 @@ export default function TaskDetailsDialog({ open, onOpenChange, taskId }: TaskDe
         ...task,
         miniTasks: task.miniTasks.filter((miniTask: MiniTask) => miniTask.miniTaskId !== miniTaskId)
       });
+      toast.success('Mini task deleted successfully');
     } catch (error) {
       console.error('Error deleting mini task:', error);
     }
@@ -262,6 +348,7 @@ export default function TaskDetailsDialog({ open, onOpenChange, taskId }: TaskDe
             : miniTask
         )
       });
+      toast.success('Mini task status updated successfully');
     } catch (error) {
       console.error('Error updating mini task status:', error);
     }
@@ -289,6 +376,7 @@ export default function TaskDetailsDialog({ open, onOpenChange, taskId }: TaskDe
 
       // Clear input
       setNewComment("");
+      toast.success('Comment added successfully');
     } catch (error) {
       console.error('Error adding comment:', error);
     }
@@ -296,95 +384,148 @@ export default function TaskDetailsDialog({ open, onOpenChange, taskId }: TaskDe
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[90vw] max-h-[80vh] flex flex-col p-0">
+      <DialogContent className="max-w-[90vw] max-h-[80vh] flex flex-col p-0 rounded-lg shadow-lg">
         {/* Header */}
-        <div className="flex justify-between items-center py-1 px-4 border-b">
-          <div className="flex items-center gap-2">
-            <div>
-              <Select
-                value={task.priority}
-                onValueChange={handleUpdatePriority}
-              >
-                <SelectTrigger>
-                  <Badge variant={
-                    task.priority === 'high' ? 'destructive' :
-                      task.priority === 'medium' ? 'secondary' :
-                        'outline'
-                  }>
-                    {task.priority}
-                  </Badge>
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="high">High</SelectItem>
-                  <SelectItem value="medium">Medium</SelectItem>
-                  <SelectItem value="low">Low</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <h2 className="text-xl font-semibold">{task.taskName}</h2>
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex justify-between items-center py-3 px-4 border-b bg-gradient-to-r from-primary/5 to-primary/10"
+        >
+          <div className="flex items-center gap-3">
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger>
+                  <Select
+                    value={task.priority}
+                    onValueChange={handleUpdatePriority}
+                  >
+                    <SelectTrigger className="border-none shadow-sm">
+                      <Badge variant={
+                        task.priority === 'high' ? 'destructive' :
+                          task.priority === 'medium' ? 'secondary' :
+                            'outline'
+                      } className="animate-pulse">
+                        <AlertCircle className="w-4 h-4 mr-1" />
+                        {task.priority}
+                      </Badge>
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="high">
+                        <div className="flex items-center gap-2">
+                          <AlertCircle className="w-4 h-4 text-red-500" />
+                          High Priority
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="medium">
+                        <div className="flex items-center gap-2">
+                          <AlertCircle className="w-4 h-4 text-yellow-500" />
+                          Medium Priority
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="low">
+                        <div className="flex items-center gap-2">
+                          <AlertCircle className="w-4 h-4 text-green-500" />
+                          Low Priority
+                        </div>
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Task Priority</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+
+            <motion.h2
+              className="text-xl font-semibold"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.2 }}
+            >
+              {task.taskName}
+            </motion.h2>
           </div>
-          <div className="flex items-center gap-4">
-            <Button variant="ghost" size="icon">
-              <Heart className="w-5 h-5" />
-            </Button>
-            <Button variant="ghost" size="icon">
-              <Share2 className="w-5 h-5" />
-            </Button>
-            <Button variant="ghost" size="icon">
-              <MoreHorizontal className="w-5 h-5" />
-            </Button>
+
+          <div className="flex items-center gap-2">
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger>
+                  <Button variant="ghost" size="icon" onClick={() => { }}>
+                    <Heart className={`w-5 h-5 ${task.isFavorite ? 'text-red-500 fill-current' : ''}`} />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>{task.isFavorite ? 'Remove from favorites' : 'Add to favorites'}</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger>
+                  <Button variant="ghost" size="icon">
+                    <Share2 className="w-5 h-5" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Share task</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon">
+                  <MoreHorizontal className="w-5 h-5" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuLabel>Task Actions</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem>
+                  <Edit className="w-4 h-4 mr-2" />
+                  Edit Task
+                </DropdownMenuItem>
+                <DropdownMenuItem className="text-red-600">
+                  <Trash2 className="w-4 h-4 mr-2" />
+                  Delete Task
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
             <Button variant="ghost" size="icon" onClick={() => onOpenChange(false)}>
               <X className="w-5 h-5" />
             </Button>
           </div>
-        </div>
+        </motion.div>
 
         {/* Body */}
-        <div className="flex flex-1 overflow-hidden">
-          {/* Left Section - 60% */}
-          <div className="w-[60%] pl-6 pr-4 overflow-y-auto border-r custom-scrollbar">
-            <div className="space-y-6">
-              {/* Task Name */}
-              <div>
-                {isEditingName ? (
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="text"
-                      value={newTaskName}
-                      onChange={(e) => setNewTaskName(e.target.value)}
-                      className="text-2xl font-semibold mb-2 bg-transparent border-b border-gray-300 focus:outline-none focus:border-primary"
-                      autoFocus
-                    />
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={handleUpdateTaskName}
-                      className="mb-2"
-                    >
-                      <Check className="w-4 h-4" />
-                    </Button>
-                  </div>
-                ) : (
-                  <h2
-                    className="text-2xl font-semibold mb-2 cursor-pointer hover:text-primary"
-                    onClick={() => {
-                      setIsEditingName(true);
-                      setNewTaskName(task.taskName);
-                    }}
-                  >
-                    {task.taskName}
-                  </h2>
-                )}
-              </div>
-              {/* Description */}
-              <div>
-                <h3 className="text-lg font-semibold mb-2">Description</h3>
+        <div className="flex flex-1 overflow-hidden pb-4">
+          {/* Left Section */}
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="w-[60%] pl-4 pr-2 overflow-y-auto border-r custom-scrollbar"
+            ref={parentRef}
+          >
+            <div className="space-y-4">
+              {/* Description Section */}
+              <motion.div
+                className="bg-sidebar-primary rounded-lg p-4 transition-all hover:shadow-md"
+                whileHover={{ scale: 1.01 }}
+              >
+                <div className="flex items-center gap-2 mb-3">
+                  <MessageSquare className="w-5 h-5 text-primary" />
+                  <p className="text-base font-semibold">Description</p>
+                </div>
+
                 {isEditingDescription ? (
                   <div className="flex flex-col gap-2">
                     <textarea
                       value={newDescription}
                       onChange={(e) => setNewDescription(e.target.value)}
-                      className="w-full p-2 text-gray-600 border rounded-md focus:outline-none focus:border-primary"
+                      className="w-full p-2 text-gray-300 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary bg-background"
                       rows={4}
                       autoFocus
                     />
@@ -394,8 +535,18 @@ export default function TaskDetailsDialog({ open, onOpenChange, taskId }: TaskDe
                         size="sm"
                         onClick={handleUpdateDescription}
                         className="flex items-center gap-1"
+                        disabled={isSaving}
                       >
-                        <Save className="w-4 h-4" />
+                        {isSaving ? (
+                          <motion.div
+                            animate={{ rotate: 360 }}
+                            transition={{ duration: 1, repeat: Infinity }}
+                          >
+                            <CircleDashed className="w-4 h-4" />
+                          </motion.div>
+                        ) : (
+                          <Save className="w-4 h-4" />
+                        )}
                         Save
                       </Button>
                       <Button
@@ -403,6 +554,7 @@ export default function TaskDetailsDialog({ open, onOpenChange, taskId }: TaskDe
                         size="sm"
                         onClick={() => setIsEditingDescription(false)}
                         className="flex items-center gap-1"
+                        disabled={isSaving}
                       >
                         <XCircle className="w-4 h-4" />
                         Cancel
@@ -411,47 +563,60 @@ export default function TaskDetailsDialog({ open, onOpenChange, taskId }: TaskDe
                   </div>
                 ) : (
                   <p
-                    className="text-gray-600 cursor-pointer hover:text-primary"
+                    className="text-gray-600 text-sm cursor-pointer hover:text-primary"
                     onClick={() => {
                       setIsEditingDescription(true);
                       setNewDescription(task.taskDescription);
                     }}
                   >
-                    {task.taskDescription}
+                    {task.taskDescription || 'Add a description...'}
                   </p>
                 )}
-              </div>
+              </motion.div>
 
-              {/* Links */}
-              {task.taskLinks && (
-                <div>
-                  <div className="flex justify-between items-center mb-2">
-                    <h3 className="text-lg font-semibold">Links</h3>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setIsAddingLink(true)}
-                      className="flex items-center gap-1"
-                    >
-                      <Plus className="w-4 h-4" />
-                    </Button>
+              {/* Links Section */}
+              <motion.div
+                className="bg-sidebar-primary rounded-lg p-4 transition-all hover:shadow-md"
+                whileHover={{ scale: 1.01 }}
+                ref={linksRef}
+              >
+                <div className="flex justify-between items-center mb-4">
+                  <div className="flex items-center gap-2">
+                    <Link2 className="w-5 h-5 text-primary" />
+                    <p className="text-base font-semibold">Links</p>
                   </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setIsAddingLink(true)}
+                    className="flex items-center gap-1"
+                  >
+                    <Plus className="w-4 h-4" />
+                    Add Link
+                  </Button>
+                </div>
 
+                <AnimatePresence>
                   {isAddingLink && (
-                    <div className="mb-4 space-y-2">
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      exit={{ opacity: 0, height: 0 }}
+                      className="mb-4 space-y-2"
+                    >
                       <input
                         type="text"
-                        placeholder="Title"
+                        placeholder="Link Title"
                         value={newLinkTitle}
                         onChange={(e) => setNewLinkTitle(e.target.value)}
-                        className="w-full p-2 text-sm border rounded-md"
+                        className="w-full p-2 text-sm border rounded-md focus:ring-2 focus:ring-primary bg-background"
                       />
                       <input
                         type="url"
                         placeholder="URL"
                         value={newLinkUrl}
                         onChange={(e) => setNewLinkUrl(e.target.value)}
-                        className="w-full p-2 text-sm border rounded-md"
+                        className="w-full p-2 text-sm border rounded-md focus:ring-2 focus:ring-primary bg-background"
                       />
                       <div className="flex gap-2">
                         <Button
@@ -459,6 +624,7 @@ export default function TaskDetailsDialog({ open, onOpenChange, taskId }: TaskDe
                           size="sm"
                           onClick={handleAddLink}
                           className="flex items-center gap-1"
+                          disabled={isSaving}
                         >
                           <Save className="w-4 h-4" />
                           Save
@@ -473,60 +639,83 @@ export default function TaskDetailsDialog({ open, onOpenChange, taskId }: TaskDe
                           Cancel
                         </Button>
                       </div>
-                    </div>
+                    </motion.div>
                   )}
+                </AnimatePresence>
 
-                  <div className="space-y-2">
-                    {task.taskLinks.map((link: TaskLink) => (
-                      <div key={link.taskLinkId} className="flex items-center gap-2 group">
-                        <LinkIcon className="w-4 h-4" />
-                        <a href={link.link} target="_blank" rel="noopener noreferrer"
-                          className="text-blue-500 hover:underline flex-grow">
-                          {link.title}
-                        </a>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleDeleteLink(link.taskLinkId)}
-                          className="opacity-0 group-hover:opacity-100 transition-opacity"
-                        >
-                          <X className="w-4 h-4 text-gray-500 hover:text-red-500" />
-                        </Button>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Mini tasks */}
-              {task.miniTasks && (
-                <div>
-                  <div className="flex justify-between items-center mb-2">
-                    <h3 className="text-lg font-semibold">Mini tasks</h3>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setIsAddingMiniTask(true)}
-                      className="flex items-center gap-1"
+                <div className="space-y-2">
+                  {task.taskLinks.map((link: TaskLink) => (
+                    <motion.div
+                      key={link.taskLinkId}
+                      className="flex items-center gap-2 group p-2 rounded-md hover:bg-background"
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: 20 }}
                     >
-                      <Plus className="w-4 h-4" />
-                    </Button>
-                  </div>
+                      <LinkIcon className="w-4 h-4 text-primary" />
+                      <a
+                        href={link.link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-500 hover:underline flex-grow"
+                      >
+                        {link.title}
+                      </a>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleDeleteLink(link.taskLinkId)}
+                        className="opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <X className="w-4 h-4 text-gray-500 hover:text-red-500" />
+                      </Button>
+                    </motion.div>
+                  ))}
+                </div>
+              </motion.div>
 
+              {/* Mini Tasks Section */}
+              <motion.div
+                className="bg-sidebar-primary rounded-lg p-4 transition-all hover:shadow-md"
+                whileHover={{ scale: 1.01 }}
+                ref={miniTasksRef}
+              >
+                <div className="flex justify-between items-center mb-4">
+                  <div className="flex items-center gap-2">
+                    <CheckCircle2 className="w-5 h-5 text-primary" />
+                    <p className="text-base font-semibold">Mini Tasks</p>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setIsAddingMiniTask(true)}
+                    className="flex items-center gap-1"
+                  >
+                    <Plus className="w-4 h-4" />
+                    Add Mini Task
+                  </Button>
+                </div>
+
+                <AnimatePresence>
                   {isAddingMiniTask && (
-                    <div className="mb-4 space-y-2">
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      exit={{ opacity: 0, height: 0 }}
+                      className="mb-4 space-y-2"
+                    >
                       <input
                         type="text"
-                        placeholder="Mini task name"
+                        placeholder="Mini Task Name"
                         value={newMiniTaskName}
                         onChange={(e) => setNewMiniTaskName(e.target.value)}
-                        className="w-full p-2 text-sm border rounded-md"
+                        className="w-full p-2 text-sm border rounded-md focus:ring-2 focus:ring-primary bg-background"
                       />
                       <textarea
-                        placeholder="Mini task description"
+                        placeholder="Mini Task Description"
                         value={newMiniTaskDescription}
                         onChange={(e) => setNewMiniTaskDescription(e.target.value)}
-                        className="w-full p-2 text-sm border rounded-md"
+                        className="w-full p-2 text-sm border rounded-md focus:ring-2 focus:ring-primary bg-background"
                         rows={2}
                       />
                       <div className="flex gap-2">
@@ -535,6 +724,7 @@ export default function TaskDetailsDialog({ open, onOpenChange, taskId }: TaskDe
                           size="sm"
                           onClick={handleAddMiniTask}
                           className="flex items-center gap-1"
+                          disabled={isSaving}
                         >
                           <Save className="w-4 h-4" />
                           Save
@@ -549,138 +739,226 @@ export default function TaskDetailsDialog({ open, onOpenChange, taskId }: TaskDe
                           Cancel
                         </Button>
                       </div>
-                    </div>
+                    </motion.div>
                   )}
-                  <div className="space-y-2">
-                    {task.miniTasks.map((miniTask: MiniTask) => (
-                      <div key={miniTask.miniTaskId} className="flex items-center gap-2 group">
-                        <Checkbox
-                          checked={miniTask.miniTaskStatus === 'done'}
-                          onCheckedChange={(checked) => handleMiniTaskStatusChange(miniTask.miniTaskId, checked as boolean)}
-                        />
-                        <div className="flex flex-col flex-grow">
-                          <div className="flex items-center gap-2">
-                            <p className={`font-medium ${miniTask.miniTaskStatus === 'done' ? 'text-gray-400 line-through' : ''}`}>
-                              {miniTask.miniTaskName} {`@${miniTask.miniTaskMemberUsername}`}
-                            </p>
-                            <Badge variant={miniTask.miniTaskStatus === 'done' ? 'default' : 'secondary'}>
-                              {miniTask.miniTaskStatus}
-                            </Badge>
-                          </div>
-                          <p className={`text-sm ${miniTask.miniTaskStatus === 'done' ? 'text-gray-400 line-through' : 'text-gray-500'}`}>
-                            {miniTask.miniTaskDescription}
-                          </p>
-                        </div>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleDeleteMiniTask(miniTask.miniTaskId)}
-                          className="opacity-0 group-hover:opacity-100 transition-opacity"
-                        >
-                          <X className="w-4 h-4 text-gray-500 hover:text-red-500" />
-                        </Button>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
+                </AnimatePresence>
 
-              {/* Comments and Logs Tabs */}
-              <Tabs defaultValue="comments" className="w-full">
-                <TabsList>
-                  <TabsTrigger value="comments">Comments</TabsTrigger>
-                  <TabsTrigger value="logs">Activity Logs</TabsTrigger>
-                </TabsList>
-                <TabsContent value="comments">
-                  {/* New comment input area */}
-                  <div className="mt-4 space-y-2">
-                    <textarea
-                      value={newComment}
-                      onChange={(e) => setNewComment(e.target.value)}
-                      placeholder="Write a comment..."
-                      className="w-full p-2 text-sm border rounded-md min-h-[100px] focus:outline-none focus:ring-2 focus:ring-primary"
-                    />
-                    <Button
-                      onClick={handleAddComment}
-                      disabled={!newComment.trim()}
-                      className="w-full"
+                <div className="space-y-2">
+                  {task.miniTasks.map((miniTask: MiniTask) => (
+                    <motion.div
+                      key={miniTask.miniTaskId}
+                      className="flex items-center gap-2 group p-2 rounded-md hover:bg-background"
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -20 }}
                     >
-                      Add Comment
-                    </Button>
-                  </div>
-                  {task.taskComments && task.taskComments.length > 0 ? (
+                      <Checkbox
+                        checked={miniTask.miniTaskStatus === 'done'}
+                        onCheckedChange={(checked) =>
+                          handleMiniTaskStatusChange(miniTask.miniTaskId, checked as boolean)
+                        }
+                      />
+                      <div className="flex flex-col flex-grow">
+                        <div className="flex items-center gap-2">
+                          <p className={`font-medium ${miniTask.miniTaskStatus === 'done'
+                              ? 'text-gray-400 line-through'
+                              : ''
+                            }`}>
+                            {miniTask.miniTaskName}
+                          </p>
+                          {miniTask.miniTaskMemberUsername && (
+                            <Badge variant="outline" className="text-xs">
+                              @{miniTask.miniTaskMemberUsername}
+                            </Badge>
+                          )}
+                        </div>
+                        <p className={`text-sm ${miniTask.miniTaskStatus === 'done'
+                            ? 'text-gray-400 line-through'
+                            : 'text-gray-500'
+                          }`}>
+                          {miniTask.miniTaskDescription}
+                        </p>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleDeleteMiniTask(miniTask.miniTaskId)}
+                        className="opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <X className="w-4 h-4 text-gray-500 hover:text-red-500" />
+                      </Button>
+                    </motion.div>
+                  ))}
+                </div>
+              </motion.div>
+
+              {/* Comments and Logs Section */}
+              <Tabs defaultValue="comments" className="w-full">
+                <TabsList className="w-full justify-start bg-sidebar-primary p-1 rounded-lg">
+                  <TabsTrigger value="comments" className="flex items-center gap-2">
+                    <MessageSquare className="w-4 h-4" />
+                    Comments
+                  </TabsTrigger>
+                  <TabsTrigger value="logs" className="flex items-center gap-2">
+                    <Activity className="w-4 h-4" />
+                    Activity Logs
+                  </TabsTrigger>
+                </TabsList>
+
+                <TabsContent value="comments">
+                  <div className="mt-4 space-y-4" ref={commentsRef}>
+                    <div className="space-y-2">
+                      <textarea
+                        value={newComment}
+                        onChange={(e) => setNewComment(e.target.value)}
+                        placeholder="Write a comment..."
+                        className="w-full p-3 text-sm border rounded-lg focus:ring-2 focus:ring-primary min-h-[100px] bg-background"
+                      />
+                      <Button
+                        onClick={handleAddComment}
+                        disabled={!newComment.trim() || isSaving}
+                        className="w-full"
+                      >
+                        {isSaving ? (
+                          <motion.div
+                            animate={{ rotate: 360 }}
+                            transition={{ duration: 1, repeat: Infinity }}
+                          >
+                            <CircleDashed className="w-4 h-4 mr-2" />
+                          </motion.div>
+                        ) : (
+                          <MessageSquare className="w-4 h-4 mr-2" />
+                        )}
+                        Add Comment
+                      </Button>
+                    </div>
+
                     <div className="space-y-4">
                       {task.taskComments.map((comment: TaskComment) => (
-                        <div key={comment.commentId} className="flex gap-2">
+                        <motion.div
+                          key={comment.commentId}
+                          className="flex gap-3 p-3 rounded-lg hover:bg-background"
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                        >
                           <Avatar className="w-8 h-8">
-                            <AvatarFallback>{comment.memberUsername[0]}</AvatarFallback>
+                            {comment.memberAvatar ? (
+                              <AvatarImage src={comment.memberAvatar} />
+                            ) : (
+                              <AvatarFallback>
+                                {comment.memberUsername[0].toUpperCase()}
+                              </AvatarFallback>
+                            )}
                           </Avatar>
-                          <div>
+                          <div className="flex-grow">
                             <div className="flex items-center gap-2">
-                              <span className="font-medium">{comment.memberUsername}</span>
+                              <span className="font-medium">
+                                {comment.memberUsername}
+                              </span>
                               <span className="text-sm text-gray-500">
                                 {format(new Date(comment.createdAt), 'MMM d, yyyy HH:mm')}
                               </span>
                             </div>
-                            <p>{comment.comment}</p>
+                            <p className="mt-1 text-gray-700">{comment.comment}</p>
                           </div>
-                        </div>
+                        </motion.div>
                       ))}
                     </div>
-                  ) : (
-                    <p className="text-gray-500">No comments yet</p>
-                  )}
+                  </div>
                 </TabsContent>
+
                 <TabsContent value="logs">
-                  {task.taskLogs && task.taskLogs.length > 0 ? (
-                    <div className="space-y-4">
-                      {task.taskLogs.map((log: TaskLog) => (
-                        <div key={log.taskLogId} className="border-l-2 border-gray-200 pl-4">
-                          <div className="font-medium">{log.taskLogTitle}</div>
-                          <p className="text-sm text-gray-600">{log.taskLogDescription}</p>
-                          <span className="text-sm text-gray-500">
-                            {format(new Date(log.taskLogDate), 'MMM d, yyyy HH:mm')}
-                          </span>
+                  <div className="mt-4 space-y-4">
+                    {task.taskLogs.map((log: TaskLog) => (
+                      <motion.div
+                        key={log.taskLogId}
+                        className="border-l-2 border-gray-200 pl-4 py-2"
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                      >
+                        <div className="font-medium flex items-center gap-2">
+                          {log.logType === 'create' && (
+                            <Plus className="w-4 h-4 text-green-500" />
+                          )}
+                          {log.logType === 'update' && (
+                            <Edit className="w-4 h-4 text-blue-500" />
+                          )}
+                          {log.logType === 'delete' && (
+                            <Trash2 className="w-4 h-4 text-red-500" />
+                          )}
+                          {log.logType === 'complete' && (
+                            <CheckCircle2 className="w-4 h-4 text-green-500" />
+                          )}
+                          {log.taskLogTitle}
                         </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <p className="text-gray-500">No activity logs yet</p>
-                  )}
+                        <p className="text-sm text-gray-600">
+                          {log.taskLogDescription}
+                        </p>
+                        <span className="text-sm text-gray-500">
+                          {format(new Date(log.taskLogDate), 'MMM d, yyyy HH:mm')}
+                        </span>
+                      </motion.div>
+                    ))}
+                  </div>
                 </TabsContent>
               </Tabs>
             </div>
-          </div>
+          </motion.div>
 
-          {/* Right Section - 40% */}
-          <div className="w-[40%] pl-6 pr-4 overflow-y-auto custom-scrollbar">
-            <div className="space-y-6">
-              {/* Status */}
-              <div>
+          {/* Right Section */}
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="w-[40%] pl-4 pr-2 overflow-y-auto custom-scrollbar"
+          >
+            <div className="space-y-4">
+              {/* Status Section */}
+              <div className="bg-sidebar-primary rounded-lg p-4">
+                <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
+                  <Activity className="w-5 h-5 text-primary" />
+                  Status
+                </h3>
                 <Select
                   value={task.status}
                   onValueChange={handleUpdateStatus}
                 >
-                  <SelectTrigger>
-                    <Badge variant={
-                      task.status === 'todo' ? 'default' :
-                        task.status === 'in_progress' ? 'secondary' :
-                          'outline'
-                    } className="rounded-lg">
-                      <p className="text-xl">{task.status}</p>
-                    </Badge>
+                  <SelectTrigger className="w-full">
+                    <p className="text-lg">
+                      {task.status === 'todo' && 'To Do'}
+                      {task.status === 'in_progress' && 'In Progress'}
+                      {task.status === 'done' && 'Done'}
+                    </p>
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="todo">Todo</SelectItem>
-                    <SelectItem value="in_progress">In Progress</SelectItem>
-                    <SelectItem value="done">Done</SelectItem>
+                    <SelectItem value="todo">
+                      <div className="flex items-center gap-2">
+                        <CircleDashed className="w-4 h-4" />
+                        To Do
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="in_progress">
+                      <div className="flex items-center gap-2">
+                        <Clock className="w-4 h-4 text-blue-500" />
+                        In Progress
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="done">
+                      <div className="flex items-center gap-2">
+                        <CheckCircle2 className="w-4 h-4 text-green-500" />
+                        Done
+                      </div>
+                    </SelectItem>
                   </SelectContent>
                 </Select>
               </div>
-              {/* Dates */}
-              <div>
-                <h3 className="text-base mb-2">Timeline</h3>
-                <table className="w-full border-collapse">
+
+              {/* Timeline Section */}
+              <div className="bg-sidebar-primary rounded-lg p-4">
+                <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
+                  <Calendar className="w-5 h-5 text-primary" />
+                  Timeline
+                </h3>
+                <table className="w-full">
                   <tbody>
                     {/* Start Date */}
                     <tr className="border-b">
@@ -699,7 +977,7 @@ export default function TaskDetailsDialog({ open, onOpenChange, taskId }: TaskDe
                               type="date"
                               value={newEndDate}
                               onChange={(e) => setNewEndDate(e.target.value)}
-                              className="border rounded p-1"
+                              className="border rounded p-1 bg-background"
                             />
                             <Button
                               variant="ghost"
@@ -726,69 +1004,132 @@ export default function TaskDetailsDialog({ open, onOpenChange, taskId }: TaskDe
                 </table>
               </div>
 
-              {/* Assignments and Creator */}
-              <div>
-                <h3 className="text-lg font-semibold mb-2">Task Members</h3>
-                <table className="w-full border-collapse">
-                  <tbody>
-                    <tr className="border-b">
-                      <td className="py-2 text-gray-500 align-top">Assigned To:</td>
-                      <td className="py-2">
-                        <div className="space-y-2">
-                          {task.taskAssignments.map((assignment: TaskAssignment) => (
-                            <div key={assignment.assignmentMemberId} className="flex items-center gap-2">
-                              <Avatar className="w-8 h-8">
-                                <AvatarFallback>{assignment.assigneeUsername[0]}</AvatarFallback>
-                              </Avatar>
-                              <div>
-                                <div className="font-medium">{assignment.assigneeUsername}</div>
-                                <div className="text-sm text-gray-500">{assignment.assigneeEmail}</div>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </td>
-                    </tr>
-                    <tr className="border-b">
-                      <td className="py-2 text-gray-500">Created By:</td>
-                      <td className="py-2">
-                        <div className="flex items-center gap-2">
+              {/* Assignments Section */}
+              <div className="bg-sidebar-primary rounded-lg p-4">
+                <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
+                  <Users className="w-5 h-5 text-primary" />
+                  Task Members
+                </h3>
+                <div className="space-y-4">
+                  {/* Assignees */}
+                  <div>
+                    <label className="text-sm text-gray-500">Assigned To:</label>
+                    <div className="mt-2 space-y-2">
+                      {task.taskAssignments.map((assignment: TaskAssignment) => (
+                        <motion.div
+                          key={assignment.assignmentMemberId}
+                          className="flex items-center gap-2 p-2 rounded-lg hover:bg-background"
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                        >
                           <Avatar className="w-8 h-8">
-                            <AvatarFallback>{task.creatorUsername[0]}</AvatarFallback>
+                            {assignment.assigneeAvatar ? (
+                              <AvatarImage src={assignment.assigneeAvatar} />
+                            ) : (
+                              <AvatarFallback>
+                                {assignment.assigneeUsername[0].toUpperCase()}
+                              </AvatarFallback>
+                            )}
                           </Avatar>
-                          <div>
-                            <div className="font-medium">{task.creatorUsername}</div>
-                            <div className="text-sm text-gray-500">{task.creatorEmail}</div>
+                          <div className="flex-grow">
+                            <p className="font-medium">{assignment.assigneeUsername}</p>
+                            <p className="text-sm text-gray-500">{assignment.assigneeEmail}</p>
                           </div>
-                        </div>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
+                          <Button variant="ghost" size="sm">
+                            <X className="w-4 h-4 text-gray-500 hover:text-red-500" />
+                          </Button>
+                        </motion.div>
+                      ))}
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="mt-2 w-full flex items-center gap-2"
+                    >
+                      <UserPlus className="w-4 h-4" />
+                      Add Member
+                    </Button>
+                  </div>
+
+                  {/* Creator */}
+                  <div>
+                    <label className="text-sm text-gray-500">Created By:</label>
+                    <div className="mt-2 flex items-center gap-2 p-2 rounded-lg bg-background">
+                      <Avatar className="w-8 h-8">
+                        {task.creatorAvatar ? (
+                          <AvatarImage src={task.creatorAvatar} />
+                        ) : (
+                          <AvatarFallback>
+                            {task.creatorUsername[0].toUpperCase()}
+                          </AvatarFallback>
+                        )}
+                      </Avatar>
+                      <div>
+                        <p className="font-medium">{task.creatorUsername}</p>
+                        <p className="text-sm text-gray-500">{task.creatorEmail}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
 
               {/* Task Dependencies */}
               {(task.previousTaskId || task.nextTaskId) && (
-                <div>
-                  <h3 className="text-lg font-semibold mb-2">Task Dependencies</h3>
-                  {task.previousTaskId && (
-                    <div className="mb-2">
-                      <span className="text-gray-500">Previous Task:</span>
-                      <span className="ml-2">{task.previousTaskName}</span>
-                    </div>
-                  )}
-                  {task.nextTaskId && (
-                    <div>
-                      <span className="text-gray-500">Next Task:</span>
-                      <span className="ml-2">{task.nextTaskName}</span>
-                    </div>
-                  )}
+                <div className="bg-sidebar-primary rounded-lg p-4">
+                  <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
+                    <Link2 className="w-5 h-5 text-primary" />
+                    Task Dependencies
+                  </h3>
+                  <div className="space-y-3">
+                    {task.previousTaskId && (
+                      <div className="flex items-center gap-2">
+                        <ChevronLeft className="w-4 h-4 text-gray-500" />
+                        <div>
+                          <p className="text-sm text-gray-500">Previous Task</p>
+                          <p className="font-medium">{task.previousTaskName}</p>
+                        </div>
+                      </div>
+                    )}
+                    {task.nextTaskId && (
+                      <div className="flex items-center gap-2">
+                        <ChevronRight className="w-4 h-4 text-gray-500" />
+                        <div>
+                          <p className="text-sm text-gray-500">Next Task</p>
+                          <p className="font-medium">{task.nextTaskName}</p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
             </div>
-          </div>
+          </motion.div>
         </div>
       </DialogContent>
     </Dialog>
+  );
+}
+
+// Loading Component
+function LoadingTaskDialog() {
+  return (
+    <div className="p-6 space-y-6">
+      <div className="flex items-center gap-4">
+        <Skeleton className="h-8 w-24" />
+        <Skeleton className="h-8 w-64" />
+      </div>
+      <div className="flex gap-6">
+        <div className="w-[60%] space-y-6">
+          <Skeleton className="h-32 w-full" />
+          <Skeleton className="h-24 w-full" />
+          <Skeleton className="h-48 w-full" />
+        </div>
+        <div className="w-[40%] space-y-6">
+          <Skeleton className="h-16 w-full" />
+          <Skeleton className="h-32 w-full" />
+          <Skeleton className="h-48 w-full" />
+        </div>
+      </div>
+    </div>
   );
 }
