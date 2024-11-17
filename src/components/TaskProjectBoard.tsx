@@ -5,6 +5,7 @@ import TaskBoardCard from './Card/TaskBoardCard';
 import { toast } from 'react-toastify';
 import { Button } from './ui/button';
 import { Plus } from 'lucide-react';
+import TaskDetailsDialog from './Dialog/TaskDetailsDialog';
 
 interface Task {
     taskId: string;
@@ -45,6 +46,9 @@ const TaskProjectBoard = ({ projectId }: TaskProjectBoardProps) => {
     const [columnOrder, setColumnOrder] = useState<string[]>([]);
     const [isCreatingGroup, setIsCreatingGroup] = useState(false);
     const [newGroupName, setNewGroupName] = useState('');
+    const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
+    const [isTaskDetailsOpen, setIsTaskDetailsOpen] = useState(false);
+
 
     useEffect(() => {
         fetchTaskGroups();
@@ -79,14 +83,14 @@ const TaskProjectBoard = ({ projectId }: TaskProjectBoardProps) => {
     const fetchTasks = async () => {
         try {
             const response: Task[] = await _GET(`/task/service/tasks/project?projectId=${projectId}`);
-    
+
             const tasksById: { [key: string]: Task } = {};
             const columnsById: { [key: string]: Column } = { ...columns }; // Preserve existing columns
-    
+
             // Group tasks by taskGroupId
             response.forEach((task: Task) => {
                 tasksById[task.taskId] = task;
-    
+
                 if (!columnsById[task.taskGroupId]) {
                     columnsById[task.taskGroupId] = {
                         id: task.taskGroupId,
@@ -96,7 +100,7 @@ const TaskProjectBoard = ({ projectId }: TaskProjectBoardProps) => {
                 }
                 columnsById[task.taskGroupId].taskIds.push(task.taskId);
             });
-    
+
             setTasks(tasksById);
             setColumns(columnsById);
             setColumnOrder(Object.keys(columnsById));
@@ -201,99 +205,115 @@ const TaskProjectBoard = ({ projectId }: TaskProjectBoardProps) => {
     };
 
     return (
-        <DragDropContext onDragEnd={onDragEnd}>
-            <div className="flex gap-4 p-4 overflow-x-auto h-[calc(100vh-200px)] w-[calc(100vw-250px)]">
-                
-                {columnOrder.map(columnId => {
-                    const column = columns[columnId];
-                    const columnTasks = column.taskIds.map(taskId => tasks[taskId]);
+        <>
+            <DragDropContext onDragEnd={onDragEnd}>
+                <div className="flex gap-4 p-4 overflow-x-auto h-[calc(100vh-200px)] w-[calc(100vw-250px)] custom-scrollbar">
+                    {columnOrder.map(columnId => {
+                        const column = columns[columnId];
+                        const columnTasks = column.taskIds.map(taskId => tasks[taskId]);
 
-                    return (
-                        <div key={column.id} className="w-80 flex-shrink-0">
-                            <div className="bg-gray-100 dark:bg-gray-800 rounded-lg p-4 h-full">
-                                <div className="flex items-center justify-between mb-4">
-                                    <h3 className="font-semibold">{column.title}</h3>
-                                    <span className="text-xs text-muted-foreground">
-                                        {columnTasks.length} tasks
-                                    </span>
+                        return (
+                            <div key={column.id} className="w-80 flex-shrink-0">
+                                <div className="bg-gray-100 dark:bg-gray-800 rounded-lg p-4 h-full flex flex-col">
+                                    <div className="flex items-center justify-between mb-4">
+                                        <h3 className="font-semibold">{column.title}</h3>
+                                        <span className="text-xs text-muted-foreground">
+                                            {columnTasks.length} tasks
+                                        </span>
+                                    </div>
+                                    <Droppable droppableId={column.id} type="TASK">
+                                        {(provided) => (
+                                            <div
+                                                ref={provided.innerRef}
+                                                {...provided.droppableProps}
+                                                className="space-y-2 min-h-[100px] overflow-y-auto flex-1 custom-scrollbar pr-2"
+                                            >
+                                                {columnTasks.map((task, index) => (
+                                                    <Draggable
+                                                        key={task.taskId}
+                                                        draggableId={task.taskId}
+                                                        index={index}
+                                                    >
+                                                        {(provided) => (
+                                                            <div
+                                                                ref={provided.innerRef}
+                                                                {...provided.draggableProps}
+                                                                {...provided.dragHandleProps}
+                                                            >
+                                                                <TaskBoardCard
+                                                                    task={task}
+                                                                    onClick={() => {
+                                                                        setSelectedTaskId(task.taskId);
+                                                                        setIsTaskDetailsOpen(true);
+                                                                    }}
+                                                                />
+                                                            </div>
+                                                        )}
+                                                    </Draggable>
+                                                ))}
+                                                {provided.placeholder}
+                                            </div>
+                                        )}
+                                    </Droppable>
                                 </div>
-                                <Droppable droppableId={column.id} type="TASK">
-                                    {(provided) => (
-                                        <div
-                                            ref={provided.innerRef}
-                                            {...provided.droppableProps}
-                                            className="space-y-2 min-h-[100px]"
-                                        >
-                                            {columnTasks.map((task, index) => (
-                                                <Draggable
-                                                    key={task.taskId}
-                                                    draggableId={task.taskId}
-                                                    index={index}
-                                                >
-                                                    {(provided) => (
-                                                        <div
-                                                            ref={provided.innerRef}
-                                                            {...provided.draggableProps}
-                                                            {...provided.dragHandleProps}
-                                                        >
-                                                            <TaskBoardCard task={task} />
-                                                        </div>
-                                                    )}
-                                                </Draggable>
-                                            ))}
-                                            {provided.placeholder}
-                                        </div>
-                                    )}
-                                </Droppable>
                             </div>
-                        </div>
-                    );
-                })}
+                        );
+                    })}
 
-                {/* Add New Column Button */}
-                <div className="w-80 flex-shrink-0">
-                    {isCreatingGroup ? (
-                        <div className="bg-gray-100 dark:bg-gray-800 rounded-lg p-4">
-                            <input
-                                type="text"
-                                value={newGroupName}
-                                onChange={(e) => setNewGroupName(e.target.value)}
-                                placeholder="Enter group name"
-                                className="w-full p-2 mb-2 rounded border dark:bg-gray-700 dark:border-gray-600"
-                                autoFocus
-                            />
-                            <div className="flex gap-2">
-                                <Button
-                                    onClick={createNewTaskGroup}
-                                    className="flex-1"
-                                >
-                                    Create
-                                </Button>
-                                <Button
-                                    variant="outline"
-                                    onClick={() => {
-                                        setIsCreatingGroup(false);
-                                        setNewGroupName('');
-                                    }}
-                                    className="flex-1"
-                                >
-                                    Cancel
-                                </Button>
+                    {/* Add New Column Button */}
+                    <div className="w-80 flex-shrink-0">
+                        {isCreatingGroup ? (
+                            <div className="bg-gray-100 dark:bg-gray-800 rounded-lg p-4">
+                                <input
+                                    type="text"
+                                    value={newGroupName}
+                                    onChange={(e) => setNewGroupName(e.target.value)}
+                                    placeholder="Enter group name"
+                                    className="w-full p-2 mb-2 rounded border dark:bg-gray-700 dark:border-gray-600"
+                                    autoFocus
+                                />
+                                <div className="flex gap-2">
+                                    <Button
+                                        onClick={createNewTaskGroup}
+                                        className="flex-1"
+                                    >
+                                        Create
+                                    </Button>
+                                    <Button
+                                        variant="outline"
+                                        onClick={() => {
+                                            setIsCreatingGroup(false);
+                                            setNewGroupName('');
+                                        }}
+                                        className="flex-1"
+                                    >
+                                        Cancel
+                                    </Button>
+                                </div>
                             </div>
-                        </div>
-                    ) : (
-                        <Button
-                            variant="outline"
-                            onClick={() => setIsCreatingGroup(true)}
-                            className="w-full h-full min-h-[100px] flex items-center justify-center"
-                        >
-                            <Plus className="mr-2" />
-                            Add New Group
-                        </Button>
-                    )}
+                        ) : (
+                            <Button
+                                variant="outline"
+                                onClick={() => setIsCreatingGroup(true)}
+                                className="w-full h-full min-h-[100px] flex items-center justify-center"
+                            >
+                                <Plus className="mr-2" />
+                                Add New Group
+                            </Button>
+                        )}
+                    </div>
                 </div>
-            </div>
-        </DragDropContext>
+            </DragDropContext>
+            {selectedTaskId && (
+                <TaskDetailsDialog
+                    open={isTaskDetailsOpen}
+                    onOpenChange={setIsTaskDetailsOpen}
+                    taskId={selectedTaskId}
+                    teamId={projectId}
+                    onTaskUpdate={fetchTasks}
+                />
+            )}
+        </>
     );
 };
 
