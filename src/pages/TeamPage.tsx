@@ -28,8 +28,6 @@ interface Task {
     priority: string;
     projectId: string;
     projectName: string;
-    taskGroupId: string | null;
-    taskGroupName: string | null;
     nextTaskId: string | null;
     nextTaskName: string | null;
     previousTaskId: string | null;

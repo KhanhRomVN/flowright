@@ -19,6 +19,7 @@ import SwitchPage from "@/pages/SwitchPage";
 import ProfilePage from "@/pages/ProfilePage";
 import TeamPage from "@/pages/TeamPage";
 import WorkspaceManagementPage from "@/pages/WorkspaceManagementPage";
+import ProjectPage from "@/pages/ProjectPage";
 
 export const LoginRoute = createRoute({
     getParentRoute: () => RootRoute,
@@ -148,6 +149,16 @@ export const WorkspaceManagementRoute = createRoute({
     ),
 });
 
+export const ProjectRoute = createRoute({
+    getParentRoute: () => RootRoute,
+    path: "/project",
+    component: () => (
+        <MainLayout>
+            <ProjectPage />
+        </MainLayout>
+    ),
+});
+
 
 export const rootTree = RootRoute.addChildren([
     DashboardRoute,
@@ -162,5 +173,6 @@ export const rootTree = RootRoute.addChildren([
     SettingRoute,
     SwitchRoute,
     ProfileRoute,
-    WorkspaceManagementRoute
+    WorkspaceManagementRoute,
+    ProjectRoute
 ]);

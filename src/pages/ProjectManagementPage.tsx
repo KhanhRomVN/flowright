@@ -4,6 +4,8 @@ import { Button } from '@/components/ui/button';
 import { _GET } from '@/utils/auth_api';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAutoAnimate } from '@formkit/auto-animate/react';
+import { useProject } from '@/Context/ProjectContext';
+import { Link } from '@tanstack/react-router';
 
 interface Project {
     id: string;
@@ -22,6 +24,7 @@ const ProjectManagementPage = () => {
     const [parent] = useAutoAnimate();
     const [projects, setProjects] = useState<Project[]>([]);
     const [loading, setLoading] = useState(true);
+    const { setCurrentProject } = useProject();
 
     useEffect(() => {
         const fetchProjects = async () => {
@@ -63,15 +66,7 @@ const ProjectManagementPage = () => {
                 className="flex justify-between items-center border-b border-gray-500 mb-4"
             >
                 <p className="text-2xl font-semibold">Your Projects</p>
-                <motion.div
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                >
-                    <Button className="mb-2">
-                        <Plus className="mr-2" />
-                        Create Project
-                    </Button>
-                </motion.div>
+
             </motion.div>
 
             <div ref={parent} className="grid grid-cols-3 gap-4">
@@ -104,15 +99,16 @@ const ProjectManagementPage = () => {
                                 <div>End: {new Date(project.endDate).toLocaleDateString()}</div>
                             </div>
 
-                            <motion.div
-                                whileHover={{ scale: 1.1 }}
-                                whileTap={{ scale: 0.9 }}
+                            <Link
+                                to="/project"
+                                onClick={() => setCurrentProject(project)}
                                 className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-all duration-300"
                             >
                                 <Button size="sm">
                                     Enter
                                 </Button>
-                            </motion.div>
+                            </Link>
+
                         </motion.div>
                     ))}
                 </AnimatePresence>

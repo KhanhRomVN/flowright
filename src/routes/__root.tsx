@@ -2,7 +2,7 @@ import React from "react";
 import { Outlet, createRootRoute } from "@tanstack/react-router";
 import NotFound from "../pages/NotFoundPage";
 import { TeamProvider } from "@/Context/TeamContext";
-
+import { ProjectProvider } from "@/Context/ProjectContext";
 export const RootRoute = createRootRoute({
     component: Root,
     errorComponent: NotFound,
@@ -11,7 +11,9 @@ export const RootRoute = createRootRoute({
 function Root() {
     return (
         <TeamProvider>
-            <Outlet />
+            <ProjectProvider>
+                <Outlet />
+            </ProjectProvider>
         </TeamProvider>
     );
 }
