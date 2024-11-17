@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { router } from "@/routes/router";
-import LoginDialog from "@/components/LoginDialog";
+import LoginDialog from "@/components/Dialog/LoginDialog";
 import { Link } from "@tanstack/react-router";
 
 const SwitchPage: React.FC = () => {

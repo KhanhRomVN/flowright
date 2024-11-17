@@ -11,13 +11,15 @@ import MainLayout from "@/layouts/MainLayout";
 import DashboardPage from "../pages/DashboardPage";
 import TeamManagementPage from "../pages/TeamManagementPage";
 import MemberPage from "../pages/MemberPage";
-import ProjectPage from "../pages/ProjectPage";
+import ProjectManagementPage from "../pages/ProjectManagementPage";
 import TaskPage from "../pages/TaskPage";
 import CalendarPage from "../pages/CalendarPage";
 import SettingPage from "@/pages/SettingPage";
 import SwitchPage from "@/pages/SwitchPage";
 import ProfilePage from "@/pages/ProfilePage";
 import TeamPage from "@/pages/TeamPage";
+import WorkspaceManagementPage from "@/pages/WorkspaceManagementPage";
+import ProjectPage from "@/pages/ProjectPage";
 
 export const LoginRoute = createRoute({
     getParentRoute: () => RootRoute,
@@ -81,12 +83,12 @@ export const MemberRoute = createRoute({
     ),
 });
 
-export const ProjectRoute = createRoute({
+export const ProjectManagementRoute = createRoute({
     getParentRoute: () => RootRoute,
-    path: "/project",
+    path: "/project/management",
     component: () => (
         <MainLayout>
-            <ProjectPage />
+            <ProjectManagementPage />
         </MainLayout>
     ),
 });
@@ -137,6 +139,26 @@ export const ProfileRoute = createRoute({
     ),
 });
 
+export const WorkspaceManagementRoute = createRoute({
+    getParentRoute: () => RootRoute,
+    path: "/workspace-management",
+    component: () => (
+        <BaseLayout>
+            <WorkspaceManagementPage />
+        </BaseLayout>
+    ),
+});
+
+export const ProjectRoute = createRoute({
+    getParentRoute: () => RootRoute,
+    path: "/project",
+    component: () => (
+        <MainLayout>
+            <ProjectPage />
+        </MainLayout>
+    ),
+});
+
 
 export const rootTree = RootRoute.addChildren([
     DashboardRoute,
@@ -145,10 +167,12 @@ export const rootTree = RootRoute.addChildren([
     TeamManagementRoute,
     TeamRoute,
     MemberRoute,
-    ProjectRoute,
+    ProjectManagementRoute,
     TaskRoute,
     CalendarRoute,
     SettingRoute,
     SwitchRoute,
-    ProfileRoute
+    ProfileRoute,
+    WorkspaceManagementRoute,
+    ProjectRoute
 ]);

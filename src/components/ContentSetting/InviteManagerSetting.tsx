@@ -1,10 +1,16 @@
 import React from 'react';
-import InviteTable from '@/components/InviteTable';
+import InviteTable from '@/components/Table/InviteTable';
+import InviteMemberDialog from '../Dialog/InviteMemberDialog';
 
 const InviteManagerSetting: React.FC = () => {
+
+    const handleMemberAdded = (email: string, roleId: string) => {
+
+    };
+
     return (
         <div>
-            <h1>Invites CC</h1>
+            <InviteMemberDialog />
             <InviteTable />
         </div>
     );

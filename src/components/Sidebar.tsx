@@ -37,7 +37,7 @@ const Sidebar: React.FC = () => {
           },
           { title: 'Member', icon: UserCircle, bgColor: 'bg-green-500', link: '/member', notification: 0 },
           {
-            title: 'Project', icon: FolderKanban, bgColor: 'bg-yellow-500', link: '/project', notification: 0
+            title: 'Project', icon: FolderKanban, bgColor: 'bg-yellow-500', link: '/project/management', notification: 0
           },
           { title: 'Task', icon: CheckSquare, bgColor: 'bg-red-500', link: '/task', notification: 35 },
           { title: 'Calendar', icon: Calendar, bgColor: 'bg-purple-500', link: '/calendar', notification: 0 },

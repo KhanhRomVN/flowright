@@ -4,10 +4,8 @@ import { Button } from "@/components/ui/button";
 import { apiUrl } from '@/api';
 import { Minus, Maximize2, X, Eye, EyeOff } from 'lucide-react';
 import { closeWindow, maximizeWindow, minimizeWindow } from "@/helpers/window_helpers";
-import { Link } from '@tanstack/react-router';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import WorkspaceDialog from '@/components/WorkspaceDialog';
+import { Link, useNavigate } from '@tanstack/react-router';
+import { toast } from 'react-toastify';
 
 const LoginPage: React.FC = () => {
     const initialFormData = {
@@ -17,8 +15,7 @@ const LoginPage: React.FC = () => {
     const [formData, setFormData] = useState(initialFormData);
     const [error, setError] = useState('');
     const [showPassword, setShowPassword] = useState(false);
-    const [showWorkspaceDialog, setShowWorkspaceDialog] = useState(false);
-
+    const navigate = useNavigate();
 
     const inputFields = [
         {
@@ -49,7 +46,7 @@ const LoginPage: React.FC = () => {
             const response = await axios.post(`${apiUrl}/auth/login`, formData);
             if (response.data.access_token) {
                 localStorage.setItem('access_token', response.data.access_token);
-                setShowWorkspaceDialog(true);
+                navigate({ to: '/workspace-management' });
             }
         } catch (err: any) {
             const errorMessage = err.response?.data?.message || 'Login failed. Please try again.';
@@ -69,7 +66,6 @@ const LoginPage: React.FC = () => {
                 backgroundSize: 'cover',
                 backgroundPosition: 'center'
             }}>
-            <ToastContainer />
             {/* Custom Navbar */}
             <div className="flex w-full items-center justify-between pt-3 px-4 bg-transparent">
                 <p className="text-xl font-semibold text-gray-200">Flowright</p>
@@ -148,10 +144,6 @@ const LoginPage: React.FC = () => {
                     </form>
                 </div>
             </div>
-            <WorkspaceDialog 
-                isOpen={showWorkspaceDialog} 
-                onClose={() => setShowWorkspaceDialog(false)} 
-            />
         </div>
     );
 };

@@ -2,12 +2,10 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { Button } from "@/components/ui/button";
 import { apiUrl } from '@/api';
-import { router } from "@/routes/router";
 import { closeWindow, maximizeWindow, minimizeWindow } from '@/helpers/window_helpers';
 import { Eye, EyeOff, Maximize2, Minus, X } from 'lucide-react';
 import { Link } from '@tanstack/react-router';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { toast } from 'react-toastify';
 
 
 const RegisterPage: React.FC = () => {
@@ -68,7 +66,7 @@ const RegisterPage: React.FC = () => {
                     autoClose: 3000,
                     theme: "dark",
                 });
-                router.navigate({ to: '/login' });
+                window.location.href = '/login';
             }
         } catch (err: any) {
             const errorMessage = err.response?.data?.message || 'Registration failed. Please try again.';
@@ -82,13 +80,12 @@ const RegisterPage: React.FC = () => {
     };
 
     return (
-        <div className="min-h-screen flex flex-col" // Changed from just flex to flex flex-col
+        <div className="min-h-screen flex flex-col"
             style={{
                 backgroundImage: `url("src/assets/backgrounds/back1.jpg")`,
                 backgroundSize: 'cover',
                 backgroundPosition: 'center'
             }}>
-            <ToastContainer />
 
             {/* Add Custom Navbar */}
             <div className="flex w-full items-center justify-between pt-3 px-4 bg-transparent">
