@@ -5,6 +5,8 @@ import CreateTaskDrawer from '@/components/Drawer/CreateTaskDrawer';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
 import TaskProjectBoard from '@/components/TaskProjectBoard';
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Share2, Heart, MoreHorizontal } from 'lucide-react'
 
 const ProjectPage = () => {
     const { currentProject } = useProject();
@@ -25,14 +27,41 @@ const ProjectPage = () => {
 
     return (
         <div>
-            <h1>{currentProject.id}</h1>
-            <Button
-                onClick={() => setIsProjectDrawerOpen(true)}
-                className="flex items-center gap-2"
-            >
-                <Plus className="h-4 w-4" />
-                Create Task With Already ProjectID
-            </Button>
+            <div className="flex items-center gap-2 pt-4 pl-4">
+                <p>Project / </p>
+                <p>{currentProject.name}</p>
+            </div>
+            <div className="flex justify-between items-center p-4">
+                <div className="flex items-center gap-4">
+                    <p className="text-2xl font-semibold">{currentProject.name}</p>
+                    <div className="flex -space-x-2">
+                        {[1, 2, 3, 4].map((_, index) => (
+                            <Avatar key={index} className="border-2 border-background w-8 h-8">
+                                <AvatarImage src={`https://i.pravatar.cc/150?img=${index + 1}`} />
+                                <AvatarFallback>U{index + 1}</AvatarFallback>
+                            </Avatar>
+                        ))}
+                    </div>
+                </div>
+                <div className="flex items-center gap-2">
+                    <Button variant="ghost" size="icon">
+                        <Share2 className="h-5 w-5" />
+                    </Button>
+                    <Button variant="ghost" size="icon">
+                        <Heart className="h-5 w-5" />
+                    </Button>
+                    <Button variant="ghost" size="icon">
+                        <MoreHorizontal className="h-5 w-5" />
+                    </Button>
+                    <Button
+                        onClick={() => setIsProjectDrawerOpen(true)}
+                        className="flex items-center gap-2"
+                    >
+                        <Plus className="h-4 w-4" />
+                        Create Task
+                    </Button>
+                </div>
+            </div>
             <CreateTaskDrawer
                 isOpen={isProjectDrawerOpen}
                 onClose={() => setIsProjectDrawerOpen(false)}
