@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import TaskDialog from './TaskDialog';
+import TaskDialog from './Dialog/TaskDialog';
 
 interface TaskCardProps {
     task: {

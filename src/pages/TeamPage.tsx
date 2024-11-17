@@ -8,7 +8,7 @@ import { format } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { Input } from "@/components/ui/input";
 import { X, Plus, Filter, Search } from 'lucide-react';
-import TaskDetailsDialog from '@/components/TaskDetailsDialog';
+import TaskDetailsDialog from '@/components/Dialog/TaskDetailsDialog';
 import { motion, AnimatePresence } from 'framer-motion';
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';

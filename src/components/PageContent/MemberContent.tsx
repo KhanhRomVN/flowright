@@ -6,7 +6,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Search, UserCircle } from 'lucide-react';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { _GET } from '@/utils/auth_api';
-import InviteMemberDialog from '@/components/InviteMemberDialog';
+import InviteMemberDialog from '@/components/Dialog/InviteMemberDialog';
 
 interface Member {
     id: number;

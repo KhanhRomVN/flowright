@@ -8,7 +8,11 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Save } from 'lucide-react';
 import { _GET } from '@/utils/auth_api';
 import { Search } from 'lucide-react';
-import ChangeRoleDialog from '@/components/ChangeRoleDialog';
+import ChangeRoleDialog from '@/components/Dialog/ChangeRoleDialog';
+import { motion, AnimatePresence } from 'framer-motion';
+import Skeleton from 'react-loading-skeleton';
+import 'react-loading-skeleton/dist/skeleton.css';
+import { toast } from 'react-toastify';
 
 // Types
 interface RoleDetail {
@@ -129,20 +133,18 @@ const RoleContent: React.FC<{ selectedRoleId: string; roleDetailsProps: RoleDeta
                 // const response = await _GET(`/member/service/role-permissions/roles/${selectedRoleId}/permissions`);
                 const responseMembers = await _GET(`/member/service/members/role?roleId=${selectedRoleId}`);
                 console.log("responseMembers", responseMembers);
-                
-                // Đảm bảo response là array và giữ id dưới dạng string (UUID)
-                // const permissions = Array.isArray(response) ? response.map((perm: { name: string }) => perm.name) : [];
+
                 const permissions = Array.isArray(responseMembers) ? responseMembers.map((perm: { name: string }) => perm.name) : [];
-                const members = Array.isArray(responseMembers) ? responseMembers.map((member: { 
+                const members = Array.isArray(responseMembers) ? responseMembers.map((member: {
                     id: string,
-                    username: string, 
-                    email: string 
+                    username: string,
+                    email: string
                 }) => ({
-                    id: member.id, // Giữ nguyên dạng string UUID
+                    id: member.id,
                     username: member.username,
                     email: member.email
                 })) : [];
-                
+
                 setSelectedPermissions(permissions);
                 setMembers(members);
             } catch (error) {
@@ -151,7 +153,7 @@ const RoleContent: React.FC<{ selectedRoleId: string; roleDetailsProps: RoleDeta
                 setMembers([]);
             }
         };
-    
+
         if (selectedRoleId) {
             fetchPermissions();
         }
@@ -179,8 +181,19 @@ const RoleContent: React.FC<{ selectedRoleId: string; roleDetailsProps: RoleDeta
         member.email.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
+    const fadeIn = {
+        initial: { opacity: 0, y: 20 },
+        animate: { opacity: 1, y: 0 },
+        exit: { opacity: 0, y: -20 }
+    };
+
     return (
-        <div className="h-screen overflow-y-auto custom-scrollbar pb-56">
+        <motion.div
+            className="h-screen overflow-y-auto custom-scrollbar pb-56"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.3 }}
+        >
             <Card className="p-4 bg-sidebar-primary h-auto ">
                 <Tabs defaultValue="details">
                     <TabsList className="mb-4">
@@ -188,101 +201,102 @@ const RoleContent: React.FC<{ selectedRoleId: string; roleDetailsProps: RoleDeta
                         <TabsTrigger value="permissions">Permissions</TabsTrigger>
                         <TabsTrigger value="members">Members</TabsTrigger>
                     </TabsList>
+                    <AnimatePresence mode="wait">
+                        <TabsContent value="details" className="space-y-4">
+                            <motion.div {...fadeIn}>
+                                <label className="text-sm text-gray-400">Role Name</label>
+                                <Input
+                                    value={roleDetails.name}
+                                    onChange={(e) => setRoleDetails({ ...roleDetails, name: e.target.value })}
+                                />
+                            </motion.div>
+                            <motion.div {...fadeIn}>
+                                <label className="text-sm text-gray-400">Description</label>
+                                <Input
+                                    value={roleDetails.description}
+                                    onChange={(e) => setRoleDetails({ ...roleDetails, description: e.target.value })}
+                                />
+                            </motion.div>
+                            <Button className="w-full" variant="outline" onClick={handleSaveDetails}>
+                                <Save className="w-4 h-4 mr-2" />
+                                Save Changes
+                            </Button>
+                        </TabsContent>
 
-                    <TabsContent value="details" className="space-y-4">
-                        <div>
-                            <label className="text-sm text-gray-400">Role Name</label>
-                            <Input
-                                value={roleDetails.name}
-                                onChange={(e) => setRoleDetails({ ...roleDetails, name: e.target.value })}
-                            />
-                        </div>
-                        <div>
-                            <label className="text-sm text-gray-400">Description</label>
-                            <Input
-                                value={roleDetails.description}
-                                onChange={(e) => setRoleDetails({ ...roleDetails, description: e.target.value })}
-                            />
-                        </div>
-                        <Button className="w-full" variant="outline" onClick={handleSaveDetails}>
-                            <Save className="w-4 h-4 mr-2" />
-                            Save Changes
-                        </Button>
-                    </TabsContent>
+                        <TabsContent value="permissions" className="space-y-6">
+                            {Object.entries(groupedPermissions).map(([key, group]) => (
+                                <div key={key}>
+                                    <h3 className="text-lg font-semibold mb-3">{group.title}</h3>
+                                    <div className="space-y-2">
+                                        {group.permissions.map((permission) => (
+                                            <div key={permission} className="flex items-center space-x-2">
+                                                <Checkbox
+                                                    checked={selectedPermissions.includes(permission)}
+                                                    onCheckedChange={(checked) =>
+                                                        handlePermissionChange(permission, checked as boolean)
+                                                    }
+                                                />
+                                                <label className="text-sm">
+                                                    {permission}
+                                                </label>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            ))}
+                            <Button className="w-full" variant="outline" onClick={handleSavePermissions}>
+                                <Save className="w-4 h-4 mr-2" />
+                                Save Permissions
+                            </Button>
+                        </TabsContent>
 
-                    <TabsContent value="permissions" className="space-y-6">
-                        {Object.entries(groupedPermissions).map(([key, group]) => (
-                            <div key={key}>
-                                <h3 className="text-lg font-semibold mb-3">{group.title}</h3>
+                        <TabsContent value="members">
+                            <div className="space-y-4">
+                                <div className="relative mb-4">
+                                    <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                                    <Input
+                                        placeholder="Search by username or email..."
+                                        className="pl-8"
+                                        value={searchQuery}
+                                        onChange={(e) => setSearchQuery(e.target.value)}
+                                    />
+                                </div>
+
                                 <div className="space-y-2">
-                                    {group.permissions.map((permission) => (
-                                        <div key={permission} className="flex items-center space-x-2">
-                                            <Checkbox
-                                                checked={selectedPermissions.includes(permission)}
-                                                onCheckedChange={(checked) =>
-                                                    handlePermissionChange(permission, checked as boolean)
-                                                }
-                                            />
-                                            <label className="text-sm">
-                                                {permission}
-                                            </label>
+                                    {filteredMembers.map((member) => (
+                                        <div key={member.id} className="flex items-center justify-between p-3 rounded-lg bg-gray-800">
+                                            <div className="flex items-center gap-3">
+                                                <Avatar>
+                                                    <AvatarImage src={`https://avatar.vercel.sh/${member.username}.png`} />
+                                                    <AvatarFallback>{member.username}</AvatarFallback>
+                                                </Avatar>
+                                                <div>
+                                                    <p className="font-medium">{member.username}</p>
+                                                    <p className="text-sm text-gray-400">{member.email}</p>
+                                                </div>
+                                            </div>
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
+                                                onClick={() => openChangeRoleDialog(member.id)} // Open dialog with member ID
+                                            >
+                                                Change Role
+                                            </Button>
                                         </div>
                                     ))}
                                 </div>
                             </div>
-                        ))}
-                        <Button className="w-full" variant="outline" onClick={handleSavePermissions}>
-                            <Save className="w-4 h-4 mr-2" />
-                            Save Permissions
-                        </Button>
-                    </TabsContent>
-
-                    <TabsContent value="members">
-                        <div className="space-y-4">
-                            <div className="relative mb-4">
-                                <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-                                <Input
-                                    placeholder="Search by username or email..."
-                                    className="pl-8"
-                                    value={searchQuery}
-                                    onChange={(e) => setSearchQuery(e.target.value)}
-                                />
-                            </div>
-
-                            <div className="space-y-2">
-                                {filteredMembers.map((member) => (
-                                    <div key={member.id} className="flex items-center justify-between p-3 rounded-lg bg-gray-800">
-                                        <div className="flex items-center gap-3">
-                                            <Avatar>
-                                                <AvatarImage src={`https://avatar.vercel.sh/${member.username}.png`} />
-                                                <AvatarFallback>{member.username}</AvatarFallback>
-                                            </Avatar>
-                                            <div>
-                                                <p className="font-medium">{member.username}</p>
-                                                <p className="text-sm text-gray-400">{member.email}</p>
-                                            </div>
-                                        </div>
-                                        <Button
-                                            variant="outline"
-                                            size="sm"
-                                            onClick={() => openChangeRoleDialog(member.id)} // Open dialog with member ID
-                                        >
-                                            Change Role
-                                        </Button>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    </TabsContent>
+                        </TabsContent>
+                    </AnimatePresence>
                 </Tabs>
             </Card>
             <ChangeRoleDialog
                 isOpen={isChangeRoleDialogOpen}
                 onClose={() => setChangeRoleDialogOpen(false)}
                 currentRoleId={selectedRoleId}
-                memberId={selectedMemberId!} 
+                memberId={selectedMemberId!}
             />
-        </div>
+        </motion.div>
     );
 };
 

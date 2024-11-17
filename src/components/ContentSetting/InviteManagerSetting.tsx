@@ -1,6 +1,6 @@
 import React from 'react';
-import InviteTable from '@/components/InviteTable';
-import InviteMemberDialog from '../InviteMemberDialog';
+import InviteTable from '@/components/Table/InviteTable';
+import InviteMemberDialog from '../Dialog/InviteMemberDialog';
 
 const InviteManagerSetting: React.FC = () => {
 

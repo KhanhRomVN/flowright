@@ -65,7 +65,7 @@ const WorkspaceManagementPage: React.FC = () => {
                 setInvites(response);
             }
         } catch (error) {
-            toast.error('Failed to fetch invitations');
+
         } finally {
             setIsLoadingInvites(false);
         }
