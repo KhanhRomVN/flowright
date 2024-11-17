@@ -10,7 +10,6 @@ import {
     Clock,
     AlertCircle,
     Flag,
-    MoreVertical
 } from 'lucide-react';
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import Skeleton from 'react-loading-skeleton';
@@ -22,6 +21,12 @@ import {
     TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
+
+interface TaskAssignment {
+    assignmentMemberId: string;
+    assigneeUsername: string;
+    assigneeEmail: string | null;
+}
 
 interface TaskBoardCardProps {
     task: {
@@ -196,21 +201,17 @@ const TaskBoardCard: React.FC<TaskBoardCardProps> = ({
                                 </div>
                                 <div className="flex -space-x-2">
                                     {task.taskAssignments.map((assignment, index) => (
-                                        <TooltipProvider key={index}>
+                                        <TooltipProvider key={assignment.assignmentMemberId}>
                                             <Tooltip>
                                                 <TooltipTrigger>
                                                     <Avatar className="w-5 h-5 border-2 border-white dark:border-gray-800">
-                                                        <AvatarImage
-                                                            src={assignment.user.avatar}
-                                                            alt={assignment.user.name}
-                                                        />
                                                         <AvatarFallback>
-                                                            {assignment.user.name.charAt(0)}
+                                                            {assignment.assigneeUsername.charAt(0).toUpperCase()}
                                                         </AvatarFallback>
                                                     </Avatar>
                                                 </TooltipTrigger>
                                                 <TooltipContent>
-                                                    <p>{assignment.user.name}</p>
+                                                    <p>{assignment.assigneeUsername}</p>
                                                 </TooltipContent>
                                             </Tooltip>
                                         </TooltipProvider>

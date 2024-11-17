@@ -8,21 +8,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { _GET, _POST } from '@/utils/auth_api';
 import { toast } from 'react-toastify';
 import { motion, AnimatePresence } from 'framer-motion';
-import Skeleton from 'react-loading-skeleton';
-import 'react-loading-skeleton/dist/skeleton.css';
-import { Loader2 } from 'lucide-react';
 
-const slideIn = {
-    hidden: { x: '100%', opacity: 0 },
-    visible: { x: 0, opacity: 1, transition: { type: 'spring', damping: 25, stiffness: 500 } },
-    exit: { x: '100%', opacity: 0 }
-  };
-  
-  const fadeIn = {
+
+const fadeIn = {
     hidden: { opacity: 0, y: 20 },
     visible: { opacity: 1, y: 0 },
     exit: { opacity: 0, y: -20 }
-  };
+};
 
 // Types and Interfaces
 interface Project {
@@ -167,7 +159,7 @@ const DropdownList = ({
                     ))}
                 </div>
             ) : (
-                <motion.div 
+                <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     className="px-3 py-2 text-sm text-gray-500"
@@ -448,10 +440,7 @@ export default function CreateTaskDrawer({
                 miniTasks: miniTasks.map(task => ({
                     name: task.name,
                     description: task.description,
-                    assignee: task.assignee ? {
-                        memberId: task.assignee.memberId,
-                        teamId: task.assignee.teamId
-                    } : null
+                    memberId: task.assignee ? task.assignee.memberId : null,
                 })),
                 taskLinks: links.map(l => ({
                     title: l.linkName,

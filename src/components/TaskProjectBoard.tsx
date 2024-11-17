@@ -3,24 +3,36 @@ import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { _GET, _PUT } from "@/utils/auth_api";
 import TaskBoardCard from './Card/TaskBoardCard';
 import { toast } from 'react-toastify';
+import { Button } from './ui/button';
+import { Plus } from 'lucide-react';
 
 interface Task {
     taskId: string;
     taskName: string;
-    priority: string;
+    priority: 'low' | 'medium' | 'high';
     projectId: string;
     taskGroupId: string;
     taskGroupName: string;
     startDate: string;
     endDate: string;
-    status: string;
-    taskAssignments: any[];
+    status: 'todo' | 'in_progress' | 'done';
+    taskAssignments: {
+        assignmentMemberId: string;
+        assigneeUsername: string;
+        assigneeEmail: string | null;
+    }[];
 }
 
 interface Column {
     id: string;
     title: string;
     taskIds: string[];
+}
+
+interface TaskGroup {
+    id: string;
+    name: string;
+    description: string;
 }
 
 interface TaskProjectBoardProps {
@@ -31,49 +43,100 @@ const TaskProjectBoard = ({ projectId }: TaskProjectBoardProps) => {
     const [tasks, setTasks] = useState<{ [key: string]: Task }>({});
     const [columns, setColumns] = useState<{ [key: string]: Column }>({});
     const [columnOrder, setColumnOrder] = useState<string[]>([]);
+    const [isCreatingGroup, setIsCreatingGroup] = useState(false);
+    const [newGroupName, setNewGroupName] = useState('');
 
     useEffect(() => {
+        fetchTaskGroups();
         fetchTasks();
     }, [projectId]);
 
-    const fetchTasks = async () => {
+    const fetchTaskGroups = async () => {
         try {
-            const response = await _GET(`/task/service/tasks/project?projectId=${projectId}`);
+            const taskGroups: TaskGroup[] = await _GET(`/task/service/task-groups?projectId=${projectId}`);
 
-            const tasksById: { [key: string]: Task } = {};
             const columnsById: { [key: string]: Column } = {};
             const columnOrderSet = new Set<string>();
 
+            // Initialize columns for all task groups, even if they have no tasks
+            taskGroups.forEach((group) => {
+                columnsById[group.id] = {
+                    id: group.id,
+                    title: group.name,
+                    taskIds: []
+                };
+                columnOrderSet.add(group.id);
+            });
+
+            setColumns(columnsById);
+            setColumnOrder(Array.from(columnOrderSet));
+        } catch (error) {
+            console.error('Error fetching task groups:', error);
+            toast.error('Failed to load task groups');
+        }
+    };
+
+    const fetchTasks = async () => {
+        try {
+            const response: Task[] = await _GET(`/task/service/tasks/project?projectId=${projectId}`);
+    
+            const tasksById: { [key: string]: Task } = {};
+            const columnsById: { [key: string]: Column } = { ...columns }; // Preserve existing columns
+    
+            // Group tasks by taskGroupId
             response.forEach((task: Task) => {
                 tasksById[task.taskId] = task;
-
+    
                 if (!columnsById[task.taskGroupId]) {
                     columnsById[task.taskGroupId] = {
                         id: task.taskGroupId,
                         title: task.taskGroupName,
                         taskIds: []
                     };
-                    columnOrderSet.add(task.taskGroupId);
                 }
                 columnsById[task.taskGroupId].taskIds.push(task.taskId);
             });
-
+    
             setTasks(tasksById);
             setColumns(columnsById);
-            setColumnOrder(Array.from(columnOrderSet));
+            setColumnOrder(Object.keys(columnsById));
         } catch (error) {
             console.error('Error fetching tasks:', error);
             toast.error('Failed to load tasks');
         }
     };
 
+    const createNewTaskGroup = async () => {
+        if (!newGroupName.trim()) {
+            toast.error('Group name cannot be empty');
+            return;
+        }
+
+        try {
+            await _PUT('/task/service/task-groups', {
+                name: newGroupName,
+                description: newGroupName,
+                projectId: projectId
+            });
+
+            // Refresh task groups after creation
+            await fetchTaskGroups();
+
+            // Reset form
+            setNewGroupName('');
+            setIsCreatingGroup(false);
+            toast.success('Task group created successfully');
+        } catch (error) {
+            console.error('Error creating task group:', error);
+            toast.error('Failed to create task group');
+        }
+    };
+
     const onDragEnd = async (result: any) => {
         const { destination, source, draggableId } = result;
 
-        // Nếu không có điểm đến, không làm gì cả
         if (!destination) return;
 
-        // Nếu vị trí đến giống vị trí đi, không làm gì cả
         if (
             destination.droppableId === source.droppableId &&
             destination.index === source.index
@@ -84,7 +147,6 @@ const TaskProjectBoard = ({ projectId }: TaskProjectBoardProps) => {
         const start = columns[source.droppableId];
         const finish = columns[destination.droppableId];
 
-        // Xử lý kéo thả trong cùng một cột
         if (start === finish) {
             const newTaskIds = Array.from(start.taskIds);
             newTaskIds.splice(source.index, 1);
@@ -99,10 +161,7 @@ const TaskProjectBoard = ({ projectId }: TaskProjectBoardProps) => {
                 ...columns,
                 [newColumn.id]: newColumn,
             });
-        }
-        // Xử lý kéo thả giữa các cột khác nhau
-        else {
-            // Cập nhật cột nguồn
+        } else {
             const startTaskIds = Array.from(start.taskIds);
             startTaskIds.splice(source.index, 1);
             const newStart = {
@@ -110,7 +169,6 @@ const TaskProjectBoard = ({ projectId }: TaskProjectBoardProps) => {
                 taskIds: startTaskIds,
             };
 
-            // Cập nhật cột đích
             const finishTaskIds = Array.from(finish.taskIds);
             finishTaskIds.splice(destination.index, 0, draggableId);
             const newFinish = {
@@ -118,25 +176,21 @@ const TaskProjectBoard = ({ projectId }: TaskProjectBoardProps) => {
                 taskIds: finishTaskIds,
             };
 
-            // Cập nhật state UI
             setColumns({
                 ...columns,
                 [newStart.id]: newStart,
                 [newFinish.id]: newFinish,
             });
 
-            // Gọi API để cập nhật thay đổi
             try {
                 await _PUT(`/task/service/tasks/group-task-id`, {
                     taskId: draggableId,
                     taskGroupId: destination.droppableId
                 });
-                toast.success('Task moved successfully');
             } catch (error) {
                 console.error('Error updating task group:', error);
                 toast.error('Failed to update task group');
 
-                // Hoàn tác thay đổi UI nếu API thất bại
                 setColumns({
                     ...columns,
                     [start.id]: start,
@@ -148,26 +202,27 @@ const TaskProjectBoard = ({ projectId }: TaskProjectBoardProps) => {
 
     return (
         <DragDropContext onDragEnd={onDragEnd}>
-            <div className="flex gap-4 p-4 overflow-x-auto min-h-[calc(100vh-200px)">
+            <div className="flex gap-4 p-4 overflow-x-auto h-[calc(100vh-200px)] w-[calc(100vw-250px)]">
+                
                 {columnOrder.map(columnId => {
                     const column = columns[columnId];
                     const columnTasks = column.taskIds.map(taskId => tasks[taskId]);
 
                     return (
-                        <div key={column.id} className="w-80 flex-shrink-0 bg-gray-100 dark:bg-gray-800 rounded-lg">
-                            <div className=" dark:bg-gray-800 rounded-lg p-4">
+                        <div key={column.id} className="w-80 flex-shrink-0">
+                            <div className="bg-gray-100 dark:bg-gray-800 rounded-lg p-4 h-full">
                                 <div className="flex items-center justify-between mb-4">
                                     <h3 className="font-semibold">{column.title}</h3>
                                     <span className="text-xs text-muted-foreground">
                                         {columnTasks.length} tasks
                                     </span>
                                 </div>
-                                <Droppable droppableId={column.id}>
+                                <Droppable droppableId={column.id} type="TASK">
                                     {(provided) => (
                                         <div
                                             ref={provided.innerRef}
                                             {...provided.droppableProps}
-                                            className="space-y-2"
+                                            className="space-y-2 min-h-[100px]"
                                         >
                                             {columnTasks.map((task, index) => (
                                                 <Draggable
@@ -194,6 +249,49 @@ const TaskProjectBoard = ({ projectId }: TaskProjectBoardProps) => {
                         </div>
                     );
                 })}
+
+                {/* Add New Column Button */}
+                <div className="w-80 flex-shrink-0">
+                    {isCreatingGroup ? (
+                        <div className="bg-gray-100 dark:bg-gray-800 rounded-lg p-4">
+                            <input
+                                type="text"
+                                value={newGroupName}
+                                onChange={(e) => setNewGroupName(e.target.value)}
+                                placeholder="Enter group name"
+                                className="w-full p-2 mb-2 rounded border dark:bg-gray-700 dark:border-gray-600"
+                                autoFocus
+                            />
+                            <div className="flex gap-2">
+                                <Button
+                                    onClick={createNewTaskGroup}
+                                    className="flex-1"
+                                >
+                                    Create
+                                </Button>
+                                <Button
+                                    variant="outline"
+                                    onClick={() => {
+                                        setIsCreatingGroup(false);
+                                        setNewGroupName('');
+                                    }}
+                                    className="flex-1"
+                                >
+                                    Cancel
+                                </Button>
+                            </div>
+                        </div>
+                    ) : (
+                        <Button
+                            variant="outline"
+                            onClick={() => setIsCreatingGroup(true)}
+                            className="w-full h-full min-h-[100px] flex items-center justify-center"
+                        >
+                            <Plus className="mr-2" />
+                            Add New Group
+                        </Button>
+                    )}
+                </div>
             </div>
         </DragDropContext>
     );
