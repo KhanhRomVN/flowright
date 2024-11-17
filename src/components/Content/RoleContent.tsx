@@ -5,20 +5,21 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { UserPlus, Save } from 'lucide-react';
+import { Save } from 'lucide-react';
 import { _GET } from '@/utils/auth_api';
 import { Search } from 'lucide-react';
 import ChangeRoleDialog from '@/components/ChangeRoleDialog';
 
 // Types
 interface RoleDetail {
-    id: number;
+    id: string;
     name: string;
     description: string;
+    workspaceId: string;
 }
 
 interface Member {
-    id: number;
+    id: string;
     username: string;
     email: string;
 }
@@ -107,16 +108,16 @@ const formatPermissionName = (permission: string): string => {
         .join(' ');
 };
 
-const RoleContent: React.FC<{ selectedRoleId: number; roleDetailsProps: RoleDetail }> = ({ selectedRoleId, roleDetailsProps }) => {
+const RoleContent: React.FC<{ selectedRoleId: string; roleDetailsProps: RoleDetail }> = ({ selectedRoleId, roleDetailsProps }) => {
     const [roleDetails, setRoleDetails] = useState<RoleDetail>(roleDetailsProps);
     const [selectedPermissions, setSelectedPermissions] = useState<string[]>([]);
     const [members, setMembers] = useState<Member[]>([]);
     const [searchQuery, setSearchQuery] = useState('');
 
     const [isChangeRoleDialogOpen, setChangeRoleDialogOpen] = useState(false);
-    const [selectedMemberId, setSelectedMemberId] = useState<number | null>(null);
+    const [selectedMemberId, setSelectedMemberId] = useState<string | null>(null);
 
-    const openChangeRoleDialog = (memberId: number) => {
+    const openChangeRoleDialog = (memberId: string) => {
         setSelectedMemberId(memberId);
         setChangeRoleDialogOpen(true);
     };
@@ -124,18 +125,36 @@ const RoleContent: React.FC<{ selectedRoleId: number; roleDetailsProps: RoleDeta
     useEffect(() => {
         const fetchPermissions = async () => {
             try {
-                const response = await _GET(`/member/service/role-permissions/roles/${selectedRoleId}/permissions`);
-                const responseMembers = await _GET(`/member/service/members/role/${selectedRoleId}`);
-                const permissions = response.map((perm: { name: string }) => perm.name);
-                const members = responseMembers.map((member: { id: number, username: string, email: string }) => ({ id: member.id, username: member.username, email: member.email }));
+                console.log("selectedRoleId", selectedRoleId);
+                // const response = await _GET(`/member/service/role-permissions/roles/${selectedRoleId}/permissions`);
+                const responseMembers = await _GET(`/member/service/members/role?roleId=${selectedRoleId}`);
+                console.log("responseMembers", responseMembers);
+                
+                // Đảm bảo response là array và giữ id dưới dạng string (UUID)
+                // const permissions = Array.isArray(response) ? response.map((perm: { name: string }) => perm.name) : [];
+                const permissions = Array.isArray(responseMembers) ? responseMembers.map((perm: { name: string }) => perm.name) : [];
+                const members = Array.isArray(responseMembers) ? responseMembers.map((member: { 
+                    id: string,
+                    username: string, 
+                    email: string 
+                }) => ({
+                    id: member.id, // Giữ nguyên dạng string UUID
+                    username: member.username,
+                    email: member.email
+                })) : [];
+                
                 setSelectedPermissions(permissions);
                 setMembers(members);
             } catch (error) {
                 console.error('Error fetching permissions:', error);
+                setSelectedPermissions([]);
+                setMembers([]);
             }
         };
-
-        fetchPermissions();
+    
+        if (selectedRoleId) {
+            fetchPermissions();
+        }
     }, [selectedRoleId]);
 
     const handlePermissionChange = (permission: string, checked: boolean) => {
@@ -260,8 +279,8 @@ const RoleContent: React.FC<{ selectedRoleId: number; roleDetailsProps: RoleDeta
             <ChangeRoleDialog
                 isOpen={isChangeRoleDialogOpen}
                 onClose={() => setChangeRoleDialogOpen(false)}
-                currentRoleId={selectedRoleId} // Pass the current role ID
-                memberId={selectedMemberId!} // Pass the selected member ID
+                currentRoleId={selectedRoleId}
+                memberId={selectedMemberId!} 
             />
         </div>
     );

@@ -9,7 +9,7 @@ const IdleTimerWrapper: React.FC<{ children: React.ReactNode }> = ({ children })
   };
 
   useIdleTimer({
-    timeout: 1000 * 60 * 10, // 10 minutes
+    timeout: 1000 * 60 * 60 * 24,
     onIdle: handleOnIdle,
     debounce: 500
   });

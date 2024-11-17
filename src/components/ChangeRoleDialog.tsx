@@ -4,17 +4,17 @@ import { Button } from "@/components/ui/button";
 import { _GET, _PUT } from '@/utils/auth_api';
 
 interface Role {
-    id: number;
+    id: string;
     name: string;
     description: string;
-    workspaceId: number;
+    workspaceId: string;
 }
 
 interface ChangeRoleDialogProps {
     isOpen: boolean;
     onClose: () => void;
-    currentRoleId: number;
-    memberId: number; // Assuming you need memberId to change the role
+    currentRoleId: string;
+    memberId: string;
 }
 
 const ChangeRoleDialog: React.FC<ChangeRoleDialogProps> = ({ isOpen, onClose, currentRoleId, memberId }) => {
@@ -38,7 +38,7 @@ const ChangeRoleDialog: React.FC<ChangeRoleDialogProps> = ({ isOpen, onClose, cu
         }
     }, [isOpen]);
 
-    const handleChangeRole = async (newRoleId: number) => {
+    const handleChangeRole = async (newRoleId: string) => {
         try {
             const response = await _PUT(`/member/service/members/role/${newRoleId}/${memberId}`, {});
             if (response) {

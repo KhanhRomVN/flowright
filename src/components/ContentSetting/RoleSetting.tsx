@@ -10,11 +10,10 @@ import { Dialog, DialogContent, DialogTitle, DialogDescription, DialogFooter } f
 import { Skeleton } from '@/components/ui/skeleton';
 
 interface Role {
-    id: number;
+    id: string;
     name: string;
     description: string;
-    workspaceId: number;
-    isDefault: boolean;
+    workspaceId: string;
 }
 
 const RoleSetting: React.FC = () => {
@@ -30,10 +29,14 @@ const RoleSetting: React.FC = () => {
         const fetchRoles = async () => {
             try {
                 setIsLoading(true);
-                const response = await _GET('/member/service/roles/workspace/roles');
-                setRoles(response.content);
-                if (response.content.length > 0) {
-                    setSelectedRole(response.content[0]);
+                const response = await _GET('/member/service/roles');
+                const rolesWithDefault = response.map((role: Role) => ({
+                    ...role,
+                    isDefault: false
+                }));
+                setRoles(rolesWithDefault);
+                if (rolesWithDefault.length > 0) {
+                    setSelectedRole(rolesWithDefault[0]);
                 }
                 setIsLoading(false);
             } catch (error) {
@@ -158,8 +161,8 @@ const RoleSetting: React.FC = () => {
                     {/* Right - Role Content with tabUI */}
                     <div className="flex-1">
                         <RoleContent
-                            selectedRoleId={selectedRole?.id ?? 0}
-                            roleDetailsProps={selectedRole || { id: 0, name: '', description: '', workspaceId: 0, isDefault: false }}
+                            selectedRoleId={selectedRole?.id ?? ''}
+                            roleDetailsProps={selectedRole || { id: '', name: '', description: '', workspaceId: '' }}
                         />
                     </div>
                 </>

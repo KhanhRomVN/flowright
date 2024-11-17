@@ -46,8 +46,7 @@ const MemberContent: React.FC = () => {
         return matchesSearch && matchesRole;
     });
 
-    const handleMemberAdded = (email: string, roleId: string) => {
-    };
+
 
     return (
         <div className="p-6 space-y-6">
@@ -57,7 +56,7 @@ const MemberContent: React.FC = () => {
                 <>
                     <div className="flex justify-between items-center">
                         <h1 className="text-2xl font-bold">Team Members</h1>
-                        <InviteMemberDialog onMemberAdded={handleMemberAdded} />
+
                     </div>
 
                     <Card className="p-4">
@@ -72,7 +71,6 @@ const MemberContent: React.FC = () => {
                                 </SelectTrigger>
                                 <SelectContent>
                                     <SelectItem value="all">All</SelectItem>
-                                    {/* Roles will be populated in InviteMemberDialog */}
                                 </SelectContent>
                             </Select>
                         </div>

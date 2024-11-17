@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { Button } from "@/components/ui/button";
 import { apiUrl } from '@/api';
-import { router } from "@/routes/router";
 import { closeWindow, maximizeWindow, minimizeWindow } from '@/helpers/window_helpers';
 import { Eye, EyeOff, Maximize2, Minus, X } from 'lucide-react';
 import { Link } from '@tanstack/react-router';
@@ -67,7 +66,7 @@ const RegisterPage: React.FC = () => {
                     autoClose: 3000,
                     theme: "dark",
                 });
-                router.navigate({ to: '/login' });
+                window.location.href = '/login';
             }
         } catch (err: any) {
             const errorMessage = err.response?.data?.message || 'Registration failed. Please try again.';
