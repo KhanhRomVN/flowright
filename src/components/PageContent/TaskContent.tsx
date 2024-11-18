@@ -129,7 +129,7 @@ const TeamContent: React.FC = () => {
 
             {/* Tasks Table */}
             <Table>
-                <TableHeader>
+                <TableHeader className="bg-table-header">
                     <TableRow>
                         <TableHead className="font-medium">Task Name</TableHead>
                         <TableHead className="font-medium">Project</TableHead>
@@ -139,9 +139,9 @@ const TeamContent: React.FC = () => {
                         <TableHead className="font-medium">End Date</TableHead>
                     </TableRow>
                 </TableHeader>
-                <TableBody>
+                <TableBody className="bg-table-body">
                     {filteredTasks.map((task) => (
-                        <TableRow key={task.id}>
+                        <TableRow key={task.id} className="hover:bg-table-bodyHover">
                             <TableCell className="flex items-center gap-2">
                                 <div>
                                     <div className="font-medium">{task.name}</div>

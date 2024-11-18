@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Plus } from 'lucide-react';
+import { Home, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { _GET, _POST } from '@/utils/auth_api';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
@@ -139,21 +139,18 @@ const TeamManagementPage = () => {
             animate={{ opacity: 1 }}
             className="flex-1 h-screen overflow-y-auto custom-scrollbar p-4"
         >
+            <motion.div className="flex items-center gap-2 pb-4">
+                <Link to="/">
+                    <p className="text-sm text-text-secondary">Home /</p>
+                </Link>
+                <p className="text-sm text-text-secondary">Team Management</p>
+            </motion.div>
             <motion.div
                 initial={{ y: -20 }}
                 animate={{ y: 0 }}
                 className="flex justify-between items-center border-b border-gray-500 mb-4"
             >
                 <p className="text-2xl font-semibold">Your Teams</p>
-                <motion.div
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                >
-                    <Button className="mb-2" onClick={() => setDialogOpen(true)}>
-                        <Plus className="mr-2" />
-                        Create Team
-                    </Button>
-                </motion.div>
             </motion.div>
 
             <div ref={parent} className="grid grid-cols-3 gap-4">
@@ -171,7 +168,7 @@ const TeamManagementPage = () => {
                             <div className="absolute top-2 right-2 flex space-x-2">
                                 <motion.div
                                     whileHover={{ scale: 1.1 }}
-                                    className="text-xs bg-button-blueOpacity rounded-md px-2 py-1"
+                                    className="text-xs bg-color-blueOpacity rounded-md px-2 py-1"
                                 >
                                     {team.type}
                                 </motion.div>
@@ -216,7 +213,7 @@ const TeamManagementPage = () => {
                                     whileHover={{ scale: 1.1 }}
                                     whileTap={{ scale: 0.9 }}
                                 >
-                                    <Button size="sm">
+                                    <Button size="sm" className="bg-button-background hover:bg-button-backgroundHover px-2 py-1">
                                         Enter
                                     </Button>
                                 </motion.div>

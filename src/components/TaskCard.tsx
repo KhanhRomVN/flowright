@@ -36,8 +36,8 @@ const TaskCard: React.FC<TaskCardProps> = ({ task }) => {
             <Card
                 key={task.id}
                 className={`cursor-pointer hover:shadow-md transition-shadow ${
-                    task.status === 'completed' ? 'bg-button-greenOpacity' :
-                    task.status === 'in_progress' ? 'bg-button-blueOpacity' :
+                    task.status === 'completed' ? 'bg-color-greenOpacity' :
+                    task.status === 'in_progress' ? 'bg-color-blueOpacity' :
                     'bg-transparent'
                 }`}
                 onClick={() => setIsDialogOpen(true)}

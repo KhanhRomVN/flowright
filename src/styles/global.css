@@ -121,7 +121,8 @@
         --text-secondary: #A1A1AA;
 
         /* Card */
-        --card: #09090B;
+        --card-background: #2b2e32;
+        --card-background-hover: #202429;
 
         /* Sidebar */
         --sidebar-primary: #2b2e32;
@@ -137,21 +138,9 @@
 
         /* Button */
         --button-background: #19A7CE;
-        --button-backgroundHover: #146C94;
-        --button-hover-1: #1c1b1bd1;
-        --button-hover-2: #1a1a1a;
-        --blue-button-opacity-background: rgba(57, 75, 102, 0.3);
-        --green-button-opacity-background: rgba(102, 153, 136, 0.3);
-        --red-button-opacity-background: rgba(255, 0, 0, 0.3);
-        --yellow-button-opacity-background: rgba(255, 255, 0, 0.3);
-        --purple-button-opacity-background: rgba(128, 0, 128, 0.3);
-        --yellow-button-opacity-background: rgba(255, 255, 0, 0.2);
-        --blue-button-background: #19A7CE;
-        --green-button-background: #16a34a;
-        --red-button-background: #dc2626;   
-        --yellow-button-background: #ca8a04; 
-        --purple-button-background: #9333ea; 
-        --orange-button-background: #ea580c;
+        --button-background-hover: #146C94;
+        --button-outline: #C4C4C4;
+        --button-outline-hover: #146C94;
 
         /* Dialog */
         --dialog-background: #010D18;

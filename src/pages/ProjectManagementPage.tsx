@@ -84,7 +84,7 @@ const ProjectManagementPage = () => {
                             <div className="absolute top-2 right-2 flex space-x-2">
                                 <motion.div
                                     whileHover={{ scale: 1.1 }}
-                                    className="text-xs bg-button-blueOpacity rounded-md px-2 py-1"
+                                    className="text-xs bg-color-blueOpacity rounded-md px-2 py-1"
                                 >
                                     {project.status}
                                 </motion.div>

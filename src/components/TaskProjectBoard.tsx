@@ -214,10 +214,10 @@ const TaskProjectBoard = ({ projectId }: TaskProjectBoardProps) => {
 
                         return (
                             <div key={column.id} className="w-80 flex-shrink-0">
-                                <div className="bg-gray-100 dark:bg-gray-800 rounded-lg p-4 h-full flex flex-col">
+                                <div className="bg-card-background rounded-lg p-4 h-full flex flex-col">
                                     <div className="flex items-center justify-between mb-4">
                                         <h3 className="font-semibold">{column.title}</h3>
-                                        <span className="text-xs text-muted-foreground">
+                                        <span className="text-xs text-text-secondary">
                                             {columnTasks.length} tasks
                                         </span>
                                     </div>
@@ -226,7 +226,7 @@ const TaskProjectBoard = ({ projectId }: TaskProjectBoardProps) => {
                                             <div
                                                 ref={provided.innerRef}
                                                 {...provided.droppableProps}
-                                                className="space-y-2 min-h-[100px] overflow-y-auto flex-1 custom-scrollbar pr-2"
+                                                className="space-y-2 min-h-[100px] overflow-y-auto flex-1 custom-scrollbar pr-2 bg-card-background"
                                             >
                                                 {columnTasks.map((task, index) => (
                                                     <Draggable

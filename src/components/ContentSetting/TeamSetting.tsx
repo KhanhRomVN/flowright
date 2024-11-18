@@ -19,12 +19,12 @@ const fakeTeam = [
 ];
 
 const opacityColors = [
-    "bg-button-blueOpacity",
-    "bg-button-greenOpacity",
-    "bg-button-redOpacity",
-    "bg-button-yellowOpacity",
-    "bg-button-purpleOpacity",
-    "bg-button-orangeOpacity",
+    "bg-color-blueOpacity",
+    "bg-color-greenOpacity",
+    "bg-color-redOpacity",
+    "bg-color-yellowOpacity",
+    "bg-color-purpleOpacity",
+    "bg-color-orangeOpacity",
 ];
 
 const TeamSetting: React.FC = () => {
