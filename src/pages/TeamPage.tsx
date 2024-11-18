@@ -135,13 +135,13 @@ const TeamPage = () => {
                 animate={{ y: 0 }}
                 className="mb-6"
             >
-                <h1 className="text-2xl font-bold mb-2">{currentTeam.name}</h1>
-                <p className="text-gray-500 truncate max-w-2xl">
+                <h1 className="text-2xl font-bold mb-2 text-text-primary">{currentTeam.name}</h1>
+                <p className="text-text-secondary truncate max-w-2xl">
                     {currentTeam.description}
                 </p>
                 <div className="flex gap-2 mt-2">
-                    <Badge variant="outline">{currentTeam.type}</Badge>
-                    <Badge variant="outline">{currentTeam.status}</Badge>
+                    <Badge variant="outline" className="text-text-secondary">{currentTeam.type}</Badge>
+                    <Badge variant="outline" className="text-text-secondary">{currentTeam.status}</Badge>
                 </div>
             </motion.div>
 
@@ -169,9 +169,9 @@ const TeamPage = () => {
             </div>
 
             {/* Table Section */}
-            <div ref={parent} className="bg-white dark:bg-gray-800 rounded-lg shadow">
+            <div ref={parent} className="rounded-lg shadow">
                 <Table>
-                    <TableHeader>
+                    <TableHeader className="bg-table-header">
                         <TableRow>
                             <TableHead className="w-[50px]">
                                 <Checkbox
@@ -189,7 +189,7 @@ const TeamPage = () => {
                             <TableHead>Creator</TableHead>
                         </TableRow>
                     </TableHeader>
-                    <TableBody>
+                    <TableBody className="bg-table-body ">
                         <AnimatePresence>
                             {filteredTasks.map((task) => (
                                 <motion.tr
@@ -198,7 +198,7 @@ const TeamPage = () => {
                                     animate={{ opacity: 1, y: 0 }}
                                     exit={{ opacity: 0, y: -20 }}
                                     transition={{ duration: 0.2 }}
-                                    className="hover:bg-gray-50 dark:hover:bg-gray-700"
+                                    className="hover:bg-table-bodyHover"
                                 >
                                     <TableCell>
                                         <Checkbox
@@ -209,7 +209,7 @@ const TeamPage = () => {
                                     <TableCell onClick={() => setSelectedTask(task.taskId)} className="cursor-pointer">
                                         <div>
                                             <p className="font-medium">{task.taskName}</p>
-                                            <p className="text-gray-500 truncate max-w-xs">
+                                            <p className="text-text-secondary truncate max-w-xs">
                                                 {task.taskDescription}
                                             </p>
                                         </div>
@@ -305,6 +305,8 @@ const TeamPage = () => {
             <CreateTaskDrawer
                 isOpen={isCreateDrawerOpen}
                 onClose={() => setIsCreateDrawerOpen(false)}
+                projectId={currentTeam.id}
+                taskGroupId={currentTeam.id}
             />
         </motion.div>
     );

@@ -157,10 +157,10 @@
         --dialog-background: #010D18;
 
         /* Table */
-        --table-header-background: #010D18;
-        --table-header-hover: #021526;
-        --table-body-background: #011f3d;
-        --table-body-hover: #021526;
+        --table-header: #1c1f22;
+        --table-header-hover: #2b2e32;
+        --table-body: #2b2e32;
+        --table-body-hover: #26282b;
     }
 }
 

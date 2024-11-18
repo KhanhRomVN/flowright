@@ -89,9 +89,9 @@ module.exports = {
                 },
                 // * Table *
                 table: {
-                    headerBackground: "var(--table-header-background)",
+                    header: "var(--table-header)",
                     headerHover: "var(--table-header-hover)",
-                    bodyBackground: "var(--table-body-background)",
+                    body: "var(--table-body)",
                     bodyHover: "var(--table-body-hover)",
                 },
             },
