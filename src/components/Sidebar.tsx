@@ -31,16 +31,16 @@ const Sidebar: React.FC = () => {
       {/* Top section */}
       <div>
         {[
-          { title: 'Dashboard', icon: LayoutDashboard, bgColor: 'bg-blue-500', link: '/', notification: 0 },
+          { title: 'Dashboard', icon: LayoutDashboard, bgColor: 'bg-color-blue', link: '/', notification: 0 },
           {
-            title: 'Team', icon: Users, bgColor: 'bg-blue-500', link: '/team/management', notification: 11,
+            title: 'Team', icon: Users, bgColor: 'bg-color-blue', link: '/team/management', notification: 11,
           },
-          { title: 'Member', icon: UserCircle, bgColor: 'bg-green-500', link: '/member', notification: 0 },
+          { title: 'Member', icon: UserCircle, bgColor: 'bg-color-green', link: '/member', notification: 0 },
           {
-            title: 'Project', icon: FolderKanban, bgColor: 'bg-yellow-500', link: '/project/management', notification: 0
+            title: 'Project', icon: FolderKanban, bgColor: 'bg-color-yellow', link: '/project/management', notification: 0
           },
-          { title: 'Task', icon: CheckSquare, bgColor: 'bg-red-500', link: '/task', notification: 35 },
-          { title: 'Calendar', icon: Calendar, bgColor: 'bg-purple-500', link: '/calendar', notification: 0 },
+          { title: 'Task', icon: CheckSquare, bgColor: 'bg-color-red', link: '/task', notification: 35 },
+          { title: 'Calendar', icon: Calendar, bgColor: 'bg-color-purple', link: '/calendar', notification: 0 },
         ].map((item) => (
           <div key={item.title}>
             <Link
@@ -49,11 +49,11 @@ const Sidebar: React.FC = () => {
             >
               <Button
                 variant="ghost"
-                className="w-full justify-between hover:bg-button-hover1 focus:bg-primary focus:text-white mb-2 pr-2.5"
+                className="w-full justify-between hover:bg-sidebar-itemHover focus:bg-gradient-to-r from-primary to-transparent mb-1 pr-2 focus:text-text-primary text-sm"
               >
-                <div className="text-white text-base flex items-center">
+                <div className="text-text-secondary text-base flex items-center">
                   <div className={`${item.bgColor} p-1 rounded-sm mr-2`}>
-                    <item.icon className="h-4 w-4 text-white" />
+                    <item.icon className="h-4 w-4 text-text-primary" />
                   </div>
                   {item.title}
                 </div>

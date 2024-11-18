@@ -97,40 +97,37 @@
     }
 
     .dark {
-        --background: #021526;
+        --background: #202429;
         --foreground: #FFFBE6;
-
-        /* Card */
-        --card: #09090B;
-        --card-foreground: #FAFAFA;
-        --blue-card-opacity-background: rgba(57, 75, 102, 0.3);
-
-        --popover: #09090B;
-        --popover-foreground: #FAFAFA;
 
         --primary: #19A7CE;
 
-        --secondary: #27272A;
-        --secondary-foreground: #FAFAFA;
+        /* Colors */
+        --blue: #19A7CE;
+        --green: #16a34a;
+        --red: #dc2626;
+        --yellow: #ca8a04;
+        --purple: #9333ea;
+        --orange: #ea580c;
+        --blue-opacity: rgba(57, 75, 102, 0.3);
+        --green-opacity: rgba(102, 153, 136, 0.3);
+        --red-opacity: rgba(255, 0, 0, 0.3);
+        --yellow-opacity: rgba(255, 255, 0, 0.3);
+        --purple-opacity: rgba(128, 0, 128, 0.3);
+        --orange-opacity: rgba(255, 165, 0, 0.3);
 
-        --muted: #27272A;
-        --muted-foreground: #A1A1AA;
+        /* Text */
+        --text-primary: #FFFBE6;
+        --text-secondary: #A1A1AA;
 
-        --accent: #27272A;
-        --accent-foreground: #FAFAFA;
-
-        --destructive: #7F1D1D;
-        --destructive-foreground: #FAFAFA;
-
-        --border: #27272A;
-        --input: #27272A;
-        --ring: #D4D4D8;
+        /* Card */
+        --card: #09090B;
 
         /* Sidebar */
-        --sidebar-primary: #010D18;
-        --sidebar-secondary: #011f3d;
-        --sidebar-foreground: #FAFAFA;
-
+        --sidebar-primary: #2b2e32;
+        --sidebar-item-hover: #202429;
+        --sidebar-item-active: #010D18;
+        
         /* Search Bar */
         --search-bar-background: #010911;
         --search-bar-outline: #B7B7B7;
@@ -156,22 +153,14 @@
         --purple-button-background: #9333ea; 
         --orange-button-background: #ea580c;
 
-
-        --outline: #27272A;
-
-        /* Icon */
-        --icon-primary: #19A7CE;
-        --icon-secondary: #FAFAFA;
+        /* Dialog */
+        --dialog-background: #010D18;
 
         /* Table */
         --table-header-background: #010D18;
         --table-header-hover: #021526;
         --table-body-background: #011f3d;
         --table-body-hover: #021526;
-
-        /* Navigation transparency */
-        --nav-background: transparent;
-        --nav-border: rgba(255, 255, 255, 0.1);
     }
 }
 

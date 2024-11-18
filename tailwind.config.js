@@ -1,3 +1,5 @@
+const { blue } = require('@mui/material/colors');
+
 /** @type {import('tailwindcss').Config} */
 module.exports = {
     darkMode: ["class"],
@@ -18,45 +20,43 @@ module.exports = {
         },
         extend: {
             colors: {
-                border: "var(--brder)",
+                border: "var(--border)",
                 input: "var(--input)",
                 ring: "var(--ring)",
                 background: "var(--background)",
                 foreground: "var(--foreground)",
-                // color
-                primary: {
-                    DEFAULT: "var(--primary)",
+                // * Text *
+                text: {
+                    primary: "var(--text-primary)",
+                    secondary: "var(--text-secondary)",
                 },
-                secondary: {
-                    DEFAULT: "var(--secondary)",
-                    foreground: "var(--secondary-foreground)",
+                // * Colors *
+                color: {
+                    blue: "var(--blue)",
+                    green: "var(--green)",
+                    red: "var(--red)",
+                    yellow: "var(--yellow)",
+                    purple: "var(--purple)",
+                    orange: "var(--orange)",
+                    blueOpacity: "var(--blue-opacity)",
+                    greenOpacity: "var(--green-opacity)",
+                    redOpacity: "var(--red-opacity)",
+                    yellowOpacity: "var(--yellow-opacity)",
+                    purpleOpacity: "var(--purple-opacity)",
+                    orangeOpacity: "var(--orange-opacity)",
                 },
-                destructive: {
-                    DEFAULT: "var(--destructive)",
-                    foreground: "var(--destructive-foreground)",
-                },
-                muted: {
-                    DEFAULT: "var(--muted)",
-                    foreground: "var(--muted-foreground)",
-                },
-                accent: {
-                    DEFAULT: "var(--accent)",
-                    foreground: "var(--accent-foreground)",
-                },
-                popover: {
-                    DEFAULT: "var(--popover)",
-                    foreground: "var(--popover-foreground)",
-                },
+                primary: "var(--primary)",
+                // * Card *
                 card: {
                     DEFAULT: "var(--card)",
-                    foreground: "var(--card-foreground)",
-                    blueOpacity: "var(--blue-card-opacity-background)",
                 },
+                // * Sidebar *
                 sidebar: {
                     primary: "var(--sidebar-primary)",
-                    secondary: "var(--sidebar-secondary)",
-                    foreground: "var(--sidebar-foreground)",
+                    itemHover: "var(--sidebar-item-hover)",
+                    itemActive: "var(--sidebar-item-active)",
                 },
+                // * Search Bar *
                 searchBar: {
                     background: "var(--search-bar-background)",
                     outline: "var(--search-bar-outline)",
@@ -64,6 +64,7 @@ module.exports = {
                     outlineFocus: "var(--search-bar-outline-focus)",
                     placeholder: "var(--search-bar-placeholder)",
                 },
+                // * Button *
                 button: {
                     background: "var(--button-background)",
                     backgroundHover: "var(--button-backgroundHover)",
@@ -81,11 +82,12 @@ module.exports = {
                     purpleBackground: "var(--purple-button-background)",
                     orangeBackground: "var(--orange-button-background)",
                 },
-                outline: "var(--outline)",
+                // * Icon *
                 icon: {
                     primary: "var(--icon-primary)",
                     secondary: "var(--icon-secondary)",
                 },
+                // * Table *
                 table: {
                     headerBackground: "var(--table-header-background)",
                     headerHover: "var(--table-header-hover)",
