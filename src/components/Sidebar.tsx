@@ -58,7 +58,7 @@ const Sidebar: React.FC = () => {
                   {item.title}
                 </div>
                 {item.notification > 0 && (
-                  <div className="bg-red-500 text-white rounded-sm px-1 py-0.5 text-xs">
+                  <div className="bg-color-redOpacity text-white rounded-sm px-1 py-0.5 text-xs">
                     {item.notification}
                   </div>
                 )}
@@ -72,7 +72,7 @@ const Sidebar: React.FC = () => {
       <div className="mt-auto p-2 hover:bg-sidebar-secondary rounded-lg flex items-center justify-between">
         <Link to="/profile" className="flex items-center gap-3">
           <Avatar>
-            <AvatarFallback className="bg-blue-500 p-1 rounded-sm">JD</AvatarFallback>
+            <AvatarFallback className="bg-color-blue p-1 rounded-sm">JD</AvatarFallback>
           </Avatar>
           <div className="text-sm">
             <p className="text-white font-medium">{userData?.username || 'John Doe'}</p> {/* Updated to use username */}
@@ -80,8 +80,8 @@ const Sidebar: React.FC = () => {
           </div>
         </Link>
         <Link to="/setting">
-          <Button variant="ghost" size="icon" className="hover:bg-button-hover1">
-            <Settings className="h-5 w-5 text-white" />
+          <Button variant="ghost" size="icon" className="hover:bg-button-backgroundHover">
+            <Settings className="h-5 w-5 text-text-primary" />
           </Button>
         </Link>
       </div>

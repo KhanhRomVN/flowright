@@ -46,9 +46,9 @@ interface WindowButtonProps {
 
 function WindowButton({ onClick, icon, tooltip, hoverColor }: WindowButtonProps) {
     const hoverColorClass = {
-        yellow: 'hover:bg-yellow-500',
-        green: 'hover:bg-green-500',
-        red: 'hover:bg-red-500'
+        yellow: 'hover:bg-color-yellowOpacity',
+        green: 'hover:bg-color-greenOpacity',
+        red: 'hover:bg-color-redOpacity'
     }[hoverColor];
 
     return (

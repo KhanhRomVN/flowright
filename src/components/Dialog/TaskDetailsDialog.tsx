@@ -111,7 +111,7 @@ interface TaskDetailsDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   taskId: string;
-  teamId: string;
+  teamId: string | null;
   onTaskUpdate?: () => void;
 }
 

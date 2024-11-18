@@ -15,6 +15,9 @@ import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 import { useAutoAnimate } from '@formkit/auto-animate/react';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import AddMemberTeamDialog from '@/components/Dialog/AddMemberTeamDialog';
+import { UserPlus } from 'lucide-react';
+
 interface TaskAssignment {
     assignmentMemberId: string;
     assigneeUsername: string;
@@ -47,6 +50,7 @@ const TeamPage = () => {
     const [selectedTask, setSelectedTask] = useState<string | null>(null);
     const [searchTerm, setSearchTerm] = useState('');
     const [parent] = useAutoAnimate();
+    const [showAddMemberDialog, setShowAddMemberDialog] = useState(false);
 
 
     useEffect(() => {
@@ -144,17 +148,7 @@ const TeamPage = () => {
                 animate={{ y: 0 }}
                 className="mb-6"
             >
-                <div className="flex items-center justify-between gap-2">
-                    <div>
-                        <h1 className="text-2xl font-bold mb-2 text-text-primary">{currentTeam.name}</h1>
-                        <p className="text-text-secondary truncate max-w-2xl">
-                            {currentTeam.description}
-                        </p>
-                        <div className="flex gap-2 mt-2">
-                            <Badge variant="outline" className="text-text-secondary">{currentTeam.type}</Badge>
-                            <Badge variant="outline" className="text-text-secondary">{currentTeam.status}</Badge>
-                        </div>
-                    </div>
+                <div className="flex items-center gap-4">
                     <div className="flex -space-x-2">
                         {[...Array(5)].map((_, i) => (
                             <Avatar key={i} className="border-2 border-background">
@@ -166,6 +160,21 @@ const TeamPage = () => {
                             <AvatarFallback className="bg-muted">+3</AvatarFallback>
                         </Avatar>
                     </div>
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setShowAddMemberDialog(true)}
+                        className="flex items-center gap-2"
+                    >
+                        <UserPlus className="h-4 w-4" />
+                        Manage Members
+                    </Button>
+
+                    <AddMemberTeamDialog
+                        open={showAddMemberDialog}
+                        onOpenChange={setShowAddMemberDialog}
+                        teamId={currentTeam.id}
+                    />
                 </div>
             </motion.div>
 

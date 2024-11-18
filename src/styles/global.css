@@ -109,12 +109,14 @@
         --yellow: #ca8a04;
         --purple: #9333ea;
         --orange: #ea580c;
+        --gray: #71717A;
         --blue-opacity: rgba(57, 75, 102, 0.3);
         --green-opacity: rgba(102, 153, 136, 0.3);
         --red-opacity: rgba(255, 0, 0, 0.3);
         --yellow-opacity: rgba(255, 255, 0, 0.3);
         --purple-opacity: rgba(128, 0, 128, 0.3);
         --orange-opacity: rgba(255, 165, 0, 0.3);
+        --gray-opacity: rgba(113, 113, 122, 0.3);
 
         /* Text */
         --text-primary: #FFFBE6;
