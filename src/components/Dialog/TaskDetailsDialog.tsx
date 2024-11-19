@@ -126,7 +126,6 @@ export default function TaskDetailsDialog({
   open,
   onOpenChange,
   taskId,
-  teamId,
   onTaskUpdate
 }: TaskDetailsDialogProps) {
   // States
@@ -301,16 +300,18 @@ export default function TaskDetailsDialog({
     }
   };
 
-  const handleUpdateStatus = async (newStatus: string) => {
+  const handleUpdateStatus = async (status: 'done' | 'cancel') => {
     try {
       await _PUT(`/task/service/tasks/status`, {
         taskId: taskId,
-        status: newStatus
+        status: status
       });
-      setTask({ ...task, status: newStatus });
-      toast.success('Task status updated successfully');
+
+      toast.success(`Task marked as ${status}`);
+
     } catch (error) {
       console.error('Error updating task status:', error);
+      toast.error('Failed to update task status');
     }
   };
 
@@ -470,12 +471,22 @@ export default function TaskDetailsDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[90vw] max-h-[80vh] flex flex-col p-0 rounded-lg shadow-lg">
+      <DialogContent className={`max-w-[90vw] max-h-[80vh] flex flex-col p-0 rounded-lg shadow-lg`}>
+        {task.status === 'cancel' || task.status === 'done' && (
+          <div className="absolute inset-0 bg-background/50 z-10 rounded-lg" />
+        )}
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="flex justify-between items-center py-3 px-4 border-b bg-gradient-to-r from-primary/5 to-primary/10"
+          className={`flex justify-between items-center py-3 px-4 border-b ${task.status === 'done' ? 'bg-green-500/10' :
+            task.status === 'todo' ? 'bg-gray-500/10' :
+              task.status === 'in_progress' ? 'bg-blue-500/10' :
+                task.status === 'overdue' ? 'bg-red-500/10' :
+                  task.status === 'overdone' ? 'bg-orange-500/10' :
+                    task.status === 'cancel' ? 'bg-purple-500/10' :
+                      'bg-gradient-to-r from-primary/5 to-primary/10'
+            }`}
         >
           {/* Task Name with Task Status */}
           <div className="flex items-center gap-3">
@@ -536,43 +547,48 @@ export default function TaskDetailsDialog({
 
           {/* Task Actions */}
           <div className="flex items-center gap-2">
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="flex items-center gap-1 text-green-600 hover:bg-green-100"
-                    onClick={() => handleUpdateStatus('done')}
-                  >
-                    <CheckCircle2 className="w-4 h-4" />
-                    Done
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Mark task as done</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
+            {task.status !== 'done' && task.status !== 'cancel' && (
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="flex items-center gap-1 text-green-600 hover:bg-green-100"
+                      onClick={() => handleUpdateStatus('done')}
+                    >
+                      <CheckCircle2 className="w-4 h-4" />
+                      Done
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Mark task as done</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            )}
 
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="flex items-center gap-1 text-red-600 hover:bg-red-100"
-                    onClick={() => handleUpdateStatus('cancel')}
-                  >
-                    <XCircle className="w-4 h-4" />
-                    Cancel
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Cancel task</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
+            {task.status !== 'cancel' && task.status !== 'done' && (
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="flex items-center gap-1 text-red-600 hover:bg-red-100"
+                      onClick={() => handleUpdateStatus('cancel')}
+                    >
+                      <XCircle className="w-4 h-4" />
+                      Cancel
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Cancel task</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            )}
+
 
             <TooltipProvider>
               <Tooltip>
@@ -1071,46 +1087,6 @@ export default function TaskDetailsDialog({
             className="w-[40%] pl-4 pr-2 overflow-y-auto custom-scrollbar"
           >
             <div className="space-y-4">
-              {/* Status Section */}
-              <div className="bg-sidebar-primary rounded-lg p-4">
-                <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
-                  <Activity className="w-5 h-5 text-primary" />
-                  Status
-                </h3>
-                <Select
-                  value={task.status}
-                  onValueChange={handleUpdateStatus}
-                >
-                  <SelectTrigger className="w-full">
-                    <p className="text-lg">
-                      {task.status === 'todo' && 'To Do'}
-                      {task.status === 'in_progress' && 'In Progress'}
-                      {task.status === 'done' && 'Done'}
-                    </p>
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="todo">
-                      <div className="flex items-center gap-2">
-                        <CircleDashed className="w-4 h-4" />
-                        To Do
-                      </div>
-                    </SelectItem>
-                    <SelectItem value="in_progress">
-                      <div className="flex items-center gap-2">
-                        <Clock className="w-4 h-4 text-blue-500" />
-                        In Progress
-                      </div>
-                    </SelectItem>
-                    <SelectItem value="done">
-                      <div className="flex items-center gap-2">
-                        <CheckCircle2 className="w-4 h-4 text-green-500" />
-                        Done
-                      </div>
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
               {/* Timeline Section */}
               <div className="bg-sidebar-primary rounded-lg p-4">
                 <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
