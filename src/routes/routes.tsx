@@ -10,7 +10,6 @@ import MainLayout from "@/layouts/MainLayout";
 // pages
 import DashboardPage from "../pages/DashboardPage";
 import TeamManagementPage from "../pages/TeamManagementPage";
-import MemberPage from "../pages/MemberPage";
 import ProjectManagementPage from "../pages/ProjectManagementPage";
 import TaskPage from "../pages/TaskPage";
 import CalendarPage from "../pages/CalendarPage";
@@ -69,16 +68,6 @@ export const TeamRoute = createRoute({
     component: () => (
         <MainLayout>
             <TeamPage />
-        </MainLayout>
-    ),
-});
-
-export const MemberRoute = createRoute({
-    getParentRoute: () => RootRoute,
-    path: "/member",
-    component: () => (
-        <MainLayout>
-            <MemberPage />
         </MainLayout>
     ),
 });
@@ -166,7 +155,6 @@ export const rootTree = RootRoute.addChildren([
     RegisterRoute,
     TeamManagementRoute,
     TeamRoute,
-    MemberRoute,
     ProjectManagementRoute,
     TaskRoute,
     CalendarRoute,

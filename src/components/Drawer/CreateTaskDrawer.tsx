@@ -684,7 +684,8 @@ export default function CreateTaskDrawer({
                                 variant="outline"
                                 size="sm"
                                 onClick={() => {
-                                    if (!validateTeamSelection()) {
+                                    if (selectedAssignments.length === 0) {
+                                        toast.warning('Please add task assignments first');
                                         return;
                                     }
                                     setOpenForms(prev => ({ ...prev, miniTask: true }));
@@ -698,7 +699,7 @@ export default function CreateTaskDrawer({
                             isOpen={openForms.miniTask}
                             onClose={() => setOpenForms(prev => ({ ...prev, miniTask: false }))}
                             onAdd={(task) => setMiniTasks(prev => [...prev, task])}
-                            teamMembers={teamMembers}
+                            selectedAssignments={selectedAssignments}
                         />
                         <div className="space-y-2">
                             {miniTasks.map((task, index) => (
@@ -852,12 +853,12 @@ const MiniTaskForm = ({
     isOpen,
     onClose,
     onAdd,
-    teamMembers,
+    selectedAssignments,
 }: {
     isOpen: boolean;
     onClose: () => void;
     onAdd: (task: MiniTask) => void;
-    teamMembers: TeamMember[];
+    selectedAssignments: SelectedAssignment[];
 }) => {
     const [newTask, setNewTask] = useState<MiniTask>({
         name: '',
@@ -890,6 +891,7 @@ const MiniTaskForm = ({
                         size="sm"
                         onClick={() => setShowAssignee(!showAssignee)}
                         className="w-full justify-between"
+                        disabled={selectedAssignments.length === 0}
                     >
                         <span>
                             {newTask.assignee ? newTask.assignee.memberUsername : 'Add Assignee'}
@@ -899,10 +901,10 @@ const MiniTaskForm = ({
 
                     {showAssignee && (
                         <div className="mt-2 border rounded-md max-h-32 overflow-y-auto">
-                            {teamMembers.length > 0 ? (
-                                teamMembers.map(member => (
+                            {selectedAssignments.length > 0 ? (
+                                selectedAssignments.map(member => (
                                     <button
-                                        key={member.id}
+                                        key={member.memberId}
                                         type="button"
                                         className="w-full p-2 text-left hover:bg-gray-100 dark:hover:bg-sidebar-primary"
                                         onClick={() => {
@@ -922,7 +924,7 @@ const MiniTaskForm = ({
                                 ))
                             ) : (
                                 <div className="p-2 text-sm text-gray-500">
-                                    No team members available
+                                    Please add task assignments first
                                 </div>
                             )}
                         </div>
@@ -970,6 +972,7 @@ const MiniTaskForm = ({
                                 onClose();
                             }
                         }}
+                        disabled={!newTask.name.trim()}
                     >
                         Add
                     </Button>
