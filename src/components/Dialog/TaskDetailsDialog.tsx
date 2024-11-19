@@ -200,7 +200,7 @@ export default function TaskDetailsDialog({
         console.error('Error fetching workspace members:', error);
       }
     };
-  
+
     if (showMemberDropdown) {
       fetchTeamMembers();
     }
@@ -477,52 +477,8 @@ export default function TaskDetailsDialog({
           animate={{ opacity: 1, y: 0 }}
           className="flex justify-between items-center py-3 px-4 border-b bg-gradient-to-r from-primary/5 to-primary/10"
         >
+          {/* Task Name with Task Status */}
           <div className="flex items-center gap-3">
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger>
-                  <Select
-                    value={task.priority}
-                    onValueChange={handleUpdatePriority}
-                  >
-                    <SelectTrigger className="border-none shadow-sm">
-                      <Badge variant={
-                        task.priority === 'high' ? 'destructive' :
-                          task.priority === 'medium' ? 'secondary' :
-                            'outline'
-                      } className="animate-pulse">
-                        <AlertCircle className="w-4 h-4 mr-1" />
-                        {task.priority}
-                      </Badge>
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="high">
-                        <div className="flex items-center gap-2">
-                          <AlertCircle className="w-4 h-4 text-red-500" />
-                          High Priority
-                        </div>
-                      </SelectItem>
-                      <SelectItem value="medium">
-                        <div className="flex items-center gap-2">
-                          <AlertCircle className="w-4 h-4 text-yellow-500" />
-                          Medium Priority
-                        </div>
-                      </SelectItem>
-                      <SelectItem value="low">
-                        <div className="flex items-center gap-2">
-                          <AlertCircle className="w-4 h-4 text-green-500" />
-                          Low Priority
-                        </div>
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Task Priority</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-
             <motion.h2
               className="text-xl font-semibold"
               initial={{ opacity: 0 }}
@@ -531,9 +487,93 @@ export default function TaskDetailsDialog({
             >
               {task.taskName}
             </motion.h2>
+            {/* Task Status */}
+            <div className="flex items-center gap-2">
+              <Badge
+                variant="outline"
+                className={`px-3 py-1 text-sm font-medium ${task.status === 'todo' ? 'bg-gray-100 text-gray-700 border-gray-300' :
+                  task.status === 'in_progress' ? 'bg-blue-100 text-blue-700 border-blue-300' :
+                    task.status === 'done' ? 'bg-green-100 text-green-700 border-green-300' :
+                      task.status === 'overdue' ? 'bg-red-100 text-red-700 border-red-300' :
+                        task.status === 'overdone' ? 'bg-orange-100 text-orange-700 border-orange-300' :
+                          'bg-purple-100 text-purple-700 border-purple-300' // for cancel
+                  }`}
+              >
+                <div className="flex items-center gap-1.5">
+                  {task.status === 'todo' && <CircleDashed className="w-3.5 h-3.5" />}
+                  {task.status === 'in_progress' && <Clock className="w-3.5 h-3.5" />}
+                  {task.status === 'done' && <CheckCircle2 className="w-3.5 h-3.5" />}
+                  {task.status === 'overdue' && <AlertCircle className="w-3.5 h-3.5" />}
+                  {task.status === 'overdone' && <AlertCircle className="w-3.5 h-3.5" />}
+                  {task.status === 'cancel' && <XCircle className="w-3.5 h-3.5" />}
+                  {task.status === 'todo' && 'To Do'}
+                  {task.status === 'in_progress' && 'In Progress'}
+                  {task.status === 'done' && 'Done'}
+                  {task.status === 'overdue' && 'Overdue'}
+                  {task.status === 'overdone' && 'Overdue Done'}
+                  {task.status === 'cancel' && 'Cancelled'}
+                </div>
+              </Badge>
+              {(task.status === 'overdue' || task.status === 'overdone') && (
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <div className="text-sm text-red-500 flex items-center gap-1">
+                        <Clock className="w-3.5 h-3.5" />
+                        {format(new Date(task.endDate), 'MMM d, yyyy')}
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Due date has passed</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              )}
+            </div>
           </div>
 
+
+
+          {/* Task Actions */}
           <div className="flex items-center gap-2">
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="flex items-center gap-1 text-green-600 hover:bg-green-100"
+                    onClick={() => handleUpdateStatus('done')}
+                  >
+                    <CheckCircle2 className="w-4 h-4" />
+                    Done
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Mark task as done</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="flex items-center gap-1 text-red-600 hover:bg-red-100"
+                    onClick={() => handleUpdateStatus('cancel')}
+                  >
+                    <XCircle className="w-4 h-4" />
+                    Cancel
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Cancel task</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger>
@@ -596,6 +636,39 @@ export default function TaskDetailsDialog({
             ref={parentRef}
           >
             <div className="space-y-4">
+              {/* Priority Section */}
+              <div className="bg-sidebar-primary rounded-lg p-4">
+                <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
+                  <AlertCircle className="w-5 h-5 text-primary" />
+                  Priority
+                </h3>
+                <div className="flex gap-2">
+                  <Button
+                    variant={task.priority === 'high' ? 'default' : 'outline'}
+                    className={`flex-1 ${task.priority === 'high' ? 'bg-red-500 hover:bg-red-600' : 'hover:bg-red-500/10'}`}
+                    onClick={() => handleUpdatePriority('high')}
+                  >
+                    <AlertCircle className="w-4 h-4 mr-2" />
+                    High
+                  </Button>
+                  <Button
+                    variant={task.priority === 'medium' ? 'default' : 'outline'}
+                    className={`flex-1 ${task.priority === 'medium' ? 'bg-yellow-500 hover:bg-yellow-600' : 'hover:bg-yellow-500/10'}`}
+                    onClick={() => handleUpdatePriority('medium')}
+                  >
+                    <AlertCircle className="w-4 h-4 mr-2" />
+                    Medium
+                  </Button>
+                  <Button
+                    variant={task.priority === 'low' ? 'default' : 'outline'}
+                    className={`flex-1 ${task.priority === 'low' ? 'bg-green-500 hover:bg-green-600' : 'hover:bg-green-500/10'}`}
+                    onClick={() => handleUpdatePriority('low')}
+                  >
+                    <AlertCircle className="w-4 h-4 mr-2" />
+                    Low
+                  </Button>
+                </div>
+              </div>
               {/* Description Section */}
               <motion.div
                 className="bg-sidebar-primary rounded-lg p-4 transition-all hover:shadow-md"

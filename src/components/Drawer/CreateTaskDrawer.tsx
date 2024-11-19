@@ -436,16 +436,16 @@ export default function CreateTaskDrawer({
                 taskAssignments: selectedAssignments.map(assignment => ({
                     memberId: assignment.memberId,
                     teamId: assignment.teamId
-                })),
+                })) || [],
                 miniTasks: miniTasks.map(task => ({
                     name: task.name,
                     description: task.description,
                     memberId: task.assignee ? task.assignee.memberId : null,
-                })),
+                })) || [],
                 taskLinks: links.map(l => ({
                     title: l.linkName,
                     link: l.linkUrl
-                }))
+                })) || [],
             };
 
             await _POST('/task/service/tasks', taskData);
