@@ -78,7 +78,6 @@ const InviteMemberDialog: React.FC = () => {
         setIsLoading(true);
         try {
             const inviteData = { email: newMember.email, roleId: selectedRole };
-            console.log("inviteData", inviteData);
             await _POST('/workspace/service/invites', inviteData);
             setNewMember({ email: '', roleName: '' });
             setSuggestions([]);

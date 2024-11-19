@@ -57,7 +57,7 @@ const Sidebar: React.FC = () => {
                   {item.title}
                 </div>
                 {item.notification > 0 && (
-                  <div className="bg-color-redOpacity text-white rounded-sm px-1 py-0.5 text-xs">
+                  <div className="bg-color-redOpacity text-text-primary rounded-sm px-1 py-0.5 text-xs">
                     {item.notification}
                   </div>
                 )}
@@ -74,8 +74,8 @@ const Sidebar: React.FC = () => {
             <AvatarFallback className="bg-color-blue p-1 rounded-sm">JD</AvatarFallback>
           </Avatar>
           <div className="text-sm">
-            <p className="text-white font-medium">{userData?.username || 'John Doe'}</p> {/* Updated to use username */}
-            <p className="text-gray-400 text-xs">{userData?.email || 'john.doe@example.com'}</p> {/* Updated to use email */}
+            <p className="text-text-primary font-medium">{userData?.username || 'John Doe'}</p> {/* Updated to use username */}
+            <p className="text-text-secondary text-xs">{userData?.email || 'john.doe@example.com'}</p> {/* Updated to use email */}
           </div>
         </Link>
         <Link to="/setting">

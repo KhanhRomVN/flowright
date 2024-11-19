@@ -1,21 +1,43 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Sidebar from "@/components/Sidebar";
 import 'react-modern-drawer/dist/index.css'
 import { User, Settings, LogOut, Maximize2, X, Minus, Search, Bell, Sun, Moon } from 'lucide-react';
 import { closeWindow, maximizeWindow, minimizeWindow } from "@/helpers/window_helpers";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import NavigationMenu from "@/components/NavigationMenu";
+import { formatDistanceToNow } from 'date-fns';
+import { vi } from 'date-fns/locale';
+import { _GET } from "@/utils/auth_api";
+import ToggleTheme from "@/components/ToggleTheme";
 
-
-const fakeNotifications = [
-    { id: 1, message: "Bạn có một tin nhắn mới", time: "5 phút trước" },
-    { id: 2, message: "Dự án mới được chia sẻ", time: "1 giờ trước" },
-];
+interface Notification {
+    id: string;
+    workspaceId: string;
+    memberId: string;
+    uri: string;
+    title: string;
+    detail: string;
+    createdAt: string;
+}
 
 function Navbar() {
     const [isProfileOpen, setIsProfileOpen] = useState(false);
     const [isDark, setIsDark] = useState(false);
     const [showNotifications, setShowNotifications] = useState(false);
+    const [notifications, setNotifications] = useState<Notification[]>([]);
+
+    useEffect(() => {
+        const fetchNotifications = async () => {
+            try {
+                const response = await _GET('/other/service/notifications?page=0');
+                setNotifications(response);
+            } catch (error) {
+                console.error('Error fetching notifications:', error);
+            }
+        };
+
+        fetchNotifications();
+    }, []);
 
     return (
         <nav className="bg-sidebar-primary text-sidebar-foreground pl-6 py-2 flex items-center justify-between">
@@ -24,15 +46,8 @@ function Navbar() {
             </div>
 
             <div className="flex items-center gap-4 mr-4">
-               
                 {/* Theme Toggle */}
-                <button
-                    onClick={() => setIsDark(!isDark)}
-                    className="p-2 rounded-full hover:bg-gray-700"
-                    title={isDark ? "Light Mode" : "Dark Mode"}
-                >
-                    {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-                </button>
+                <ToggleTheme />
 
                 {/* Notifications */}
                 <div className="relative">
@@ -41,20 +56,38 @@ function Navbar() {
                         className="p-2 rounded-full hover:bg-gray-700 relative"
                     >
                         <Bell className="w-4 h-4" />
-                        <span className="absolute -top-1 -right-1 bg-red-500 rounded-full w-4 h-4 text-xs flex items-center justify-center">
-                            2
-                        </span>
+                        {notifications.length > 0 && (
+                            <span className="absolute -top-1 -right-1 bg-red-500 rounded-full w-4 h-4 text-xs flex items-center justify-center">
+                                {notifications.length}
+                            </span>
+                        )}
                     </button>
 
                     {/* Notifications Dropdown */}
                     {showNotifications && (
                         <div className="absolute right-0 mt-2 w-72 bg-gray-800 rounded-lg shadow-lg py-2 z-50">
-                            {fakeNotifications.map((notif) => (
-                                <div key={notif.id} className="px-4 py-2 hover:bg-gray-700">
-                                    <p className="text-sm">{notif.message}</p>
-                                    <p className="text-xs text-gray-400">{notif.time}</p>
+                            {notifications.length === 0 ? (
+                                <div className="px-4 py-2 text-sm text-gray-400">
+                                    Không có thông báo mới
                                 </div>
-                            ))}
+                            ) : (
+                                notifications.map((notif) => (
+                                    <div 
+                                        key={notif.id} 
+                                        className="px-4 py-2 hover:bg-gray-700 cursor-pointer"
+                                        onClick={() => window.location.href = notif.uri}
+                                    >
+                                        <p className="text-sm">{notif.title}</p>
+                                        <p className="text-sm text-gray-400">{notif.detail}</p>
+                                        <p className="text-xs text-gray-400">
+                                            {formatDistanceToNow(new Date(notif.createdAt), {
+                                                addSuffix: true,
+                                                locale: vi
+                                            })}
+                                        </p>
+                                    </div>
+                                ))
+                            )}
                         </div>
                     )}
                 </div>
@@ -129,16 +162,15 @@ function Navbar() {
 
 export default function MainLayout({ children }: { children: React.ReactNode }) {
     return (
-        <div className="flex flex-col ">
+        <div className="flex flex-col">
             <NavigationMenu />
             <Navbar />
             <div className="flex flex-1">
                 <Sidebar />
-                <main className="flex-1 ">
+                <main className="flex-1">
                     {children}
                 </main>
             </div>
         </div>
     );
 }
-

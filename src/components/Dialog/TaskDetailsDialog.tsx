@@ -223,7 +223,6 @@ export default function TaskDetailsDialog({
     const fetchTeamMembers = async () => {
       try {
         const response = await _GET(`/member/service/members/workspace/simple`);
-        console.log(response);
         const existingMemberIds = task.taskAssignments.map(
           (assignment: TaskAssignment) => assignment.assignmentMemberId
         );
@@ -542,7 +541,6 @@ export default function TaskDetailsDialog({
 
   const handleMiniTaskStatusChange = async (miniTaskId: string, isChecked: boolean) => {
     try {
-      console.log(miniTaskId);
       const newStatus = isChecked ? 'done' : 'in_progress';
       await _PUT(`/task/service/mini-tasks?miniTaskId=${miniTaskId}`, {
         status: newStatus

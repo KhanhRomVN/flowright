@@ -63,37 +63,65 @@
 
 @layer base {
     :root {
-        --background: #F5F5F5;
-        --foreground: #343131;
+        --background: #ececec;
+        --foreground: #000000;
 
-        --card: #FAFAFA;
-        --card-foreground: #09090B;
+        --primary: #b43635;
 
-        --popover: #FFFFFF;
-        --popover-foreground: #09090B;
+        /* Colors */
+        --blue: #19A7CE;
+        --green: #16a34a;
+        --red: #dc2626;
+        --yellow: #ca8a04;
+        --purple: #9333ea;
+        --orange: #ea580c;
+        --gray: #71717A;
+        --blue-opacity: rgba(57, 75, 102, 0.3);
+        --green-opacity: rgba(102, 153, 136, 0.3);
+        --red-opacity: rgba(255, 0, 0, 0.3);
+        --yellow-opacity: rgba(255, 255, 0, 0.3);
+        --purple-opacity: rgba(128, 0, 128, 0.3);
+        --orange-opacity: rgba(255, 165, 0, 0.3);
+        --gray-opacity: rgba(113, 113, 122, 0.3);
 
-        --primary: #146C94;
+        /* Text */
+        --text-primary: #000000;
+        --text-secondary: #171718;
 
-        --secondary: #F4F4F5;
-        --secondary-foreground: #18181B;
+        /* Card */
+        --card-background: #f7f6f6;
+        --card-background-hover: #e7e6e6;
 
-        --muted: #F4F4F5;
-        --muted-foreground: #71717A;
+        /* Sidebar */
+        --sidebar-primary: #f7f6f6;
+        --sidebar-item-hover: #e7e6e6;
+        --sidebar-item-active: #b43635;
 
-        --accent: #F4F4F5;
-        --accent-foreground: #18181B;
+        /* Search Bar */
+        --search-bar-background: #e7e6e6;
+        --search-bar-outline: #B7B7B7;
+        --search-bar-outline-hover: #C4C4C4;
+        --search-bar-outline-focus: #b43635;
+        --search-bar-placeholder: #171718;
 
-        --destructive: #EF4444;
-        --destructive-foreground: #FAFAFA;
+        /* Button */
+        --button-background: #b43635;
+        --button-background-hover: #932e2d;
+        --button-outline: #C4C4C4;
+        --button-outline-hover: #932e2d;
 
-        --border: #E4E4E7;
-        --input: #E4E4E7;
-        --ring: #18181B;
+        /* Dialog */
+        --dialog-background: #010D18;
 
-        --radius: 0.5rem;
+        /* Table */
+        --table-header: #1c1f22;
+        --table-header-hover: #2b2e32;
+        --table-body: #2b2e32;
+        --table-body-hover: #26282b;
 
-        --sidebar-primary: #146C94;
-        --sidebar-foreground: #FAFAFA;
+        /* Drawer */
+        --drawer-background: #010D18;
+        --drawer-input: #202429;
     }
 
     .dark {
@@ -130,7 +158,7 @@
         --sidebar-primary: #2b2e32;
         --sidebar-item-hover: #202429;
         --sidebar-item-active: #010D18;
-        
+
         /* Search Bar */
         --search-bar-background: #010911;
         --search-bar-outline: #B7B7B7;

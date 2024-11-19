@@ -39,7 +39,7 @@ root.render(
                     draggable
                     pauseOnHover
                     theme="dark"
-                />
+                    />
             </ContentProvider>
         </IdleTimerWrapper>
     </React.StrictMode>

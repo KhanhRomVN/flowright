@@ -62,7 +62,7 @@ const TaskDrawer: React.FC<TaskDrawerProps> = ({ open, onClose }) => {
 
                 <form onSubmit={handleSubmit} className="flex flex-col gap-4">
                     <TextField
-                        label="Tên task"
+                        label="Task name"
                         fullWidth
                         required
                         sx={{
@@ -79,7 +79,7 @@ const TaskDrawer: React.FC<TaskDrawerProps> = ({ open, onClose }) => {
                     />
                     
                     <TextField
-                        label="Mô tả"
+                        label="Description"
                         multiline
                         rows={4}
                         fullWidth
@@ -98,7 +98,7 @@ const TaskDrawer: React.FC<TaskDrawerProps> = ({ open, onClose }) => {
                     />
 
                     <FormControl fullWidth required>
-                        <InputLabel sx={{ color: 'white' }}>Dự án</InputLabel>
+                        <InputLabel sx={{ color: 'white' }}>Project</InputLabel>
                         <Select
                             defaultValue=""
                             sx={{
@@ -108,14 +108,14 @@ const TaskDrawer: React.FC<TaskDrawerProps> = ({ open, onClose }) => {
                                 },
                             }}
                         >
-                            <MenuItem value="project1">Dự án 1</MenuItem>
-                            <MenuItem value="project2">Dự án 2</MenuItem>
-                            <MenuItem value="project3">Dự án 3</MenuItem>
+                            <MenuItem value="project1">Project 1</MenuItem>
+                            <MenuItem value="project2">Project 2</MenuItem>
+                            <MenuItem value="project3">Project 3</MenuItem>
                         </Select>
                     </FormControl>
 
                     <FormControl fullWidth required>
-                        <InputLabel sx={{ color: 'white' }}>Độ ưu tiên</InputLabel>
+                        <InputLabel sx={{ color: 'white' }}>Priority</InputLabel>
                         <Select
                             defaultValue=""
                             sx={{
@@ -125,14 +125,14 @@ const TaskDrawer: React.FC<TaskDrawerProps> = ({ open, onClose }) => {
                                 },
                             }}
                         >
-                            <MenuItem value="low">Thấp</MenuItem>
-                            <MenuItem value="medium">Trung bình</MenuItem>
-                            <MenuItem value="high">Cao</MenuItem>
+                            <MenuItem value="low">Low</MenuItem>
+                            <MenuItem value="medium">Medium</MenuItem>
+                            <MenuItem value="high">High</MenuItem>
                         </Select>
                     </FormControl>
 
                     <TextField
-                        label="Ngày bắt đầu"
+                        label="Start date"
                         type="date"
                         fullWidth
                         required
@@ -150,7 +150,7 @@ const TaskDrawer: React.FC<TaskDrawerProps> = ({ open, onClose }) => {
                     />
 
                     <TextField
-                        label="Ngày kết thúc"
+                        label="End date"
                         type="date"
                         fullWidth
                         required
@@ -168,7 +168,7 @@ const TaskDrawer: React.FC<TaskDrawerProps> = ({ open, onClose }) => {
                     />
 
                     <FormControl fullWidth required>
-                        <InputLabel sx={{ color: 'white' }}>Thành viên</InputLabel>
+                        <InputLabel sx={{ color: 'white' }}>Members</InputLabel>
                         <Select
                             multiple
                             value={selectedMembers}
@@ -181,9 +181,9 @@ const TaskDrawer: React.FC<TaskDrawerProps> = ({ open, onClose }) => {
                                 },
                             }}
                         >
-                            <MenuItem value="member1">Thành viên 1</MenuItem>
-                            <MenuItem value="member2">Thành viên 2</MenuItem>
-                            <MenuItem value="member3">Thành viên 3</MenuItem>
+                            <MenuItem value="member1">Member 1</MenuItem>
+                            <MenuItem value="member2">Member 2</MenuItem>
+                            <MenuItem value="member3">Member 3</MenuItem>
                         </Select>
                     </FormControl>
 

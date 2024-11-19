@@ -147,9 +147,9 @@ const DashboardContent: React.FC = () => {
                             placeholder="Search..."
                             value={searchQuery}
                             onChange={handleSearch}
-                            className="w-full px-4 py-2 rounded-lg border bg-sidebar-primary text-white"
+                            className="w-full px-4 py-2 rounded-lg border bg-sidebar-primary text-text-primary"
                         />
-                        <Search className="absolute right-3 top-2.5 text-white" size={20} />
+                        <Search className="absolute right-3 top-2.5 text-text-primary" size={20} />
                     </div>
                     <Button
                         variant="outline"
@@ -182,7 +182,7 @@ const DashboardContent: React.FC = () => {
 
             {/* Filters Panel */}
             {showFilters && (
-                <Card className="p-4 bg-sidebar-primary text-white">
+                <Card className="p-4 bg-sidebar-primary text-text-primary">
                     <div className="grid grid-cols-4 gap-4">
                         {/* Add your filter controls here */}
                         <div>
@@ -208,7 +208,7 @@ const DashboardContent: React.FC = () => {
             {/* Team Overview Cards */}
             <div className="grid grid-cols-4 gap-4">
                 <Card>
-                    <div className="flex items-center gap-2 bg-sidebar-primary p-4 text-white">
+                    <div className="flex items-center gap-2 bg-sidebar-primary p-4 text-text-primary">
                         <Users size={24} />
                         <div>
                             <Typography variant="subtitle2">Total Members</Typography>
@@ -217,7 +217,7 @@ const DashboardContent: React.FC = () => {
                     </div>
                 </Card>
                 <Card>
-                    <div className="flex items-center gap-2 bg-sidebar-primary p-4 text-white">
+                    <div className="flex items-center gap-2 bg-sidebar-primary p-4 text-text-primary">
                         <Briefcase size={24} />
                         <div>
                             <Typography variant="subtitle2">Active Projects</Typography>
@@ -226,7 +226,7 @@ const DashboardContent: React.FC = () => {
                     </div>
                 </Card>
                 <Card>
-                    <div className="flex items-center gap-2 bg-sidebar-primary p-4 text-white">
+                    <div className="flex items-center gap-2 bg-sidebar-primary p-4 text-text-primary">
                         <Calendar size={24} />
                         <div>
                             <Typography variant="subtitle2">On Leave Today</Typography>
@@ -235,7 +235,7 @@ const DashboardContent: React.FC = () => {
                     </div>
                 </Card>
                 <Card>
-                    <div className="flex items-center gap-2 bg-sidebar-primary p-4 text-white">
+                    <div className="flex items-center gap-2 bg-sidebar-primary p-4 text-text-primary">
                         <Bell size={24} />
                         <div>
                             <Typography variant="subtitle2">New Tasks</Typography>
@@ -252,7 +252,7 @@ const DashboardContent: React.FC = () => {
                     {/* Working Hours Chart */}
                     <Card>
                         <div className='flex justify-between items-center p-2 bg-sidebar-primary'>
-                            <p className='text-lg text-white font-medium'>Activity</p>
+                            <p className='text-lg text-text-primary font-medium'>Activity</p>
                         </div>
                         <div style={{ height: '300px' }} className='bg-sidebar-primary'>
                             <ResponsiveBar
@@ -264,13 +264,13 @@ const DashboardContent: React.FC = () => {
                                 valueScale={{ type: 'linear' }}
                                 colors={d => {
                                     switch (d.data.day) {
-                                        case 2: return 'var(--blue-button-background)';
-                                        case 3: return 'var(--green-button-background)';
-                                        case 4: return 'var(--red-button-background)';
-                                        case 5: return 'var(--yellow-button-background)';
-                                        case 6: return 'var(--purple-button-background)';
-                                        case 7: return '#ffffff';
-                                        case 8: return '#000000';
+                                        case 2: return 'var(--blue)';
+                                        case 3: return 'var(--green)';
+                                        case 4: return 'var(--red)';
+                                        case 5: return 'var(--yellow)';
+                                        case 6: return 'var(--purple)';
+                                        case 7: return 'var(--gray)';
+                                        case 8: return 'var(--blue)';
                                         default: return '#ffffff';
                                     }
                                 }}
@@ -309,13 +309,13 @@ const DashboardContent: React.FC = () => {
                     {/* Projects List */}
                     <Card>
                         <div className="flex justify-between items-center p-2 bg-sidebar-primary">
-                            <p className='text-lg text-white font-medium'>Projects List</p>
+                            <p className='text-lg text-text-primary font-medium'>Projects List</p>
                         </div>
                         <div className="space-y-4 p-4 bg-sidebar-primary">
                             {projectsData.map((project, index) => (
                                 <div key={index} className="p-4 bg-sidebar-secondary rounded-lg">
                                     <div className="flex justify-between items-center mb-2">
-                                        <p className="text-white font-medium">
+                                        <p className="text-text-primary font-medium">
                                             {project.name}
                                         </p>
                                         <div className="flex items-center gap-2">
@@ -325,7 +325,7 @@ const DashboardContent: React.FC = () => {
                                                 }`}>
                                                 {project.priority}
                                             </span>
-                                            <p className="text-white">
+                                            <p className="text-text-primary">
                                                 Deadline: {project.deadline}
                                             </p>
                                         </div>
@@ -348,7 +348,7 @@ const DashboardContent: React.FC = () => {
                                                 </div>
                                             ))}
                                         </div>
-                                        <p className="text-white">
+                                        <p className="text-text-primary">
                                             {project.progress}% completed
                                         </p>
                                     </div>
@@ -365,11 +365,11 @@ const DashboardContent: React.FC = () => {
                     {/* Announcements */}
                     <Card>
                         <div className='flex justify-between items-center p-2 bg-sidebar-primary'>
-                            <p className='text-lg text-white font-medium'>Thông báo</p>
+                            <p className='text-lg text-text-primary font-medium'>Thông báo</p>
                         </div>
                         <List className='bg-sidebar-primary'>
                             {announcementsData.map((announcement, index) => (
-                                <ListItem key={index} className='bg-sidebar-primary text-white border-b border-outline'>
+                                <ListItem key={index} className='bg-sidebar-primary text-text-primary border-b border-outline'>
                                     <ListItemText
                                         primary={
                                             <div className="flex items-center gap-2">
@@ -385,7 +385,7 @@ const DashboardContent: React.FC = () => {
                                             </div>
                                         }
                                         secondary={`${announcement.date}: ${announcement.content}`}
-                                        secondaryTypographyProps={{ style: { color: 'white' } }}
+                                        secondaryTypographyProps={{ style: { color: 'var(--text-secondary)' } }}
                                     />
                                 </ListItem>
                             ))}
@@ -395,16 +395,16 @@ const DashboardContent: React.FC = () => {
                     {/* Special Tasks */}
                     <Card>
                         <div className='flex justify-between items-center p-2 bg-sidebar-primary'>
-                            <p className='text-lg text-white font-medium'>Special Tasks</p>
+                            <p className='text-lg text-text-primary font-medium'>Special Tasks</p>
                         </div>
                         <List className='bg-sidebar-primary'>
                             {mySpecialTasksData.map((task, index) => (
                                 <React.Fragment key={index}>
-                                    <ListItem className='bg-sidebar-primary text-white border-b border-outline'>
+                                    <ListItem className='bg-sidebar-primary text-text-primary border-b border-outline'>
                                         <ListItemText
                                             primary={task.taskName}
                                             secondary={`${task.startTime} - ${task.endTime}: ${task.description}`}
-                                            secondaryTypographyProps={{ style: { color: 'white' } }}
+                                            secondaryTypographyProps={{ style: { color: 'var(--text-secondary)' } }}
                                         />
                                     </ListItem>
                                 </React.Fragment>

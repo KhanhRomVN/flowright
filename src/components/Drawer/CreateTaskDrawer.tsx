@@ -369,7 +369,6 @@ export default function CreateTaskDrawer({
             if (!formData.selectedProject) return;
             try {
                 const response = await _GET(`/task/service/task-groups?projectId=${formData.selectedProject}`);
-                console.log('Task groups response:', response);
                 setTaskGroups(response);
                 if (taskGroupId && response.some((group: TaskGroup) => group.id === taskGroupId)) {
                     updateFormData('selectedTaskGroup', taskGroupId);
