@@ -107,6 +107,12 @@ interface TeamMember {
   memberEmail: string;
 }
 
+interface WorkspaceMember {
+  id: string;
+  email: string;
+  username: string;
+}
+
 interface TaskDetailsDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -173,20 +179,28 @@ export default function TaskDetailsDialog({
   React.useEffect(() => {
     const fetchTeamMembers = async () => {
       try {
-        const response = await _GET(`/team/service/teams/members?teamId=${teamId}`);
+        const response = await _GET(`/member/service/members/workspace/simple`);
         console.log(response);
         const existingMemberIds = task.taskAssignments.map(
           (assignment: TaskAssignment) => assignment.assignmentMemberId
         );
         const availableMembers = response.filter(
-          (member: TeamMember) => !existingMemberIds.includes(member.memberId)
+          (member: WorkspaceMember) => !existingMemberIds.includes(member.id)
         );
-        setTeamMembers(availableMembers);
+        // Transform the data to match the existing TeamMember interface
+        const transformedMembers = availableMembers.map((member: WorkspaceMember) => ({
+          id: member.id,
+          teamId: '', // No longer needed
+          memberId: member.id,
+          memberUsername: member.username,
+          memberEmail: member.email
+        }));
+        setTeamMembers(transformedMembers);
       } catch (error) {
-        console.error('Error fetching team members:', error);
+        console.error('Error fetching workspace members:', error);
       }
     };
-
+  
     if (showMemberDropdown) {
       fetchTeamMembers();
     }

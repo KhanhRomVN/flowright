@@ -86,6 +86,11 @@ module.exports = {
                     body: "var(--table-body)",
                     bodyHover: "var(--table-body-hover)",
                 },
+                // * Drawer *
+                drawer: {
+                    background: "var(--drawer-background)",
+                    input: "var(--drawer-input)",
+                },
             },
             fontFamily: {
                 sans: ["Geist", "sans-serif"],

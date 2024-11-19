@@ -55,7 +55,7 @@ const TaskDrawer: React.FC<TaskDrawerProps> = ({ open, onClose }) => {
             <div className="flex flex-col custom-scrollbar">
                 <div className="flex justify-between items-center mb-6 custom-scrollbar">
                     <Typography variant="h6">Create Task</Typography>
-                    <button onClick={onClose} className="text-white hover:text-gray-300">
+                    <button onClick={onClose} className="text-text-primary hover:text-text-secondary">
                         <X size={24} />
                     </button>
                 </div>

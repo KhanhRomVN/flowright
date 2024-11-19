@@ -7,7 +7,6 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { _GET, _POST } from '@/utils/auth_api';
 import { toast } from 'react-toastify';
-import { motion, AnimatePresence } from 'framer-motion';
 
 
 const fadeIn = {
@@ -74,6 +73,7 @@ interface MiniTask {
 }
 
 interface FormData {
+    teamId: string;
     taskName: string;
     description: string;
     priority: 'low' | 'medium' | 'high';
@@ -106,7 +106,7 @@ const DropdownButton = ({
         type="button"
         onClick={onClick}
         disabled={disabled}
-        className="w-full px-3 py-2 text-left bg-white dark:bg-sidebar-secondary border rounded-md flex justify-between items-center"
+        className="w-full px-3 py-2 text-left bg-drawer-input dark:bg-sidebar-secondary border rounded-md flex justify-between items-center"
     >
         <span className="text-sm">{value}</span>
         <svg
@@ -131,44 +131,30 @@ const DropdownList = ({
     renderItem: (item: any) => string;
     emptyMessage?: string;
 }) => (
-    <AnimatePresence>
-        <motion.div
-            initial="hidden"
-            animate="visible"
-            exit="exit"
-            variants={fadeIn}
-            className="absolute z-10 w-full mt-1 bg-white dark:bg-sidebar-secondary border rounded-md shadow-lg"
-        >
-            {items.length > 0 ? (
-                <div className="max-h-48 overflow-y-auto">
-                    {items.map((item, index) => (
-                        <motion.button
-                            key={item.id}
-                            initial={{ opacity: 0, y: -10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: index * 0.05 }}
-                            type="button"
-                            onClick={() => onSelect(item)}
-                            className="w-full px-3 py-2 text-left text-sm hover:bg-gray-100 
+    <div
+        className="absolute z-10 w-full mt-1 bg-drawer-input dark:bg-sidebar-secondary border rounded-md shadow-lg"
+    >
+        {items.length > 0 ? (
+            <div className="max-h-48 overflow-y-auto">
+                {items.map((item, index) => (
+                    <button
+                        key={item.id}
+                        onClick={() => onSelect(item)}
+                        className="w-full px-3 py-2 text-left text-sm hover:bg-gray-100 
                                      dark:hover:bg-sidebar-primary transition-colors duration-200"
-                            whileHover={{ scale: 1.02 }}
-                            whileTap={{ scale: 0.98 }}
-                        >
-                            {renderItem(item)}
-                        </motion.button>
-                    ))}
-                </div>
-            ) : (
-                <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    className="px-3 py-2 text-sm text-gray-500"
-                >
-                    {emptyMessage}
-                </motion.div>
-            )}
-        </motion.div>
-    </AnimatePresence>
+                    >
+                        {renderItem(item)}
+                    </button>
+                ))}
+            </div>
+        ) : (
+            <div
+                className="px-3 py-2 text-sm text-gray-500"
+            >
+                {emptyMessage}
+            </div>
+        )}
+    </div>
 );
 
 const PrioritySelector = ({
@@ -214,7 +200,7 @@ const DateInput = ({
                 type="date"
                 value={value}
                 onChange={(e) => onChange(e.target.value)}
-                className="pl-10 bg-white dark:bg-sidebar-secondary"
+                className="pl-10 bg-drawer-input dark:bg-sidebar-secondary"
             />
         </div>
     </div>
@@ -229,7 +215,7 @@ const MemberItem = ({
     team: Team | undefined;
     onRemove: () => void;
 }) => (
-    <div className="flex items-center justify-between p-2 bg-white dark:bg-sidebar-secondary rounded-lg border">
+    <div className="flex items-center justify-between p-2 bg-drawer-input dark:bg-sidebar-secondary rounded-lg border">
         <div className="flex items-center gap-2">
             <Users className="h-4 w-4 text-gray-500" />
             <div>
@@ -257,6 +243,7 @@ export default function CreateTaskDrawer({
 }: CreateTaskDrawerProps) {
     // Form Data State
     const [formData, setFormData] = useState<FormData>({
+        teamId: '',
         taskName: '',
         description: '',
         priority: 'low',
@@ -308,6 +295,18 @@ export default function CreateTaskDrawer({
         link: false
     });
 
+    const [validationError, setValidationError] = useState<string | null>(null);
+
+    const validateTeamSelection = () => {
+        if (!formData.teamId) {
+            setValidationError("Please select a team first");
+            return false;
+        }
+        setValidationError(null);
+        return true;
+    };
+
+
     // Utility Functions
     const updateFormData = (field: keyof FormData, value: string) => {
         setFormData(prev => ({ ...prev, [field]: value }));
@@ -327,6 +326,7 @@ export default function CreateTaskDrawer({
     // Reset Functions
     const resetForm = () => {
         setFormData({
+            teamId: '',
             taskName: '',
             description: '',
             priority: 'low',
@@ -384,6 +384,7 @@ export default function CreateTaskDrawer({
     }, [formData.selectedProject, taskGroupId]);
 
     useEffect(() => {
+        // get all team of workspace
         const fetchTeams = async () => {
             if (!formData.selectedProject) return;
             try {
@@ -400,9 +401,9 @@ export default function CreateTaskDrawer({
 
     useEffect(() => {
         const fetchTeamMembers = async () => {
-            if (!formData.selectedTeam) return;
+            if (!formData.teamId) return;
             try {
-                const response = await _GET(`/team/service/teams/members?teamId=${formData.selectedTeam}`);
+                const response = await _GET(`/team/service/teams/members?teamId=${formData.teamId}`);
                 setTeamMembers(response);
             } catch (error) {
                 console.error('Error fetching team members:', error);
@@ -411,12 +412,12 @@ export default function CreateTaskDrawer({
         };
 
         fetchTeamMembers();
-    }, [formData.selectedTeam]);
+    }, [formData.teamId]);
 
     // Event Handlers
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!formData.taskName.trim() || !formData.description.trim() || !formData.selectedProject) {
+        if (!formData.teamId || !formData.taskName.trim() || !formData.description.trim() || !formData.selectedProject) {
             toast.error('Please fill in all required fields');
             return;
         }
@@ -424,6 +425,7 @@ export default function CreateTaskDrawer({
         try {
             setUiState(prev => ({ ...prev, isSubmitting: true }));
             const taskData = {
+                teamId: formData.teamId,
                 name: formData.taskName,
                 description: formData.description,
                 priority: formData.priority,
@@ -431,8 +433,6 @@ export default function CreateTaskDrawer({
                 endDate: formData.endDate ? `${formData.endDate}T00:00:00` : null,
                 projectId: formData.selectedProject,
                 taskGroupId: formData.selectedTaskGroup,
-                previousTaskId: null,
-                nextTaskId: null,
                 taskAssignments: selectedAssignments.map(assignment => ({
                     memberId: assignment.memberId,
                     teamId: assignment.teamId
@@ -483,6 +483,33 @@ export default function CreateTaskDrawer({
 
                 {/* Body */}
                 <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                    {/* Team Selection */}
+                    <div className="relative">
+                        <label className="text-sm font-medium mb-1.5 block">
+                            Team <span className="text-red-500">*</span>
+                        </label>
+                        <DropdownButton
+                            label="Team"
+                            value={teams.find(t => t.id === formData.teamId)?.name || "Select team"}
+                            isOpen={dropdownStates.team}
+                            onClick={() => toggleDropdown('team')}
+                        />
+                        {dropdownStates.team && (
+                            <DropdownList
+                                items={teams}
+                                onSelect={(team) => {
+                                    updateFormData('teamId', team.id);
+                                    toggleDropdown('team');
+                                    setValidationError(null);
+                                }}
+                                renderItem={(team) => team.name}
+                            />
+                        )}
+                        {validationError && (
+                            <p className="text-red-500 text-sm mt-1">{validationError}</p>
+                        )}
+                    </div>
+
                     {/* Task Name */}
                     <div>
                         <label className="text-sm font-medium mb-1.5 block">
@@ -490,9 +517,15 @@ export default function CreateTaskDrawer({
                         </label>
                         <Input
                             value={formData.taskName}
-                            onChange={(e) => updateFormData('taskName', e.target.value)}
-                            className="bg-white dark:bg-sidebar-secondary"
+                            onChange={(e) => {
+                                if (!validateTeamSelection()) {
+                                    return;
+                                }
+                                updateFormData('taskName', e.target.value);
+                            }}
+                            className="bg-drawer-input"
                             placeholder="Enter task name"
+                            onFocus={() => validateTeamSelection()}
                         />
                     </div>
 
@@ -503,9 +536,15 @@ export default function CreateTaskDrawer({
                         </label>
                         <Textarea
                             value={formData.description}
-                            onChange={(e) => updateFormData('description', e.target.value)}
-                            className="bg-white dark:bg-sidebar-secondary min-h-[100px]"
+                            onChange={(e) => {
+                                if (!validateTeamSelection()) {
+                                    return;
+                                }
+                                updateFormData('description', e.target.value);
+                            }}
+                            className="bg-drawer-input min-h-[100px]"
                             placeholder="Enter task description"
+                            onFocus={() => validateTeamSelection()}
                         />
                     </div>
 
@@ -514,7 +553,12 @@ export default function CreateTaskDrawer({
                         <label className="text-sm font-medium mb-1.5 block">Priority</label>
                         <PrioritySelector
                             priority={formData.priority}
-                            onChange={(value) => updateFormData('priority', value)}
+                            onChange={(value) => {
+                                if (!validateTeamSelection()) {
+                                    return;
+                                }
+                                updateFormData('priority', value);
+                            }}
                         />
                     </div>
 
@@ -541,7 +585,12 @@ export default function CreateTaskDrawer({
                             label="Project"
                             value={projects.find(p => p.id === formData.selectedProject)?.name || "Select project"}
                             isOpen={dropdownStates.project}
-                            onClick={() => toggleDropdown('project')}
+                            onClick={() => {
+                                if (!validateTeamSelection()) {
+                                    return;
+                                }
+                                toggleDropdown('project');
+                            }}
                         />
                         {dropdownStates.project && (
                             <DropdownList
@@ -562,7 +611,12 @@ export default function CreateTaskDrawer({
                             label="Task Group"
                             value={taskGroups.find(g => g.id === formData.selectedTaskGroup)?.name || "Select task group"}
                             isOpen={dropdownStates.taskGroup}
-                            onClick={() => toggleDropdown('taskGroup')}
+                            onClick={() => {
+                                if (!validateTeamSelection()) {
+                                    return;
+                                }
+                                toggleDropdown('taskGroup');
+                            }}
                             disabled={!formData.selectedProject}
                         />
                         {dropdownStates.taskGroup && (
@@ -585,7 +639,12 @@ export default function CreateTaskDrawer({
                                 type="button"
                                 variant="outline"
                                 size="sm"
-                                onClick={() => setOpenForms(prev => ({ ...prev, assignment: true }))}
+                                onClick={() => {
+                                    if (!validateTeamSelection()) {
+                                        return;
+                                    }
+                                    setOpenForms(prev => ({ ...prev, assignment: true }));
+                                }}
                             >
                                 <Plus className="h-4 w-4 mr-1" />
                                 Add
@@ -594,10 +653,8 @@ export default function CreateTaskDrawer({
                         <AssignmentForm
                             isOpen={openForms.assignment}
                             onClose={() => setOpenForms(prev => ({ ...prev, assignment: false }))}
-                            teams={teams}
                             teamMembers={teamMembers}
-                            selectedTeam={formData.selectedTeam}
-                            onTeamSelect={(teamId) => updateFormData('selectedTeam', teamId)}
+                            selectedTeam={formData.teamId}
                             onAssignmentAdd={(assignment) => {
                                 setSelectedAssignments(prev => [...prev, assignment]);
                             }}
@@ -626,7 +683,12 @@ export default function CreateTaskDrawer({
                                 type="button"
                                 variant="outline"
                                 size="sm"
-                                onClick={() => setOpenForms(prev => ({ ...prev, miniTask: true }))}
+                                onClick={() => {
+                                    if (!validateTeamSelection()) {
+                                        return;
+                                    }
+                                    setOpenForms(prev => ({ ...prev, miniTask: true }));
+                                }}
                             >
                                 <Plus className="h-4 w-4 mr-1" />
                                 Add
@@ -636,14 +698,11 @@ export default function CreateTaskDrawer({
                             isOpen={openForms.miniTask}
                             onClose={() => setOpenForms(prev => ({ ...prev, miniTask: false }))}
                             onAdd={(task) => setMiniTasks(prev => [...prev, task])}
-                            teams={teams}
                             teamMembers={teamMembers}
-                            selectedTeam={formData.selectedTeam}
-                            onTeamSelect={(teamId) => updateFormData('selectedTeam', teamId)}
                         />
                         <div className="space-y-2">
                             {miniTasks.map((task, index) => (
-                                <div key={index} className="p-2 bg-white dark:bg-sidebar-secondary rounded-lg border">
+                                <div key={index} className="p-2 bg-drawer-input dark:bg-sidebar-secondary rounded-lg border">
                                     <div className="flex justify-between items-start">
                                         <div>
                                             <p className="text-sm font-medium">{task.name}</p>
@@ -681,7 +740,12 @@ export default function CreateTaskDrawer({
                                 type="button"
                                 variant="outline"
                                 size="sm"
-                                onClick={() => setOpenForms(prev => ({ ...prev, link: true }))}
+                                onClick={() => {
+                                    if (!validateTeamSelection()) {
+                                        return;
+                                    }
+                                    setOpenForms(prev => ({ ...prev, link: true }));
+                                }}
                             >
                                 <Plus className="h-4 w-4 mr-1" />
                                 Add
@@ -694,7 +758,7 @@ export default function CreateTaskDrawer({
                         />
                         <div className="space-y-2">
                             {links.map((link, index) => (
-                                <div key={index} className="flex items-center justify-between p-2 bg-white dark:bg-sidebar-secondary rounded-lg border">
+                                <div key={index} className="flex items-center justify-between p-2 bg-drawer-input dark:bg-sidebar-secondary rounded-lg border">
                                     <div className="flex items-center gap-2">
                                         <Link2 className="h-4 w-4 text-gray-500" />
                                         <div>
@@ -739,40 +803,21 @@ export default function CreateTaskDrawer({
 const AssignmentForm = ({
     isOpen,
     onClose,
-    teams,
     teamMembers,
     selectedTeam,
-    onTeamSelect,
     onAssignmentAdd
 }: {
     isOpen: boolean;
     onClose: () => void;
-    teams: Team[];
     teamMembers: TeamMember[];
     selectedTeam: string;
-    onTeamSelect: (teamId: string) => void;
     onAssignmentAdd: (assignment: SelectedAssignment) => void;
 }) => {
     if (!isOpen) return null;
 
     return (
-        <div className="mt-2 p-3 bg-white dark:bg-sidebar-secondary rounded-lg border">
+        <div className="mt-2 p-3 bg-drawer-input rounded-lg border">
             <div className="space-y-3">
-                {/* Team Selection */}
-                <div>
-                    <label className="text-sm font-medium mb-1.5 block">Select Team</label>
-                    <select
-                        value={selectedTeam}
-                        onChange={(e) => onTeamSelect(e.target.value)}
-                        className="w-full px-3 py-2 bg-white dark:bg-sidebar-secondary border rounded-md"
-                    >
-                        <option value="">Select a team</option>
-                        {teams.map(team => (
-                            <option key={team.id} value={team.id}>{team.name}</option>
-                        ))}
-                    </select>
-                </div>
-
                 {/* Team Members */}
                 {selectedTeam && (
                     <div>
@@ -807,18 +852,12 @@ const MiniTaskForm = ({
     isOpen,
     onClose,
     onAdd,
-    teams,
     teamMembers,
-    selectedTeam,
-    onTeamSelect,
 }: {
     isOpen: boolean;
     onClose: () => void;
     onAdd: (task: MiniTask) => void;
-    teams: Team[];
     teamMembers: TeamMember[];
-    selectedTeam: string;
-    onTeamSelect: (teamId: string) => void;
 }) => {
     const [newTask, setNewTask] = useState<MiniTask>({
         name: '',
@@ -829,7 +868,7 @@ const MiniTaskForm = ({
     if (!isOpen) return null;
 
     return (
-        <div className="mt-2 p-3 bg-white dark:bg-sidebar-secondary rounded-lg border">
+        <div className="mt-2 p-3 bg-drawer-input rounded-lg border">
             <div className="space-y-3">
                 {/* Task Details */}
                 <Input
@@ -859,42 +898,31 @@ const MiniTaskForm = ({
                     </Button>
 
                     {showAssignee && (
-                        <div className="mt-2 space-y-2">
-                            {/* Team Selection */}
-                            <select
-                                value={selectedTeam}
-                                onChange={(e) => onTeamSelect(e.target.value)}
-                                className="w-full px-3 py-2 bg-white dark:bg-sidebar-secondary border rounded-md"
-                            >
-                                <option value="">Select a team</option>
-                                {teams.map(team => (
-                                    <option key={team.id} value={team.id}>{team.name}</option>
-                                ))}
-                            </select>
-
-                            {/* Team Members */}
-                            {selectedTeam && (
-                                <div className="max-h-32 overflow-y-auto border rounded-md">
-                                    {teamMembers.map(member => (
-                                        <button
-                                            key={member.id}
-                                            type="button"
-                                            className="w-full p-2 text-left hover:bg-gray-100 dark:hover:bg-sidebar-primary"
-                                            onClick={() => {
-                                                setNewTask(prev => ({
-                                                    ...prev,
-                                                    assignee: {
-                                                        teamId: selectedTeam,
-                                                        memberId: member.memberId,
-                                                        memberUsername: member.memberUsername
-                                                    }
-                                                }));
-                                                setShowAssignee(false);
-                                            }}
-                                        >
-                                            {member.memberUsername}
-                                        </button>
-                                    ))}
+                        <div className="mt-2 border rounded-md max-h-32 overflow-y-auto">
+                            {teamMembers.length > 0 ? (
+                                teamMembers.map(member => (
+                                    <button
+                                        key={member.id}
+                                        type="button"
+                                        className="w-full p-2 text-left hover:bg-gray-100 dark:hover:bg-sidebar-primary"
+                                        onClick={() => {
+                                            setNewTask(prev => ({
+                                                ...prev,
+                                                assignee: {
+                                                    teamId: member.teamId,
+                                                    memberId: member.memberId,
+                                                    memberUsername: member.memberUsername
+                                                }
+                                            }));
+                                            setShowAssignee(false);
+                                        }}
+                                    >
+                                        {member.memberUsername}
+                                    </button>
+                                ))
+                            ) : (
+                                <div className="p-2 text-sm text-gray-500">
+                                    No team members available
                                 </div>
                             )}
                         </div>
@@ -903,7 +931,7 @@ const MiniTaskForm = ({
 
                 {/* Selected Assignee Display */}
                 {newTask.assignee && (
-                    <div className="flex items-center justify-between p-2 bg-gray-50 dark:bg-sidebar-secondary rounded-md">
+                    <div className="flex items-center justify-between p-2 bg-drawer-input dark:bg-sidebar-secondary rounded-md">
                         <div className="flex items-center gap-2">
                             <Users className="h-4 w-4 text-gray-500" />
                             <span className="text-sm">{newTask.assignee.memberUsername}</span>
@@ -968,7 +996,7 @@ const LinkForm = ({
     if (!isOpen) return null;
 
     return (
-        <div className="mt-2 p-3 bg-white dark:bg-sidebar-secondary rounded-lg border">
+        <div className="mt-2 p-3 bg-drawer-input  rounded-lg border">
             <div className="space-y-3">
                 <Input
                     placeholder="Link name"

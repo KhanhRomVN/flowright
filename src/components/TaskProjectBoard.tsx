@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
-import { _GET, _PUT } from "@/utils/auth_api";
+import { _GET, _POST, _PUT } from "@/utils/auth_api";
 import TaskBoardCard from './Card/TaskBoardCard';
 import { toast } from 'react-toastify';
 import { Button } from './ui/button';
@@ -117,7 +117,7 @@ const TaskProjectBoard = ({ projectId }: TaskProjectBoardProps) => {
         }
 
         try {
-            await _PUT('/task/service/task-groups', {
+            await _POST('/task/service/task-groups', {
                 name: newGroupName,
                 description: newGroupName,
                 projectId: projectId

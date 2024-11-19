@@ -152,6 +152,10 @@
         --table-header-hover: #2b2e32;
         --table-body: #2b2e32;
         --table-body-hover: #26282b;
+
+        /* Drawer */
+        --drawer-background: #010D18;
+        --drawer-input: #202429;
     }
 }
 

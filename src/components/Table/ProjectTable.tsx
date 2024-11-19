@@ -28,7 +28,7 @@ const ProjectTable: React.FC<ProjectTableProps> = ({ projects }) => {
     return (
         <div ref={parent} className="bg-white dark:bg-gray-800 rounded-lg shadow">
             <Table>
-                <TableHeader>
+                <TableHeader className="bg-table-header">
                     <TableRow>
                         <TableHead>Project Name</TableHead>
                         <TableHead>Owner</TableHead>
@@ -37,7 +37,7 @@ const ProjectTable: React.FC<ProjectTableProps> = ({ projects }) => {
                         <TableHead>Timeline</TableHead>
                     </TableRow>
                 </TableHeader>
-                <TableBody>
+                <TableBody className="bg-table-body">
                     <AnimatePresence>
                         {projects.map((project) => (
                             <motion.tr
@@ -46,7 +46,7 @@ const ProjectTable: React.FC<ProjectTableProps> = ({ projects }) => {
                                 animate={{ opacity: 1, y: 0 }}
                                 exit={{ opacity: 0, y: -20 }}
                                 transition={{ duration: 0.2 }}
-                                className="hover:bg-gray-50 dark:hover:bg-gray-700"
+                                className="hover:bg-table-bodyHover"
                             >
                                 <TableCell>
                                     <div>
@@ -69,15 +69,15 @@ const ProjectTable: React.FC<ProjectTableProps> = ({ projects }) => {
                                 <TableCell>
                                     <Badge variant={
                                         project.status === 'completed' ? 'secondary' :
-                                        project.status === 'in_progress' ? 'default' :
-                                        'outline'
+                                            project.status === 'in_progress' ? 'default' :
+                                                'outline'
                                     }>
                                         {project.status.replace('_', ' ')}
                                     </Badge>
                                 </TableCell>
                                 <TableCell>
                                     <div className="text-sm">
-                                        {format(new Date(project.startDate), 'MMM d, yyyy')} - 
+                                        {format(new Date(project.startDate), 'MMM d, yyyy')} -
                                         {format(new Date(project.endDate), 'MMM d, yyyy')}
                                     </div>
                                 </TableCell>
