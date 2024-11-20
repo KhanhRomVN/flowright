@@ -1,8 +1,4 @@
 <div align="center">
-  <img src="./images/calendar.png" alt="Flowright Logo" width="200"/>
-  <img src="./images/task.png" alt="Flowright Logo" width="200"/>
-  <img src="./images/dashboard.png" alt="Flowright Logo" width="200"/>
-  <img src="./images/settings.png" alt="Flowright Logo" width="200"/>
   <h1>Flowright 🛡️</h1>
   <p><strong>A simple and powerful tool for managing task assets</strong></p>
 
@@ -58,6 +54,19 @@
 - [ESLint](https://eslint.org) - Linting
 - [Prettier](https://prettier.io) - Code formatting
 </details>
+
+## 📸 Screenshots
+
+<div align="center" style="display: flex; flex-direction: row; gap: 10px;">
+  <p>Dashboard</p>
+  <img src="./images/dashboard.png" alt="Dashboard" width="90%"/>
+  <p>Calendar</p>
+  <img src="./images/calendar.png" alt="Calendar" width="90%"/>
+  <p>Task Management</p>
+  <img src="./images/task_management.page.png" alt="Task Management" width="90%"/>
+  <p>Task</p>
+  <img src="./images/task.png" alt="Task" width="90%"/>
+</div>
 
 ## 🚀 Getting Started
 
