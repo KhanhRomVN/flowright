@@ -25,7 +25,8 @@ import {
   ChevronRight,
   ChevronLeft,
   Edit,
-  Trash2
+  Trash2,
+  CheckCircle
 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -107,11 +108,17 @@ interface TeamMember {
   memberEmail: string;
 }
 
+interface WorkspaceMember {
+  id: string;
+  email: string;
+  username: string;
+}
+
 interface TaskDetailsDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   taskId: string;
-  teamId: string;
+  teamId: string | null;
   onTaskUpdate?: () => void;
 }
 
@@ -120,7 +127,6 @@ export default function TaskDetailsDialog({
   open,
   onOpenChange,
   taskId,
-  teamId,
   onTaskUpdate
 }: TaskDetailsDialogProps) {
   // States
@@ -151,6 +157,49 @@ export default function TaskDetailsDialog({
   const [miniTasksRef] = useAutoAnimate<HTMLDivElement>();
   const [commentsRef] = useAutoAnimate<HTMLDivElement>();
 
+  const [editingMiniTaskMember, setEditingMiniTaskMember] = useState<string | null>(null);
+  const [selectedMiniTaskMember, setSelectedMiniTaskMember] = useState<string>("");
+
+  const [newMiniTaskMember, setNewMiniTaskMember] = useState<string>("");
+
+  const [selectedMember, setSelectedMember] = useState<string>(""); // Replace selectedMembers array
+
+
+  const handleUpdateMiniTaskMember = async (miniTaskId: string) => {
+    try {
+      const memberUpdate = {
+        miniTaskId: miniTaskId,
+        memberId: selectedMiniTaskMember
+      }
+
+      await _PUT(`/task/service/mini-tasks/member`, memberUpdate);
+
+      // Update local state
+      setTask({
+        ...task,
+        miniTasks: task.miniTasks.map((miniTask: MiniTask) =>
+          miniTask.miniTaskId === miniTaskId
+            ? {
+              ...miniTask,
+              miniTaskMemberId: selectedMiniTaskMember,
+              miniTaskMemberUsername: task.taskAssignments.find(
+                (a: TaskAssignment) => a.assignmentMemberId === selectedMiniTaskMember
+              )?.assigneeUsername || ''
+            }
+            : miniTask
+        )
+      });
+
+      // Reset states
+      setEditingMiniTaskMember(null);
+      setSelectedMiniTaskMember("");
+      toast.success('Mini task member updated successfully');
+    } catch (error) {
+      console.error('Error updating mini task member:', error);
+      toast.error('Failed to update mini task member');
+    }
+  };
+
   // Fetch task data
   React.useEffect(() => {
     const fetchTask = async () => {
@@ -173,17 +222,24 @@ export default function TaskDetailsDialog({
   React.useEffect(() => {
     const fetchTeamMembers = async () => {
       try {
-        const response = await _GET(`/team/service/teams/members?teamId=${teamId}`);
-        console.log(response);
+        const response = await _GET(`/member/service/members/workspace/simple`);
         const existingMemberIds = task.taskAssignments.map(
           (assignment: TaskAssignment) => assignment.assignmentMemberId
         );
         const availableMembers = response.filter(
-          (member: TeamMember) => !existingMemberIds.includes(member.memberId)
+          (member: WorkspaceMember) => !existingMemberIds.includes(member.id)
         );
-        setTeamMembers(availableMembers);
+        // Transform the data to match the existing TeamMember interface
+        const transformedMembers = availableMembers.map((member: WorkspaceMember) => ({
+          id: member.id,
+          teamId: '', // No longer needed
+          memberId: member.id,
+          memberUsername: member.username,
+          memberEmail: member.email
+        }));
+        setTeamMembers(transformedMembers);
       } catch (error) {
-        console.error('Error fetching team members:', error);
+        console.error('Error fetching workspace members:', error);
       }
     };
 
@@ -207,35 +263,38 @@ export default function TaskDetailsDialog({
     return null;
   }
 
-  const handleAddMembers = async () => {
+
+
+  const handleAddMember = async () => {
     try {
       setIsAddingMembers(true);
+
+      // Use the teamId from task data
       await _POST(`/task/service/task-assignments?taskId=${taskId}`, {
-        memberIds: selectedMembers
+        memberId: selectedMember,
+        teamId: task.teamId
       });
 
-      // Update local state with new assignments
-      const newAssignments = selectedMembers.map(memberId => {
-        const member = teamMembers.find(m => m.memberId === memberId);
-        return {
-          assignmentMemberId: memberId,
-          assigneeUsername: member?.memberUsername,
-          assigneeEmail: member?.memberEmail
-        };
-      });
+      // Update local state with new assignment
+      const member = teamMembers.find(m => m.memberId === selectedMember);
+      const newAssignment = {
+        assignmentMemberId: selectedMember,
+        assigneeUsername: member?.memberUsername,
+        assigneeEmail: member?.memberEmail
+      };
 
       setTask({
         ...task,
-        taskAssignments: [...task.taskAssignments, ...newAssignments]
+        taskAssignments: [...task.taskAssignments, newAssignment]
       });
 
       // Reset states
-      setSelectedMembers([]);
+      setSelectedMember("");
       setShowMemberDropdown(false);
-      toast.success('Members added successfully');
+      toast.success('Member added successfully');
     } catch (error) {
-      console.error('Error adding members:', error);
-      toast.error('Failed to add members');
+      console.error('Error adding member:', error);
+      toast.error('Failed to add member');
     } finally {
       setIsAddingMembers(false);
     }
@@ -287,16 +346,18 @@ export default function TaskDetailsDialog({
     }
   };
 
-  const handleUpdateStatus = async (newStatus: string) => {
+  const handleUpdateStatus = async (status: 'done' | 'cancel') => {
     try {
       await _PUT(`/task/service/tasks/status`, {
         taskId: taskId,
-        status: newStatus
+        status: status
       });
-      setTask({ ...task, status: newStatus });
-      toast.success('Task status updated successfully');
+
+      toast.success(`Task marked as ${status}`);
+
     } catch (error) {
       console.error('Error updating task status:', error);
+      toast.error('Failed to update task status');
     }
   };
 
@@ -361,7 +422,8 @@ export default function TaskDetailsDialog({
     try {
       await _POST(`/task/service/mini-tasks?taskId=${taskId}`, {
         name: newMiniTaskName,
-        description: newMiniTaskDescription
+        description: newMiniTaskDescription,
+        memberId: newMiniTaskMember // Add this line
       });
 
       // Update the task state with the new mini task
@@ -372,9 +434,13 @@ export default function TaskDetailsDialog({
           miniTaskName: newMiniTaskName,
           miniTaskDescription: newMiniTaskDescription,
           miniTaskStatus: 'in_progress',
-          miniTaskMemberId: '', // These will be updated when the page refreshes
-          miniTaskMemberUsername: '',
-          miniTaskMemberEmail: '',
+          miniTaskMemberId: newMiniTaskMember,
+          miniTaskMemberUsername: task.taskAssignments.find(
+            (a: TaskAssignment) => a.assignmentMemberId === newMiniTaskMember
+          )?.assigneeUsername || '',
+          miniTaskMemberEmail: task.taskAssignments.find(
+            (a: TaskAssignment) => a.assignmentMemberId === newMiniTaskMember
+          )?.assigneeEmail || '',
           taskId: taskId
         }]
       });
@@ -382,10 +448,80 @@ export default function TaskDetailsDialog({
       // Reset form
       setNewMiniTaskName("");
       setNewMiniTaskDescription("");
+      setNewMiniTaskMember(""); // Reset member selection
       setIsAddingMiniTask(false);
       toast.success('Mini task added successfully');
     } catch (error) {
       console.error('Error adding mini task:', error);
+    }
+  };
+
+  const handleDeleteAssignment = async (assignmentMemberId: string) => {
+    // Check for mini tasks with this member
+    const associatedMiniTasks = task.miniTasks.filter(
+      (miniTask: MiniTask) => miniTask.miniTaskMemberId === assignmentMemberId
+    );
+
+    if (associatedMiniTasks.length > 0) {
+      // Highlight affected mini tasks
+      const updatedMiniTasks = task.miniTasks.map((miniTask: MiniTask) => ({
+        ...miniTask,
+        isHighlighted: miniTask.miniTaskMemberId === assignmentMemberId
+      }));
+
+      setTask({
+        ...task,
+        miniTasks: updatedMiniTasks
+      });
+
+      // Show error toast
+      toast.error(
+        <div>
+          Cannot remove member - assigned to mini tasks:
+          <ul className="mt-1 list-disc list-inside">
+            {associatedMiniTasks.map((miniTask: MiniTask) => (
+              <li key={miniTask.miniTaskId}>{miniTask.miniTaskName}</li>
+            ))}
+          </ul>
+        </div>
+      );
+
+      // Remove highlight after 3 seconds
+      setTimeout(() => {
+        setTask({
+          ...task,
+          miniTasks: task.miniTasks.map((miniTask: MiniTask) => ({
+            ...miniTask,
+            isHighlighted: false
+          }))
+        });
+      }, 3000);
+
+      return;
+    }
+
+    // If no associated mini tasks, proceed with deletion
+    try {
+      const assignmentToDelete = task.taskAssignments.find(
+        (a: TaskAssignment) => a.assignmentMemberId === assignmentMemberId
+      );
+
+      if (!assignmentToDelete) return;
+
+      await _DELETE(`/task/service/task-assignments?taskAssignmentId=${assignmentToDelete.assignmentId}`);
+
+      // Update local state
+      setTask({
+        ...task,
+        taskAssignments: task.taskAssignments.filter(
+          (assignment: TaskAssignment) => assignment.assignmentMemberId !== assignmentMemberId
+        )
+      });
+
+      toast.success('Member removed successfully');
+    } catch (error) {
+      console.error('Error removing member:', error);
+      toast.error('Failed to remove member');
     }
   };
 
@@ -405,7 +541,6 @@ export default function TaskDetailsDialog({
 
   const handleMiniTaskStatusChange = async (miniTaskId: string, isChecked: boolean) => {
     try {
-      console.log(miniTaskId);
       const newStatus = isChecked ? 'done' : 'in_progress';
       await _PUT(`/task/service/mini-tasks?miniTaskId=${miniTaskId}`, {
         status: newStatus
@@ -456,59 +591,25 @@ export default function TaskDetailsDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[90vw] max-h-[80vh] flex flex-col p-0 rounded-lg shadow-lg">
+      <DialogContent className={`max-w-[90vw] max-h-[80vh] flex flex-col p-0 rounded-lg shadow-lg`}>
+        {task.status === 'cancel' || task.status === 'done' && (
+          <div className="absolute inset-0 bg-background/50 z-10 rounded-lg" />
+        )}
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="flex justify-between items-center py-3 px-4 border-b bg-gradient-to-r from-primary/5 to-primary/10"
+          className={`flex justify-between items-center py-3 px-4 border-b ${task.status === 'done' ? 'bg-green-500/10' :
+            task.status === 'todo' ? 'bg-gray-500/10' :
+              task.status === 'in_progress' ? 'bg-blue-500/10' :
+                task.status === 'overdue' ? 'bg-red-500/10' :
+                  task.status === 'overdone' ? 'bg-orange-500/10' :
+                    task.status === 'cancel' ? 'bg-purple-500/10' :
+                      'bg-gradient-to-r from-primary/5 to-primary/10'
+            }`}
         >
+          {/* Task Name with Task Status */}
           <div className="flex items-center gap-3">
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger>
-                  <Select
-                    value={task.priority}
-                    onValueChange={handleUpdatePriority}
-                  >
-                    <SelectTrigger className="border-none shadow-sm">
-                      <Badge variant={
-                        task.priority === 'high' ? 'destructive' :
-                          task.priority === 'medium' ? 'secondary' :
-                            'outline'
-                      } className="animate-pulse">
-                        <AlertCircle className="w-4 h-4 mr-1" />
-                        {task.priority}
-                      </Badge>
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="high">
-                        <div className="flex items-center gap-2">
-                          <AlertCircle className="w-4 h-4 text-red-500" />
-                          High Priority
-                        </div>
-                      </SelectItem>
-                      <SelectItem value="medium">
-                        <div className="flex items-center gap-2">
-                          <AlertCircle className="w-4 h-4 text-yellow-500" />
-                          Medium Priority
-                        </div>
-                      </SelectItem>
-                      <SelectItem value="low">
-                        <div className="flex items-center gap-2">
-                          <AlertCircle className="w-4 h-4 text-green-500" />
-                          Low Priority
-                        </div>
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Task Priority</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-
             <motion.h2
               className="text-xl font-semibold"
               initial={{ opacity: 0 }}
@@ -517,9 +618,96 @@ export default function TaskDetailsDialog({
             >
               {task.taskName}
             </motion.h2>
+            {/* Task Status */}
+            <div className="flex items-center gap-2">
+              <Badge
+                variant="outline"
+                className={`px-3 py-1 text-sm font-medium ${task.status === 'todo' ? 'bg-gray-100 text-gray-700 border-gray-300' :
+                  task.status === 'in_progress' ? 'bg-blue-100 text-blue-700 border-blue-300' :
+                    task.status === 'done' ? 'bg-green-100 text-green-700 border-green-300' :
+                      task.status === 'overdue' ? 'bg-red-100 text-red-700 border-red-300' :
+                        task.status === 'overdone' ? 'bg-orange-100 text-orange-700 border-orange-300' :
+                          'bg-purple-100 text-purple-700 border-purple-300' // for cancel
+                  }`}
+              >
+                <div className="flex items-center gap-1.5">
+                  {task.status === 'todo' && <CircleDashed className="w-3.5 h-3.5" />}
+                  {task.status === 'in_progress' && <Clock className="w-3.5 h-3.5" />}
+                  {task.status === 'done' && <CheckCircle2 className="w-3.5 h-3.5" />}
+                  {task.status === 'overdue' && <AlertCircle className="w-3.5 h-3.5" />}
+                  {task.status === 'overdone' && <AlertCircle className="w-3.5 h-3.5" />}
+                  {task.status === 'cancel' && <XCircle className="w-3.5 h-3.5" />}
+                  {task.status === 'todo' && 'To Do'}
+                  {task.status === 'in_progress' && 'In Progress'}
+                  {task.status === 'done' && 'Done'}
+                  {task.status === 'overdue' && 'Overdue'}
+                  {task.status === 'overdone' && 'Overdue Done'}
+                  {task.status === 'cancel' && 'Cancelled'}
+                </div>
+              </Badge>
+              {(task.status === 'overdue' || task.status === 'overdone') && (
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <div className="text-sm text-red-500 flex items-center gap-1">
+                        <Clock className="w-3.5 h-3.5" />
+                        {format(new Date(task.endDate), 'MMM d, yyyy')}
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Due date has passed</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              )}
+            </div>
           </div>
 
+          {/* Task Actions */}
           <div className="flex items-center gap-2">
+            {task.status !== 'done' && task.status !== 'cancel' && (
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="flex items-center gap-1 text-green-600 hover:bg-green-100"
+                      onClick={() => handleUpdateStatus('done')}
+                    >
+                      <CheckCircle2 className="w-4 h-4" />
+                      Done
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Mark task as done</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            )}
+
+            {task.status !== 'cancel' && task.status !== 'done' && (
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="flex items-center gap-1 text-red-600 hover:bg-red-100"
+                      onClick={() => handleUpdateStatus('cancel')}
+                    >
+                      <XCircle className="w-4 h-4" />
+                      Cancel
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Cancel task</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            )}
+
+
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger>
@@ -582,6 +770,39 @@ export default function TaskDetailsDialog({
             ref={parentRef}
           >
             <div className="space-y-4">
+              {/* Priority Section */}
+              <div className="bg-sidebar-primary rounded-lg p-4">
+                <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
+                  <AlertCircle className="w-5 h-5 text-primary" />
+                  Priority
+                </h3>
+                <div className="flex gap-2">
+                  <Button
+                    variant={task.priority === 'high' ? 'default' : 'outline'}
+                    className={`flex-1 ${task.priority === 'high' ? 'bg-red-500 hover:bg-red-600' : 'hover:bg-red-500/10'}`}
+                    onClick={() => handleUpdatePriority('high')}
+                  >
+                    <AlertCircle className="w-4 h-4 mr-2" />
+                    High
+                  </Button>
+                  <Button
+                    variant={task.priority === 'medium' ? 'default' : 'outline'}
+                    className={`flex-1 ${task.priority === 'medium' ? 'bg-yellow-500 hover:bg-yellow-600' : 'hover:bg-yellow-500/10'}`}
+                    onClick={() => handleUpdatePriority('medium')}
+                  >
+                    <AlertCircle className="w-4 h-4 mr-2" />
+                    Medium
+                  </Button>
+                  <Button
+                    variant={task.priority === 'low' ? 'default' : 'outline'}
+                    className={`flex-1 ${task.priority === 'low' ? 'bg-green-500 hover:bg-green-600' : 'hover:bg-green-500/10'}`}
+                    onClick={() => handleUpdatePriority('low')}
+                  >
+                    <AlertCircle className="w-4 h-4 mr-2" />
+                    Low
+                  </Button>
+                </div>
+              </div>
               {/* Description Section */}
               <motion.div
                 className="bg-sidebar-primary rounded-lg p-4 transition-all hover:shadow-md"
@@ -658,7 +879,7 @@ export default function TaskDetailsDialog({
                     <p className="text-base font-semibold">Links</p>
                   </div>
                   <Button
-                    variant="ghost"
+                    variant="outline"
                     size="sm"
                     onClick={() => setIsAddingLink(true)}
                     className="flex items-center gap-1"
@@ -747,18 +968,14 @@ export default function TaskDetailsDialog({
               </motion.div>
 
               {/* Mini Tasks Section */}
-              <motion.div
-                className="bg-sidebar-primary rounded-lg p-4 transition-all hover:shadow-md"
-                whileHover={{ scale: 1.01 }}
-                ref={miniTasksRef}
-              >
+              <div className="space-y-2 bg-sidebar-primary rounded-lg p-4">
                 <div className="flex justify-between items-center mb-4">
-                  <div className="flex items-center gap-2">
-                    <CheckCircle2 className="w-5 h-5 text-primary" />
-                    <p className="text-base font-semibold">Mini Tasks</p>
-                  </div>
+                  <p className="text-base font-semibold flex items-center gap-2">
+                    <CheckCircle className="w-5 h-5 text-primary" />
+                    Mini Tasks
+                  </p>
                   <Button
-                    variant="ghost"
+                    variant="outline"
                     size="sm"
                     onClick={() => setIsAddingMiniTask(true)}
                     className="flex items-center gap-1"
@@ -774,7 +991,7 @@ export default function TaskDetailsDialog({
                       initial={{ opacity: 0, height: 0 }}
                       animate={{ opacity: 1, height: 'auto' }}
                       exit={{ opacity: 0, height: 0 }}
-                      className="mb-4 space-y-2"
+                      className="mb-4 space-y-2 bg-background p-3 rounded-lg border"
                     >
                       <input
                         type="text"
@@ -790,13 +1007,38 @@ export default function TaskDetailsDialog({
                         className="w-full p-2 text-sm border rounded-md focus:ring-2 focus:ring-primary bg-background"
                         rows={2}
                       />
+                      <Select
+                        value={newMiniTaskMember}
+                        onValueChange={setNewMiniTaskMember}
+                      >
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Assign member" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {task.taskAssignments.map((assignment: TaskAssignment) => (
+                            <SelectItem
+                              key={assignment.assignmentMemberId}
+                              value={assignment.assignmentMemberId}
+                            >
+                              <div className="flex items-center gap-2">
+                                <Avatar className="w-5 h-5">
+                                  <AvatarFallback className="text-[10px]">
+                                    {assignment.assigneeUsername[0].toUpperCase()}
+                                  </AvatarFallback>
+                                </Avatar>
+                                {assignment.assigneeUsername}
+                              </div>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                       <div className="flex gap-2">
                         <Button
                           variant="outline"
                           size="sm"
                           onClick={handleAddMiniTask}
                           className="flex items-center gap-1"
-                          disabled={isSaving}
+                          disabled={isSaving || !newMiniTaskName.trim() || !newMiniTaskMember}
                         >
                           <Save className="w-4 h-4" />
                           Save
@@ -804,7 +1046,12 @@ export default function TaskDetailsDialog({
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => setIsAddingMiniTask(false)}
+                          onClick={() => {
+                            setIsAddingMiniTask(false);
+                            setNewMiniTaskName("");
+                            setNewMiniTaskDescription("");
+                            setNewMiniTaskMember("");
+                          }}
                           className="flex items-center gap-1"
                         >
                           <XCircle className="w-4 h-4" />
@@ -815,54 +1062,128 @@ export default function TaskDetailsDialog({
                   )}
                 </AnimatePresence>
 
-                <div className="space-y-2">
-                  {task.miniTasks.map((miniTask: MiniTask) => (
-                    <motion.div
-                      key={miniTask.miniTaskId}
-                      className="flex items-center gap-2 group p-2 rounded-md hover:bg-background"
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -20 }}
-                    >
-                      <Checkbox
-                        checked={miniTask.miniTaskStatus === 'done'}
-                        onCheckedChange={(checked) =>
-                          handleMiniTaskStatusChange(miniTask.miniTaskId, checked as boolean)
-                        }
-                      />
-                      <div className="flex flex-col flex-grow">
-                        <div className="flex items-center gap-2">
+                {task.miniTasks.map((miniTask: MiniTask) => (
+                  <motion.div
+                    key={miniTask.miniTaskId}
+                    className={`flex items-start gap-3 group p-3 rounded-md hover:bg-background border-transparent hover:border-border border-b
+                    ${miniTask.miniTaskStatus === 'done' ? 'text-gray-400 line-through' : ''}`}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                  >
+                    <Checkbox
+                      checked={miniTask.miniTaskStatus === 'done'}
+                      onCheckedChange={(checked) =>
+                        handleMiniTaskStatusChange(miniTask.miniTaskId, checked as boolean)
+                      }
+                      className="mt-1"
+                    />
+                    <div className="flex flex-col flex-grow">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex-grow">
                           <p className={`font-medium ${miniTask.miniTaskStatus === 'done'
                             ? 'text-gray-400 line-through'
                             : ''
                             }`}>
                             {miniTask.miniTaskName}
                           </p>
-                          {miniTask.miniTaskMemberUsername && (
-                            <Badge variant="outline" className="text-xs">
-                              @{miniTask.miniTaskMemberUsername}
-                            </Badge>
-                          )}
+                          <p className={`text-sm mt-1 ${miniTask.miniTaskStatus === 'done'
+                            ? 'text-gray-400 line-through'
+                            : 'text-gray-500'
+                            }`}>
+                            {miniTask.miniTaskDescription}
+                          </p>
                         </div>
-                        <p className={`text-sm ${miniTask.miniTaskStatus === 'done'
-                          ? 'text-gray-400 line-through'
-                          : 'text-gray-500'
-                          }`}>
-                          {miniTask.miniTaskDescription}
-                        </p>
+
+                        <div className="flex items-center gap-2">
+                          <div className="relative">
+                            {miniTask.miniTaskMemberUsername ? (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-8 flex items-center gap-2 text-xs hover:bg-accent"
+                                onClick={() => {
+                                  setEditingMiniTaskMember(miniTask.miniTaskId);
+                                  setSelectedMiniTaskMember(miniTask.miniTaskMemberId);
+                                }}
+                              >
+                                <Avatar className="w-5 h-5">
+                                  <AvatarFallback className="text-[10px]">
+                                    {miniTask.miniTaskMemberUsername[0].toUpperCase()}
+                                  </AvatarFallback>
+                                </Avatar>
+                                <span>{miniTask.miniTaskMemberUsername}</span>
+                              </Button>
+                            ) : (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-8 flex items-center gap-2 text-xs text-muted-foreground hover:bg-accent"
+                                onClick={() => setEditingMiniTaskMember(miniTask.miniTaskId)}
+                              >
+                                <UserPlus className="w-4 h-4" />
+                                <span>Assign member</span>
+                              </Button>
+                            )}
+
+                            {editingMiniTaskMember === miniTask.miniTaskId && (
+                              <div className="absolute z-10 right-0 mt-1 w-48 bg-background border rounded-md shadow-lg">
+                                <div className="p-2">
+                                  <Select
+                                    value={selectedMiniTaskMember}
+                                    onValueChange={setSelectedMiniTaskMember}
+                                  >
+                                    <SelectTrigger className="w-full">
+                                      <SelectValue placeholder="Select member" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      {task.taskAssignments.map((assignment: TaskAssignment) => (
+                                        <SelectItem
+                                          key={assignment.assignmentMemberId}
+                                          value={assignment.assignmentMemberId}
+                                        >
+                                          <div className="flex items-center gap-2">
+                                            <Avatar className="w-5 h-5">
+                                              <AvatarFallback className="text-[10px]">
+                                                {assignment.assigneeUsername[0].toUpperCase()}
+                                              </AvatarFallback>
+                                            </Avatar>
+                                            {assignment.assigneeUsername}
+                                          </div>
+                                        </SelectItem>
+                                      ))}
+                                    </SelectContent>
+                                  </Select>
+                                  {selectedMiniTaskMember && (
+                                    <Button
+                                      size="sm"
+                                      variant="secondary"
+                                      className="w-full mt-2"
+                                      onClick={() => handleUpdateMiniTaskMember(miniTask.miniTaskId)}
+                                    >
+                                      <Check className="w-4 h-4 mr-2" />
+                                      Confirm
+                                    </Button>
+                                  )}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleDeleteMiniTask(miniTask.miniTaskId)}
+                            className="h-8 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-destructive/10 hover:text-destructive"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
                       </div>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleDeleteMiniTask(miniTask.miniTaskId)}
-                        className="opacity-0 group-hover:opacity-100 transition-opacity"
-                      >
-                        <X className="w-4 h-4 text-gray-500 hover:text-red-500" />
-                      </Button>
-                    </motion.div>
-                  ))}
-                </div>
-              </motion.div>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
 
               {/* Comments and Logs Section */}
               <Tabs defaultValue="comments" className="w-full">
@@ -984,46 +1305,6 @@ export default function TaskDetailsDialog({
             className="w-[40%] pl-4 pr-2 overflow-y-auto custom-scrollbar"
           >
             <div className="space-y-4">
-              {/* Status Section */}
-              <div className="bg-sidebar-primary rounded-lg p-4">
-                <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
-                  <Activity className="w-5 h-5 text-primary" />
-                  Status
-                </h3>
-                <Select
-                  value={task.status}
-                  onValueChange={handleUpdateStatus}
-                >
-                  <SelectTrigger className="w-full">
-                    <p className="text-lg">
-                      {task.status === 'todo' && 'To Do'}
-                      {task.status === 'in_progress' && 'In Progress'}
-                      {task.status === 'done' && 'Done'}
-                    </p>
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="todo">
-                      <div className="flex items-center gap-2">
-                        <CircleDashed className="w-4 h-4" />
-                        To Do
-                      </div>
-                    </SelectItem>
-                    <SelectItem value="in_progress">
-                      <div className="flex items-center gap-2">
-                        <Clock className="w-4 h-4 text-blue-500" />
-                        In Progress
-                      </div>
-                    </SelectItem>
-                    <SelectItem value="done">
-                      <div className="flex items-center gap-2">
-                        <CheckCircle2 className="w-4 h-4 text-green-500" />
-                        Done
-                      </div>
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
               {/* Timeline Section */}
               <div className="bg-sidebar-primary rounded-lg p-4">
                 <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
@@ -1107,7 +1388,11 @@ export default function TaskDetailsDialog({
                             <p className="font-medium">{assignment.assigneeUsername}</p>
                             <p className="text-sm text-gray-500">{assignment.assigneeEmail}</p>
                           </div>
-                          <Button variant="ghost" size="sm">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleDeleteAssignment(assignment.assignmentMemberId)}
+                          >
                             <X className="w-4 h-4 text-gray-500 hover:text-red-500" />
                           </Button>
                         </motion.div>
@@ -1135,18 +1420,10 @@ export default function TaskDetailsDialog({
                             {teamMembers.map((member) => (
                               <div
                                 key={member.memberId}
-                                className="flex items-center space-x-2 p-2 hover:bg-accent rounded-md"
+                                className={`flex items-center space-x-2 p-2 hover:bg-accent rounded-md cursor-pointer ${selectedMember === member.memberId ? 'bg-accent' : ''
+                                  }`}
+                                onClick={() => setSelectedMember(member.memberId)}
                               >
-                                <Checkbox
-                                  checked={selectedMembers.includes(member.memberId)}
-                                  onCheckedChange={(checked) => {
-                                    if (checked) {
-                                      setSelectedMembers([...selectedMembers, member.memberId]);
-                                    } else {
-                                      setSelectedMembers(selectedMembers.filter(id => id !== member.memberId));
-                                    }
-                                  }}
-                                />
                                 <Avatar className="h-8 w-8">
                                   <AvatarFallback>
                                     {member.memberUsername[0].toUpperCase()}
@@ -1159,12 +1436,12 @@ export default function TaskDetailsDialog({
                               </div>
                             ))}
                           </ScrollArea>
-                          {selectedMembers.length > 0 && (
+                          {selectedMember && (
                             <div className="p-2 border-t">
                               <Button
                                 size="sm"
                                 className="w-full"
-                                onClick={handleAddMembers}
+                                onClick={handleAddMember}
                                 disabled={isAddingMembers}
                               >
                                 {isAddingMembers ? (
@@ -1177,7 +1454,7 @@ export default function TaskDetailsDialog({
                                 ) : (
                                   <UserPlus className="w-4 h-4 mr-2" />
                                 )}
-                                Add {selectedMembers.length} {selectedMembers.length === 1 ? 'Member' : 'Members'}
+                                Add Member
                               </Button>
                             </div>
                           )}
@@ -1207,36 +1484,6 @@ export default function TaskDetailsDialog({
                   </div>
                 </div>
               </div>
-
-              {/* Task Dependencies */}
-              {(task.previousTaskId || task.nextTaskId) && (
-                <div className="bg-sidebar-primary rounded-lg p-4">
-                  <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
-                    <Link2 className="w-5 h-5 text-primary" />
-                    Task Dependencies
-                  </h3>
-                  <div className="space-y-3">
-                    {task.previousTaskId && (
-                      <div className="flex items-center gap-2">
-                        <ChevronLeft className="w-4 h-4 text-gray-500" />
-                        <div>
-                          <p className="text-sm text-gray-500">Previous Task</p>
-                          <p className="font-medium">{task.previousTaskName}</p>
-                        </div>
-                      </div>
-                    )}
-                    {task.nextTaskId && (
-                      <div className="flex items-center gap-2">
-                        <ChevronRight className="w-4 h-4 text-gray-500" />
-                        <div>
-                          <p className="text-sm text-gray-500">Next Task</p>
-                          <p className="font-medium">{task.nextTaskName}</p>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
             </div>
           </motion.div>
         </div>

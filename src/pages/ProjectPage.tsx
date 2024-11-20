@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import CreateTaskDrawer from '@/components/Drawer/CreateTaskDrawer';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
+import { Link } from '@tanstack/react-router';
 import TaskProjectBoard from '@/components/TaskProjectBoard';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Share2, Heart, MoreHorizontal } from 'lucide-react'
@@ -28,8 +29,10 @@ const ProjectPage = () => {
     return (
         <div>
             <div className="flex items-center gap-2 pt-4 pl-4">
-                <p>Project / </p>
-                <p>{currentProject.name}</p>
+                <Link to="/project/management">
+                    <p className="text-sm text-text-secondary">Project Management /</p>
+                </Link>
+                <p className="text-sm text-text-secondary">{currentProject.name}</p>
             </div>
             <div className="flex justify-between items-center p-4">
                 <div className="flex items-center gap-4">
@@ -55,7 +58,8 @@ const ProjectPage = () => {
                     </Button>
                     <Button
                         onClick={() => setIsProjectDrawerOpen(true)}
-                        className="flex items-center gap-2"
+                        size="sm"
+                        className="flex items-center gap-2 bg-button-background hover:bg-button-backgroundHover"
                     >
                         <Plus className="h-4 w-4" />
                         Create Task

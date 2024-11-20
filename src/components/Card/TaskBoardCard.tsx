@@ -133,7 +133,7 @@ const TaskBoardCard: React.FC<TaskBoardCardProps> = ({
                 onClick={onClick}
             >
                 <Card className={cn(
-                    "p-3", // Giảm padding từ p-4 xuống p-3
+                    "p-3",
                     statusColor,
                     "border shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer"
                 )}>

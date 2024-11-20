@@ -82,7 +82,7 @@ const SpecializationSidebar: React.FC<{ specializations: Specialization[], onSel
                         filteredSpecializations.map((specialization) => (
                             <li
                                 key={specialization.id}
-                                className="cursor-pointer hover:bg-button-blueOpacity p-2 transition-colors duration-200 focus:bg-button-blueBackground rounded-lg"
+                                className="cursor-pointer hover:bg-color-blueOpacity p-2 transition-colors duration-200 focus:bg-color-blue rounded-lg"
                                 onClick={() => onSelect(specialization)}
                                 role="button"
                                 tabIndex={0}

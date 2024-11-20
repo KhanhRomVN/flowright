@@ -93,7 +93,7 @@ const RegisterPage: React.FC = () => {
                 <div className="flex items-center space-x-4">
                     <button
                         onClick={minimizeWindow}
-                        className="p-1 rounded-full hover:bg-button-blueOpacity hover:text-white focus:outline-none focus:ring-2 focus:ring-gray-300"
+                        className="p-1 rounded-full hover:bg-color-blueOpacity hover:text-white focus:outline-none focus:ring-2 focus:ring-gray-300"
                         title="Minimize"
                     >
                         <span className="w-5 h-5 flex items-center justify-center">
@@ -102,7 +102,7 @@ const RegisterPage: React.FC = () => {
                     </button>
                     <button
                         onClick={maximizeWindow}
-                        className="p-1 rounded-full hover:bg-button-greenOpacity hover:text-white focus:outline-none focus:ring-2 focus:ring-gray-300"
+                        className="p-1 rounded-full hover:bg-color-greenOpacity hover:text-white focus:outline-none focus:ring-2 focus:ring-gray-300"
                         title="Maximize"
                     >
                         <span className="w-5 h-5 flex items-center justify-center">
@@ -111,7 +111,7 @@ const RegisterPage: React.FC = () => {
                     </button>
                     <button
                         onClick={closeWindow}
-                        className="p-1 rounded-full hover:bg-button-redOpacity hover:text-white focus:outline-none focus:ring-2 focus:ring-gray-300"
+                        className="p-1 rounded-full hover:bg-color-redOpacity hover:text-white focus:outline-none focus:ring-2 focus:ring-gray-300"
                         title="Close"
                     >
                         <span className="w-5 h-5 flex items-center justify-center">

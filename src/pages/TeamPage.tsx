@@ -7,13 +7,17 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { format } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { Input } from "@/components/ui/input";
-import { X, Plus, Filter, Search } from 'lucide-react';
+import { X, Filter, Search } from 'lucide-react';
+import { Link } from '@tanstack/react-router';
 import TaskDetailsDialog from '@/components/Dialog/TaskDetailsDialog';
 import { motion, AnimatePresence } from 'framer-motion';
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 import { useAutoAnimate } from '@formkit/auto-animate/react';
-import CreateTaskDrawer from '@/components/Drawer/CreateTaskDrawer';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import AddMemberTeamDialog from '@/components/Dialog/AddMemberTeamDialog';
+import { UserPlus } from 'lucide-react';
+
 interface TaskAssignment {
     assignmentMemberId: string;
     assigneeUsername: string;
@@ -28,10 +32,6 @@ interface Task {
     priority: string;
     projectId: string;
     projectName: string;
-    nextTaskId: string | null;
-    nextTaskName: string | null;
-    previousTaskId: string | null;
-    previousTaskName: string | null;
     startDate: string;
     endDate: string | null;
     status: string | null;
@@ -46,7 +46,7 @@ const TeamPage = () => {
     const [selectedTask, setSelectedTask] = useState<string | null>(null);
     const [searchTerm, setSearchTerm] = useState('');
     const [parent] = useAutoAnimate();
-    const [isCreateDrawerOpen, setIsCreateDrawerOpen] = useState(false);
+    const [showAddMemberDialog, setShowAddMemberDialog] = useState(false);
 
 
     useEffect(() => {
@@ -129,19 +129,48 @@ const TeamPage = () => {
             animate={{ opacity: 1 }}
             className="flex-1 h-screen overflow-y-auto custom-scrollbar p-4"
         >
+            <motion.div className="flex items-center gap-2 pb-4">
+                <Link to="/">
+                    <p className="text-sm text-text-secondary">Home /</p>
+                </Link>
+                <Link to="/team/management">
+                    <p className="text-sm text-text-secondary">Team Management /</p>
+                </Link>
+                <p className="text-sm text-text-secondary">{currentTeam.name}</p>
+            </motion.div>
             {/* Header Section */}
             <motion.div
                 initial={{ y: -20 }}
                 animate={{ y: 0 }}
                 className="mb-6"
             >
-                <h1 className="text-2xl font-bold mb-2">{currentTeam.name}</h1>
-                <p className="text-gray-500 truncate max-w-2xl">
-                    {currentTeam.description}
-                </p>
-                <div className="flex gap-2 mt-2">
-                    <Badge variant="outline">{currentTeam.type}</Badge>
-                    <Badge variant="outline">{currentTeam.status}</Badge>
+                <div className="flex items-center gap-4">
+                    <div className="flex -space-x-2">
+                        {[...Array(5)].map((_, i) => (
+                            <Avatar key={i} className="border-2 border-background">
+                                <AvatarImage src={`https://i.pravatar.cc/150?img=${i + 1}`} />
+                                <AvatarFallback>U{i + 1}</AvatarFallback>
+                            </Avatar>
+                        ))}
+                        <Avatar className="border-2 border-background">
+                            <AvatarFallback className="bg-muted">+3</AvatarFallback>
+                        </Avatar>
+                    </div>
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setShowAddMemberDialog(true)}
+                        className="flex items-center gap-2"
+                    >
+                        <UserPlus className="h-4 w-4" />
+                        Manage Members
+                    </Button>
+
+                    <AddMemberTeamDialog
+                        open={showAddMemberDialog}
+                        onOpenChange={setShowAddMemberDialog}
+                        teamId={currentTeam.id}
+                    />
                 </div>
             </motion.div>
 
@@ -162,16 +191,12 @@ const TeamPage = () => {
                         Filter
                     </Button>
                 </div>
-                <Button onClick={() => setIsCreateDrawerOpen(true)}>
-                    <Plus className="h-4 w-4 mr-2" />
-                    New Task
-                </Button>
             </div>
 
             {/* Table Section */}
-            <div ref={parent} className="bg-white dark:bg-gray-800 rounded-lg shadow">
+            <div ref={parent} className="rounded-lg shadow">
                 <Table>
-                    <TableHeader>
+                    <TableHeader className="bg-table-header">
                         <TableRow>
                             <TableHead className="w-[50px]">
                                 <Checkbox
@@ -189,7 +214,7 @@ const TeamPage = () => {
                             <TableHead>Creator</TableHead>
                         </TableRow>
                     </TableHeader>
-                    <TableBody>
+                    <TableBody className="bg-table-body ">
                         <AnimatePresence>
                             {filteredTasks.map((task) => (
                                 <motion.tr
@@ -198,7 +223,7 @@ const TeamPage = () => {
                                     animate={{ opacity: 1, y: 0 }}
                                     exit={{ opacity: 0, y: -20 }}
                                     transition={{ duration: 0.2 }}
-                                    className="hover:bg-gray-50 dark:hover:bg-gray-700"
+                                    className="hover:bg-table-bodyHover"
                                 >
                                     <TableCell>
                                         <Checkbox
@@ -209,7 +234,7 @@ const TeamPage = () => {
                                     <TableCell onClick={() => setSelectedTask(task.taskId)} className="cursor-pointer">
                                         <div>
                                             <p className="font-medium">{task.taskName}</p>
-                                            <p className="text-gray-500 truncate max-w-xs">
+                                            <p className="text-text-secondary truncate max-w-xs">
                                                 {task.taskDescription}
                                             </p>
                                         </div>
@@ -302,10 +327,6 @@ const TeamPage = () => {
                     />
                 )}
             </AnimatePresence>
-            <CreateTaskDrawer
-                isOpen={isCreateDrawerOpen}
-                onClose={() => setIsCreateDrawerOpen(false)}
-            />
         </motion.div>
     );
 };

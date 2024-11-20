@@ -1,3 +1,5 @@
+const { blue } = require('@mui/material/colors');
+
 /** @type {import('tailwindcss').Config} */
 module.exports = {
     darkMode: ["class"],
@@ -18,45 +20,46 @@ module.exports = {
         },
         extend: {
             colors: {
-                border: "var(--brder)",
+                border: "var(--border)",
                 input: "var(--input)",
                 ring: "var(--ring)",
                 background: "var(--background)",
                 foreground: "var(--foreground)",
-                // color
-                primary: {
-                    DEFAULT: "var(--primary)",
+                // * Text *
+                text: {
+                    primary: "var(--text-primary)",
+                    secondary: "var(--text-secondary)",
                 },
-                secondary: {
-                    DEFAULT: "var(--secondary)",
-                    foreground: "var(--secondary-foreground)",
+                // * Colors *
+                color: {
+                    blue: "var(--blue)",
+                    green: "var(--green)",
+                    red: "var(--red)",
+                    yellow: "var(--yellow)",
+                    purple: "var(--purple)",
+                    orange: "var(--orange)",
+                    gray: "var(--gray)",
+                    blueOpacity: "var(--blue-opacity)",
+                    greenOpacity: "var(--green-opacity)",
+                    redOpacity: "var(--red-opacity)",
+                    yellowOpacity: "var(--yellow-opacity)",
+                    purpleOpacity: "var(--purple-opacity)",
+                    orangeOpacity: "var(--orange-opacity)",
+                    grayOpacity: "var(--gray-opacity)",
                 },
-                destructive: {
-                    DEFAULT: "var(--destructive)",
-                    foreground: "var(--destructive-foreground)",
-                },
-                muted: {
-                    DEFAULT: "var(--muted)",
-                    foreground: "var(--muted-foreground)",
-                },
-                accent: {
-                    DEFAULT: "var(--accent)",
-                    foreground: "var(--accent-foreground)",
-                },
-                popover: {
-                    DEFAULT: "var(--popover)",
-                    foreground: "var(--popover-foreground)",
-                },
+                primary: "var(--primary)",
+                // * Card *
                 card: {
-                    DEFAULT: "var(--card)",
-                    foreground: "var(--card-foreground)",
-                    blueOpacity: "var(--blue-card-opacity-background)",
+                    background: "var(--card-background)",
+                    backgroundHover: "var(--card-background-hover)",
                 },
+                // * Sidebar *
                 sidebar: {
                     primary: "var(--sidebar-primary)",
-                    secondary: "var(--sidebar-secondary)",
-                    foreground: "var(--sidebar-foreground)",
+                    itemHover: "var(--sidebar-item-hover)",
+                    itemActive: "var(--sidebar-item-active)",
                 },
+                // * Search Bar *
                 searchBar: {
                     background: "var(--search-bar-background)",
                     outline: "var(--search-bar-outline)",
@@ -64,33 +67,29 @@ module.exports = {
                     outlineFocus: "var(--search-bar-outline-focus)",
                     placeholder: "var(--search-bar-placeholder)",
                 },
+                // * Button *
                 button: {
                     background: "var(--button-background)",
-                    backgroundHover: "var(--button-backgroundHover)",
-                    hover1: "var(--button-hover-1)",
-                    blueOpacity: "var(--blue-button-opacity-background)",
-                    greenOpacity: "var(--green-button-opacity-background)",
-                    redOpacity: "var(--red-button-opacity-background)",
-                    yellowOpacity: "var(--yellow-button-opacity-background)",
-                    purpleOpacity: "var(--purple-button-opacity-background)",
-                    orangeOpacity: "var(--orange-button-opacity-background)",
-                    blueBackground: "var(--blue-button-background)",
-                    greenBackground: "var(--green-button-background)",
-                    redBackground: "var(--red-button-background)",
-                    yellowBackground: "var(--yellow-button-background)",
-                    purpleBackground: "var(--purple-button-background)",
-                    orangeBackground: "var(--orange-button-background)",
+                    backgroundHover: "var(--button-background-hover)",
+                    outline: "var(--button-outline)",
+                    outlineHover: "var(--button-outline-hover)",
                 },
-                outline: "var(--outline)",
+                // * Icon *
                 icon: {
                     primary: "var(--icon-primary)",
                     secondary: "var(--icon-secondary)",
                 },
+                // * Table *
                 table: {
-                    headerBackground: "var(--table-header-background)",
+                    header: "var(--table-header)",
                     headerHover: "var(--table-header-hover)",
-                    bodyBackground: "var(--table-body-background)",
+                    body: "var(--table-body)",
                     bodyHover: "var(--table-body-hover)",
+                },
+                // * Drawer *
+                drawer: {
+                    background: "var(--drawer-background)",
+                    input: "var(--drawer-input)",
                 },
             },
             fontFamily: {
