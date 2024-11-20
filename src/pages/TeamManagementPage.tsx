@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Home, Plus } from 'lucide-react';
+import { AlertCircle, ArrowRight, Home, Layers, Users, Activity, CheckCircle2, Clock, XCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { _GET, _POST } from '@/utils/auth_api';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
@@ -21,6 +21,12 @@ interface Team {
     status: string;
     leaderId: string;
     workspaceId: string;
+    totalTodo: number;
+    totalInprogress: number;
+    totalOverdue: number;
+    totalDone: number;
+    totalOverdone: number;
+    totalCancel: number;
 }
 
 const TeamManagementPage = () => {
@@ -163,61 +169,107 @@ const TeamManagementPage = () => {
                             exit={{ opacity: 0, scale: 0.9 }}
                             transition={{ delay: index * 0.1 }}
                             whileHover={{ scale: 1.02 }}
-                            className="relative bg-sidebar-primary rounded-lg p-4 space-y-2 group hover:shadow-lg transition-all duration-300 backdrop-blur-sm bg-opacity-90"
+                            className="relative bg-gradient-to-br from-sidebar-primary to-sidebar-primary/80 rounded-xl p-6 space-y-4 group hover:shadow-xl transition-all duration-300 backdrop-blur-sm border border-white/5"
                         >
-                            <div className="absolute top-2 right-2 flex space-x-2">
+                            <div className="absolute top-4 right-4 flex items-center gap-2">
                                 <motion.div
                                     whileHover={{ scale: 1.1 }}
-                                    className="text-xs bg-color-blueOpacity rounded-md px-2 py-1"
+                                    className="text-xs bg-blue-500/20 text-blue-400 rounded-lg px-3 py-1.5 font-medium flex items-center gap-1"
                                 >
+                                    <Layers className="w-3 h-3" />
                                     {team.type}
                                 </motion.div>
                             </div>
 
-                            <h3 className="text-lg font-bold">{team.name}</h3>
-                            <p className="text-sm text-gray-600 truncate">{team.description}</p>
-
-                            <motion.div
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                className="text-xs text-gray-500"
-                            >
-                                ToDo: 7 | Doing: 3 | Done: 2
-                            </motion.div>
-
-                            <div className="flex space-x-[-10px]">
-                                {members.slice(0, 3).map((member) => (
-                                    <motion.div
-                                        key={member.id}
-                                        whileHover={{ scale: 1.1, zIndex: 10 }}
-                                    >
-                                        <Avatar className="w-6 h-6 rounded-full border-2 border-sidebar-primary">
-                                            <AvatarImage src="https://github.com/shadcn.png" alt={member.username} />
-                                            <AvatarFallback>{member.username.charAt(0)}</AvatarFallback>
-                                        </Avatar>
-                                    </motion.div>
-                                ))}
-                                <motion.div whileHover={{ scale: 1.1 }}>
-                                    <Avatar className="w-6 h-6 rounded-full bg-gray-500 text-white flex items-center justify-center border-2 border-sidebar-primary">
-                                        <p className="text-xs">+1</p>
-                                    </Avatar>
-                                </motion.div>
+                            <div className="flex items-start gap-3">
+                                <div className="p-2 bg-blue-500/10 rounded-lg">
+                                    <Users className="w-5 h-5 text-blue-400" />
+                                </div>
+                                <div>
+                                    <h3 className="text-lg font-bold text-white/90">{team.name}</h3>
+                                    <p className="text-sm text-white/60 line-clamp-2">{team.description}</p>
+                                </div>
                             </div>
 
-                            <Link
-                                to="/team/detail"
-                                onClick={() => setCurrentTeam(team)}
-                                className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-all duration-300"
-                            >
-                                <motion.div
-                                    whileHover={{ scale: 1.1 }}
-                                    whileTap={{ scale: 0.9 }}
+                            <div className="grid grid-cols-2 gap-3 mt-4">
+                                <div className="bg-white/5 rounded-lg p-3 flex items-center gap-2">
+                                    <Activity className="w-4 h-4 text-yellow-400" />
+                                    <div>
+                                        <p className="text-xs text-white/60">In Progress</p>
+                                        <p className="text-sm font-semibold">{team.totalInprogress}</p>
+                                    </div>
+                                </div>
+                                <div className="bg-white/5 rounded-lg p-3 flex items-center gap-2">
+                                    <CheckCircle2 className="w-4 h-4 text-green-400" />
+                                    <div>
+                                        <p className="text-xs text-white/60">Completed</p>
+                                        <p className="text-sm font-semibold">{team.totalDone}</p>
+                                    </div>
+                                </div>
+                                <div className="bg-white/5 rounded-lg p-3 flex items-center gap-2">
+                                    <Clock className="w-4 h-4 text-blue-400" />
+                                    <div>
+                                        <p className="text-xs text-white/60">Todo</p>
+                                        <p className="text-sm font-semibold">{team.totalTodo}</p>
+                                    </div>
+                                </div>
+                                <div className="bg-white/5 rounded-lg p-3 flex items-center gap-2">
+                                    <XCircle className="w-4 h-4 text-red-400" />
+                                    <div>
+                                        <p className="text-xs text-white/60">Overdone</p>
+                                        <p className="text-sm font-semibold">{team.totalOverdone}</p>
+                                    </div>
+                                </div>
+                                {team.totalOverdue > 0 && (
+                                    <div className="bg-red-500/10 rounded-lg p-3 flex items-center gap-2">
+                                        <AlertCircle className="w-4 h-4 text-red-400" />
+                                        <div>
+                                            <p className="text-xs text-white/60">Overdue</p>
+                                            <p className="text-sm font-semibold text-red-400">{team.totalOverdue}</p>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+
+                            <div className="flex justify-between items-center mt-4">
+                                <div className="flex -space-x-2">
+                                    {members.slice(0, 3).map((member) => (
+                                        <motion.div
+                                            key={member.id}
+                                            whileHover={{ scale: 1.1, zIndex: 10 }}
+                                        >
+                                            <Avatar className="w-8 h-8 border-2 border-sidebar-primary ring-2 ring-blue-500/20">
+                                                <AvatarImage src="https://github.com/shadcn.png" alt={member.username} />
+                                                <AvatarFallback className="bg-blue-500/20 text-blue-400">
+                                                    {member.username.charAt(0)}
+                                                </AvatarFallback>
+                                            </Avatar>
+                                        </motion.div>
+                                    ))}
+                                    <motion.div whileHover={{ scale: 1.1 }}>
+                                        <Avatar className="w-8 h-8 bg-blue-500/20 border-2 border-sidebar-primary ring-2 ring-blue-500/20">
+                                            <div className="text-xs text-blue-400 font-medium">+1</div>
+                                        </Avatar>
+                                    </motion.div>
+                                </div>
+
+                                <Link
+                                    to="/team/detail"
+                                    onClick={() => setCurrentTeam(team)}
                                 >
-                                    <Button size="sm" className="bg-button-background hover:bg-button-backgroundHover px-2 py-1">
-                                        Enter
-                                    </Button>
-                                </motion.div>
-                            </Link>
+                                    <motion.div
+                                        whileHover={{ scale: 1.05 }}
+                                        whileTap={{ scale: 0.95 }}
+                                    >
+                                        <Button
+                                            size="sm"
+                                            className="bg-blue-500 hover:bg-blue-600 text-white gap-2 px-4"
+                                        >
+                                            Enter <ArrowRight className="w-4 h-4" />
+                                        </Button>
+                                    </motion.div>
+                                </Link>
+                            </div>
                         </motion.div>
                     ))}
                 </AnimatePresence>

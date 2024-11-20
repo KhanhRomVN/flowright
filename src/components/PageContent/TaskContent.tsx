@@ -5,8 +5,75 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@
 import { Input } from "@/components/ui/input";
 import { Table, TableHeader, TableBody, TableRow, TableCell, TableHead } from "@/components/ui/table";
 import { format } from "date-fns";
+import {
+    CheckCircle2,
+    Clock,
+    AlertCircle,
+    XCircle,
+    Circle,
+    Timer,
+    ArrowUpCircle,
+    MinusCircle,
+    ArrowDownCircle
+} from "lucide-react";
 import { _GET } from "@/utils/auth_api";
 
+const getStatusConfig = (status: string) => {
+    const configs = {
+        'done': {
+            color: 'text-color-green',
+            bgColor: 'bg-color-greenOpacity',
+            icon: <CheckCircle2 className="w-4 h-4 text-color-green" />
+        },
+        'in_progress': {
+            color: 'text-color-blue',
+            bgColor: 'bg-color-blueOpacity',
+            icon: <Clock className="w-4 h-4 text-color-blue" />
+        },
+        'todo': {
+            color: 'text-color-gray',
+            bgColor: 'bg-color-grayOpacity',
+            icon: <Circle className="w-4 h-4 text-color-gray" />
+        },
+        'overdue': {
+            color: 'text-color-red',
+            bgColor: 'bg-color-redOpacity',
+            icon: <AlertCircle className="w-4 h-4 text-color-red" />
+        },
+        'overdone': {
+            color: 'text-color-purple',
+            bgColor: 'bg-color-purpleOpacity',
+            icon: <Timer className="w-4 h-4 text-color-purple" />
+        },
+        'cancel': {
+            color: 'text-color-gray',
+            bgColor: 'bg-color-grayOpacity',
+            icon: <XCircle className="w-4 h-4 text-color-gray" />
+        }
+    };
+    return configs[status as keyof typeof configs] || configs['todo'];
+};
+
+const getPriorityConfig = (priority: string) => {
+    const configs = {
+        'high': {
+            color: 'text-color-red',
+            bgColor: 'bg-color-redOpacity',
+            icon: <ArrowUpCircle className="w-4 h-4 text-color-red" />
+        },
+        'medium': {
+            color: 'text-color-yellow',
+            bgColor: 'bg-color-yellowOpacity',
+            icon: <MinusCircle className="w-4 h-4 text-color-yellow" />
+        },
+        'low': {
+            color: 'text-color-green',
+            bgColor: 'bg-color-greenOpacity',
+            icon: <ArrowDownCircle className="w-4 h-4 text-color-green" />
+        }
+    };
+    return configs[priority as keyof typeof configs] || configs['low'];
+};
 
 interface Task {
     id: string;
@@ -150,22 +217,25 @@ const TeamContent: React.FC = () => {
                             </TableCell>
                             <TableCell className="text-muted-foreground">{task.projectName}</TableCell>
                             <TableCell>
-                                <Badge variant={
-                                    task.status === 'completed' ? 'outline' :
-                                        task.status === 'in_progress' ? 'default' :
-                                            'outline'
-                                } className="bg-transparent">
-                                    {task.status}
-                                </Badge>
+                                {/* Status với icon và màu sắc mới */}
+                                <div className="flex">
+                                    <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full ${getStatusConfig(task.status).bgColor}`}>
+                                        {getStatusConfig(task.status).icon}
+                                        <span className={`text-sm font-medium ${getStatusConfig(task.status).color}`}>
+                                            {task.status}
+                                        </span>
+                                    </div>
+                                </div>
                             </TableCell>
                             <TableCell>
-                                <Badge variant={
-                                    task.priority === 'high' ? 'destructive' :
-                                        task.priority === 'medium' ? 'outline' :
-                                            'outline'
-                                } className={task.priority !== 'high' ? 'bg-transparent' : ''}>
-                                    {task.priority}
-                                </Badge>
+                                <div className="flex">
+                                    <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full ${getPriorityConfig(task.priority).bgColor}`}>
+                                        {getPriorityConfig(task.priority).icon}
+                                        <span className={`text-sm font-medium ${getPriorityConfig(task.priority).color}`}>
+                                            {task.priority}
+                                        </span>
+                                    </div>
+                                </div>
                             </TableCell>
                             <TableCell className="text-muted-foreground">
                                 {format(new Date(task.startDate), 'MMM d, yyyy')}
