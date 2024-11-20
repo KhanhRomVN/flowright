@@ -94,7 +94,24 @@ const TeamContent: React.FC = () => {
     const [filterProject, setFilterProject] = React.useState<string>('all');
     const [filterStatus, setFilterStatus] = React.useState<string>('all');
     const [filterDate, setFilterDate] = React.useState<string>('all');
+    const [taskStats, setTaskStats] = React.useState({
+        totalTodo: 0,
+        totalInProgress: 0,
+        totalDone: 0,
+        totalOverdue: 0
+    });
 
+    React.useEffect(() => {
+        const fetchTaskStats = async () => {
+            try {
+                const response = await _GET('/task/service/tasks/total-status/member');
+                setTaskStats(response);
+            } catch (error) {
+                console.error('Error fetching task stats:', error);
+            }
+        };
+        fetchTaskStats();
+    }, []);
 
     // Fetch tasks from API
     React.useEffect(() => {
@@ -128,6 +145,47 @@ const TeamContent: React.FC = () => {
 
     return (
         <div className="p-6">
+            <div className="grid grid-cols-4 gap-4 mb-6">
+                <div className="bg-sidebar-primary rounded-lg p-4 flex items-center gap-3">
+                    <div className="bg-blue-500/10 p-2 rounded-full">
+                        <Circle className="w-5 h-5 text-blue-500" />
+                    </div>
+                    <div>
+                        <p className="text-sm text-muted-foreground">To Do</p>
+                        <p className="text-2xl font-semibold">{taskStats.totalTodo}</p>
+                    </div>
+                </div>
+
+                <div className="bg-sidebar-primary rounded-lg p-4 flex items-center gap-3">
+                    <div className="bg-yellow-500/10 p-2 rounded-full">
+                        <Clock className="w-5 h-5 text-yellow-500" />
+                    </div>
+                    <div>
+                        <p className="text-sm text-muted-foreground">In Progress</p>
+                        <p className="text-2xl font-semibold">{taskStats.totalInProgress}</p>
+                    </div>
+                </div>
+
+                <div className="bg-sidebar-primary rounded-lg p-4 flex items-center gap-3">
+                    <div className="bg-green-500/10 p-2 rounded-full">
+                        <CheckCircle2 className="w-5 h-5 text-green-500" />
+                    </div>
+                    <div>
+                        <p className="text-sm text-muted-foreground">Completed</p>
+                        <p className="text-2xl font-semibold">{taskStats.totalDone}</p>
+                    </div>
+                </div>
+
+                <div className="bg-sidebar-primary rounded-lg p-4 flex items-center gap-3">
+                    <div className="bg-red-500/10 p-2 rounded-full">
+                        <AlertCircle className="w-5 h-5 text-red-500" />
+                    </div>
+                    <div>
+                        <p className="text-sm text-muted-foreground">Overdue</p>
+                        <p className="text-2xl font-semibold">{taskStats.totalOverdue}</p>
+                    </div>
+                </div>
+            </div>
             {/* Search and filters */}
             <div className="flex items-center gap-4 mb-6">
                 <div className="relative flex items-center">
@@ -193,6 +251,8 @@ const TeamContent: React.FC = () => {
                     </Select>
                 </div>
             </div>
+
+
 
             {/* Tasks Table */}
             <Table>
