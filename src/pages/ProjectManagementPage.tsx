@@ -97,7 +97,16 @@ const ProjectManagementPage = () => {
                                 <div>Owner: {project.ownerUsername}</div>
                                 <div>Start: {new Date(project.startDate).toLocaleDateString()}</div>
                                 <div>End: {new Date(project.endDate).toLocaleDateString()}</div>
+
+                                <div className=" bg-gray-200 rounded-full h-1.5 mt-2 flex justify-between items-center">
+                                    <p className='text-xs text-gray-500'>25/100</p>
+                                    <div
+                                        className="bg-blue-600 h-1.5 rounded-full transition-all duration-300"
+                                        style={{ width: '50%' }}
+                                    />
+                                </div>
                             </div>
+
 
                             <Link
                                 to="/project"

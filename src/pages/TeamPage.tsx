@@ -32,10 +32,6 @@ interface Task {
     priority: string;
     projectId: string;
     projectName: string;
-    nextTaskId: string | null;
-    nextTaskName: string | null;
-    previousTaskId: string | null;
-    previousTaskName: string | null;
     startDate: string;
     endDate: string | null;
     status: string | null;

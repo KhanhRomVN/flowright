@@ -148,7 +148,6 @@ export const ProjectRoute = createRoute({
     ),
 });
 
-
 export const rootTree = RootRoute.addChildren([
     DashboardRoute,
     LoginRoute,
@@ -162,5 +161,5 @@ export const rootTree = RootRoute.addChildren([
     SwitchRoute,
     ProfileRoute,
     WorkspaceManagementRoute,
-    ProjectRoute
+    ProjectRoute,
 ]);

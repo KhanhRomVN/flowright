@@ -1484,36 +1484,6 @@ export default function TaskDetailsDialog({
                   </div>
                 </div>
               </div>
-
-              {/* Task Dependencies */}
-              {(task.previousTaskId || task.nextTaskId) && (
-                <div className="bg-sidebar-primary rounded-lg p-4">
-                  <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
-                    <Link2 className="w-5 h-5 text-primary" />
-                    Task Dependencies
-                  </h3>
-                  <div className="space-y-3">
-                    {task.previousTaskId && (
-                      <div className="flex items-center gap-2">
-                        <ChevronLeft className="w-4 h-4 text-gray-500" />
-                        <div>
-                          <p className="text-sm text-gray-500">Previous Task</p>
-                          <p className="font-medium">{task.previousTaskName}</p>
-                        </div>
-                      </div>
-                    )}
-                    {task.nextTaskId && (
-                      <div className="flex items-center gap-2">
-                        <ChevronRight className="w-4 h-4 text-gray-500" />
-                        <div>
-                          <p className="text-sm text-gray-500">Next Task</p>
-                          <p className="font-medium">{task.nextTaskName}</p>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
             </div>
           </motion.div>
         </div>
