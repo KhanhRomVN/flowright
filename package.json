@@ -136,7 +136,7 @@
         "electron-squirrel-startup": "^1.0.1",
         "framer-motion": "^11.11.17",
         "html-react-parser": "^5.1.18",
-        "i18next": "^23.16.0",
+        "i18next": "^24.0.0",
         "jwt-decode": "^4.0.0",
         "lucide-react": "^0.453.0",
         "react": "^18.3.1",
